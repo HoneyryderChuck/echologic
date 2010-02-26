@@ -33,7 +33,7 @@ class StatementsController < ApplicationController
   def category
     @category = Tag.find_or_create_by_value(params[:id])
     redirect_to(:controller => 'discuss', :action => 'index') and return unless @category
-    @statements = statement_class.from_category(params[:id]).published(current_user.has_role?(:editor)).by_supporters
+    @statements = statement_class.from_category(params[:id]).published(current_user.has_role?(:editor)).by_supporters.select {|s| s.translated_document(params[:locale]) }
     respond_to do |format|
       format.html {render :template => 'questions/index'}
       format.js {
@@ -61,7 +61,7 @@ class StatementsController < ApplicationController
 
     # find alle child statements, which are published (except user is an editor) sorted by supporters count, and paginate them
     @page = params[:page] || 1
-    @children = @statement.children.published(current_user.has_role?(:editor)).by_supporters.paginate(Statement.default_scope.merge(:page => @page, :per_page => 5))
+    @children = @statement.children.published(current_user.has_role?(:editor)).by_supporters.select {|s| s.translated_document([params[:locale],'fr']) }.paginate(Statement.default_scope.merge(:page => @page, :per_page => 5))
     respond_to do |format|
       format.html { render :template => 'statements/show' } # show.html.erb
       format.js   { render :template => 'statements/show' } # show.js.erb
@@ -137,7 +137,7 @@ class StatementsController < ApplicationController
 
   # renders a form to edit statements
   def edit
-    @statement_document ||= @statement.document
+    @statement_document ||= @statement.translated_document(params[:locale])
     respond_to do |format|
       format.html { render :template => 'statements/edit' }
       format.js { replace_container('summary', :partial => 'statements/edit') }
@@ -149,7 +149,7 @@ class StatementsController < ApplicationController
     attrs = params[statement_class_param]
     (attrs[:document] || attrs[:statement_document])[:author] = current_user
     respond_to do |format|
-      if @statement.update_attributes(attrs) && @statement.document.update_attributes(attrs[:document])
+      if @statement.update_attributes(attrs) && @statement.translated_document(params[:locale]).update_attributes(attrs[:document])
         set_info("discuss.messages.updated", :type => @statement.class.human_name)
         format.html { flash_info and redirect_to url_for(@statement) }
         format.js   { show }
@@ -175,6 +175,7 @@ class StatementsController < ApplicationController
 
   def fetch_statement
     @statement ||= statement_class.find(params[:id]) if params[:id].try(:any?) && params[:id] =~ /\d+/
+    @statement.document ||= @statement.translated_document([params[:locale],'fr'])
   end
 
   # Fetch current category based on various factors.

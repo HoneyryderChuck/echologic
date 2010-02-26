@@ -74,7 +74,7 @@ ActiveRecord::Schema.define(:version => 20100223153538) do
     t.string   "avatar_content_type"
     t.integer  "avatar_file_size"
     t.datetime "avatar_updated_at"
-    t.float    "completeness",        :default => 0.1
+    t.float    "completeness",        :default => 0.01
   end
 
   create_table "reports", :force => true do |t|
@@ -118,7 +118,7 @@ ActiveRecord::Schema.define(:version => 20100223153538) do
     t.integer "author_id"
     t.integer "statement_id"
     t.integer "translated_statement_id"
-    t.string  "language_id"
+    t.string  "language_code"
   end
 
   create_table "statements", :force => true do |t|

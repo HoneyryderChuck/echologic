@@ -28,7 +28,29 @@ class Statement < ActiveRecord::Base
 
   belongs_to :creator, :class_name => "User"
   #belongs_to :document, :class_name => "StatementDocument"
-  has_many :documents, :class_name => "StatementDocument"
+  
+  # We need to be absolutely sure about how to decide which translation of a statemen document we want to display
+  # 
+  # Possible solutions are:
+  # 1. the original, if it is in the users default language
+  # 2. any translation in the users default language
+  # 3. any translation in one of the users other languages (sorted by the users ability to speak / read it)
+  #
+  # 1. the original, if it is in any language spoken by the user
+  # 2. any other translation in any of the users spoken languages
+  #
+  # 1. the translation matching the users spoken languages best
+  
+  
+  has_many :documents, :class_name => "StatementDocument" do 
+    # this query returns translation for a statement ordered by the users prefered languages
+    # OPTIMIZE: this should be built in sql
+    def for_languages(lang_codes)
+      # doc = find(:all, :conditions => ["translated_statement_id = ? AND language_code = ?", nil, lang_codes.first]).first
+      find(:all, :conditions => ["language_code IN (?)", lang_codes]).sort { |a, b| lang_codes.index(a.language_code) <=> lang_codes.index(b.language_code)}.first
+    end
+  end
+  
   has_one :author, :through => :document
 
   belongs_to :root_statement, :foreign_key => "root_id", :class_name => "Statement"
@@ -42,15 +64,23 @@ class Statement < ActiveRecord::Base
 
   # allow mass-assignment of document data.
   # FIXME: there has to be some more convenient way of doing this...
-  def document=(obj)
+  #def document=(obj)
     #obj.kind_of?(Hash) ? (document ? document.update_attributes!(obj) : documents.create(obj)) : super
     #super
-  end ; alias :statement_document= :document=
+  #end ; alias :statement_document= :document=
 
+  attr_accessor :document
+  attr_accessor :translated_document
+  
   # returns the actual document that we will display to the user
-  def document
-    documents.first
-  end    
+  #def document
+  #  documents.original.for_languages('en') || documents.for_languages(['en'])
+  #end
+  
+  # returns a translated document for passed language_codes (or nil if none is found)
+  def translated_document(lang_codes)
+    self.document = documents.for_languages(lang_codes) || documents.for_languages(lang_codes)
+  end
   
   ##
   ## NAMED SCOPES
@@ -67,10 +97,9 @@ class Statement < ActiveRecord::Base
   named_scope :contra_arguments, lambda {
     { :conditions => { :type => 'ContraArgument' } } }
   
-  
   named_scope :published, lambda {|auth| 
     { :conditions => { :state => @@state_lookup[:published] } } unless auth }
-
+  
   # orders
 
   named_scope :by_ratio, :include => :echo, :order => '(echos.supporter_count/echos.visitor_count) DESC'
