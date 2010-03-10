@@ -1,41 +1,64 @@
-require File.join(File.dirname(__FILE__), "/spec_helper" )
+require 'test_helper'
 
-describe StatementDocument do
+class StatementDocumentTest < Test::Unit::TestCase
   
+   
   context "creating a document" do
-    before(:each) do
-      @document = StatementDocument.new(:author => User.first, :title => 'My Document', :text => "This should be a longer explanation of the document")
+    setup do
+      @document = valid_document
     end
     
-    it "should be valid" do
+    should "be valid" do
      @document.should be_valid
     end
     
-    it "should not save without an author" do
+    should "not save without an author" do
      @document.author = nil
      @document.should_not be_valid
     end
   
-    it "should not save without a title" do
+    should "not save without a title" do
       @document.title = nil
       @document.should_not be_valid
     end
-
-    it "should not save without a text" do
+    
+    should "not save without a text" do
       @document.text = nil
       @document.should_not be_valid
     end
+    
+    should "validate presence of author, text and title" do 
+      @document.should_validate_presence_of :author, :text, :title
+    end
   end
-  
+ 
   context "loading a document" do
-    before(:each) do
+    setup do
       @document = StatementDocument.first
     end
     
-    it "should have a user associated as an author" do
-      @document.author.class.name.should == 'User'
+    should "have a user associated as an author" do
+      assert @document.author.kind_of?(User)
     end
   end
+  
+  private
+  
+  # returns a hash of required attributes for a valid statement document
+  def valid_statement_document_attributes
+    { :statement_id => statements(:first_proposal).id,
+      :title => 'This is a statements title',
+      :text => 'This is my statements text, you know?',
+      :language_id => 'en'
+    }
+  end
+  
+  def valid_document
+    @document = StatementDocument.new(valid_statement_document_attributes)
+  end
+    
+end
+
   
  context "translateable statements" do
     
@@ -87,14 +110,7 @@ describe StatementDocument do
   end
   
   
-  # returns a hash of required attributes for a valid statement document
-  def valid_statement_document_attributes
-    { :statement_id => statements(:first_proposal).id,
-      :title => 'This is a statements title',
-      :text => 'This is my statements text, you know?',
-      :language_id => 'en'
-    }
-  end
+
 
   # returns one original statement_document (to be translated)
   # FIXME: FIXME!

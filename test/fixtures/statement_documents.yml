@@ -139,4 +139,3 @@ not-published-proposal-doc:
   author_id: <%= Fixtures.identify(:editor) %>
   language_code: de
   statement_id: <%=Fixtures.identify('not-published-proposal') %>		
-

@@ -69,9 +69,6 @@ class Statement < ActiveRecord::Base
     #super
   #end ; alias :statement_document= :document=
 
-  attr_accessor :document
-  attr_accessor :translated_document
-  
   # returns the actual document that we will display to the user
   #def document
   #  documents.original.for_languages('en') || documents.for_languages(['en'])
@@ -79,7 +76,11 @@ class Statement < ActiveRecord::Base
   
   # returns a translated document for passed language_codes (or nil if none is found)
   def translated_document(lang_codes)
-    self.document = documents.for_languages(lang_codes) || documents.for_languages(lang_codes)
+    @current_document ||= documents.for_languages(lang_codes)
+  end
+  
+  def document
+    raise "Statement#document is deprecated. Use helper document(statement) instead."
   end
   
   ##
@@ -114,11 +115,11 @@ class Statement < ActiveRecord::Base
   ## ACCESSORS
   
   def title
-    self.document.title
+    raise "Statement#title is deprecated. Use document(statement).title instead."
   end
 
   def text
-    self.document.text
+    raise "Statement#text is deprecated. Use document(statement).text instead."
   end
 
   def level
@@ -175,6 +176,11 @@ class Statement < ActiveRecord::Base
     list = parents([self])
     list.size == 1 ? list.pop : list
   end
+  
+  # the main expected child type (neccessary for prev / next functionality)
+  def expected_child_type
+    self.class.expected_children.first.to_s.underscore
+  end
 
   class << self
     
@@ -190,6 +196,7 @@ class Statement < ActiveRecord::Base
     
     # the default scope defines basic rules for the sql query sent on this model
     # by default we include the echo-relation and bring them in order of being most supported / most recent
+    # FIXME: this should move to lib/echoable.rb if possible
     def default_scope
       { :include => :echo,
         :order => %Q[echos.supporter_count DESC, created_at ASC] }

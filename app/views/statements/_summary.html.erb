@@ -1,7 +1,9 @@
-
 <% statement ||= @statement %>
 <div id="summary" class="summary simple_header_block discuss_right_block">
   <h2><%= I18n.t('discuss.summary') %></h2>
   <%= edit_statement_link(@statement) %>
-  <p><%= statement.text %></p>
+  <%= "this statement is not the original" unless document(@statement).original? %>
+  <%= "this statement is not in your default language" unless document(@statement).language_code == params[:locale] %>
+  <%= document(@statement).language_code %>
+  <p><%= document(statement).text %></p>
 </div>

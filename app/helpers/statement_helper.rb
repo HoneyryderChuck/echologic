@@ -8,7 +8,8 @@ module StatementHelper
       alias_method :new_improvement_proposal_path, :new_improvement_proposal_url
     end
   end
-
+  
+  
   ##
   ## URLS
   ##
@@ -193,8 +194,8 @@ module StatementHelper
   
   # Returns the context menu link for this statement.
   def statement_context_link(statement)
-    link = link_to(statement.title, url_for(statement), :class => "ajax statement_link #{statement.class.name.underscore}_link")
-    link << supporter_ratio_bar(statement,'context') unless statement.class.name == 'Question'
+    link = link_to(document(statement).title, url_for(statement), :class => "ajax statement_link #{statement_class_dom_id(statement)}_link")
+    link << supporter_ratio_bar(statement,'context') unless statement.question?
     return link
   end
 

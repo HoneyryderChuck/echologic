@@ -116,8 +116,9 @@ ActiveRecord::Schema.define(:version => 20100223153538) do
     t.string  "title"
     t.text    "text"
     t.integer "author_id"
-    t.integer "statement_id"
     t.integer "translated_statement_id"
+    t.integer "statement_id"
+    t.integer "translated_document_id"
     t.string  "language_code"
   end
 
