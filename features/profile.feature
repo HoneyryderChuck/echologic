@@ -19,15 +19,17 @@ Feature: Profile settings
   # its user data.
 
   Scenario: Edit basic information
-    Given I am logged in as "user" with password "true"
+    Given I am logged in as "ben" with password "benrocks"
+      And the profiles show_profile flag is set to false
     When I go to the profile
+      And my profile is not complete enough
       And I follow "edit" within "#personal_container"
       And I fill in the following:
         | profile[last_name]  | Last name      |
         | profile[first_name] | First name     |
         | profile[city]       | Berlin         |
         | profile[about_me]   | This is me.    |
-        | profile[motivation] | My motivation. | 
+        | profile[motivation] | My motivation. |
       And I select "Germany" from "profile[country]"
       And I press the "Save" button within the "Personal" container
     Then I should see "Last name"
@@ -36,6 +38,8 @@ Feature: Profile settings
       And I should see "Germany"
       And I should see "This is me."
       And I should see "My motivation."
+      And the profile should be complete enough
+      And the profile should have the show_profile flag set to true
 
   # The user should also be able to upload his picture.
 
