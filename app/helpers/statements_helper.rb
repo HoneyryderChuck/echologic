@@ -732,6 +732,17 @@ module StatementsHelper
   end
 
 
+  def new_statement_image(statement_node)
+    content_tag :div, :class => "image_container editable" do
+      val = ""
+      val << image_tag(statement_node.image.url(:medium), :class => 'image')
+      val << link_to(I18n.t('users.profile.picture.upload_button'),
+             new_statement_image_url(node_type(statement_node)),
+             :class => 'ajax upload_link button button_150')
+      val
+    end
+  end
+
   #
   # Draws the statement image container.
   #

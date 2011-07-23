@@ -1,0 +1,22 @@
+/**
+ * Template to view the upload image modal dialog.
+ */
+
+/* Write render output into JS variables for later use. */
+var content = "<%= escape_javascript(render(:partial => 'statement_images/new')) %>";
+
+$('#dialogContent').html(content);
+
+$('#dialogContent').dialog({
+  title:    "<%= I18n.t('discuss.statements.upload_image.title') %>",
+  bgiframe: true,
+  modal:    true,
+  buttons:  {
+    "<%= I18n.t('application.general.upload') %>": function() { $('#upload_image_form').submit(); },
+    "<%= I18n.t('application.general.cancel') %>": function() { $(this).dialog('close'); }
+     },
+  close:    function(event, ui) { $(this).dialog('destroy'); },
+  width:    600,
+  height:   270,
+  resizable: false
+});

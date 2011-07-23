@@ -27,45 +27,45 @@
     /******************************/
 
     function StatementForm(form) {
-			var title = form.find('.statement_title input');
-			var type = $.trim(form.find('input#type').val());
-			var text;
-			var language_combo;
-			var chosenLanguage = form.find('select.language_combo');
-			var statementLinked, statementParentId;
-			var publishRadios = form.find('.publish_radios');
-			var linkButton;
-      var linkingMessages;
-		  var linkedTags;
-			var linkedTitle, linkedText;
+		var title = form.find('.statement_title input');
+		var type = $.trim(form.find('input#type').val());
+		var text;
+		var language_combo;
+		var chosenLanguage = form.find('select.language_combo');
+		var statementLinked, statementParentId;
+		var publishRadios = form.find('.publish_radios');
+		var linkButton;
+      	var linkingMessages;
+		var linkedTags;
+		var linkedTitle, linkedText;
 
-			initialise();
+		initialise();
 
-			function initialise() {
+		function initialise() {
 
-				loadRTEEditor();
+			loadRTEEditor();
 
-        if (form.hasClass('embeddable')) {
-					form.embeddable();
-        }
+	        if (form.hasClass('embeddable')) {
+				form.embeddable();
+	        }
 
-        // New Statement Form Helpers
-        if (form.hasClass('new')) {
-					language_combo = form.find('.statement_language select');
-					statementLinked = form.find('input#statement_node_statement_id');
-					statementParentId = form.find('input#statement_node_parent_id');
-          loadDefaultText();
-          initFormCancelButton();
-					initLinking();
-					handleContentChange();
-					unlinkStatement();
-        }
-
-        // Taggable Form Helpers
-        if (form.hasClass(settings['taggableClass'])) {
-          form.taggable();
-        }
-			}
+	        // New Statement Form Helpers
+	        if (form.hasClass('new')) {
+				language_combo = form.find('.statement_language select');
+				statementLinked = form.find('input#statement_node_statement_id');
+				statementParentId = form.find('input#statement_node_parent_id');
+	          	loadDefaultText();
+	          	initFormCancelButton();
+				initLinking();
+				handleContentChange();
+				unlinkStatement();
+	        }
+	
+	        // Taggable Form Helpers
+	        if (form.hasClass(settings['taggableClass'])) {
+	          form.taggable();
+	        }
+	      }
 
 			/*
        * Loads the Rich Text Editor for the statement text.

@@ -9,15 +9,19 @@
              :locals => {:statement_node => statement_node,
                          :only_echo_button => true } if statement_node.new_record? %>
 
-	  <% if disabled or !statement_document.new_record? %>
-	    <%= doc.input :language_id,
-                    :as => :hidden,
-                    :value => statement_document.language_id %>
-			<%= doc.input :title,
-                    :input_html => {:disabled => disabled} if disabled %>
-	  <% end %>
+	<% if disabled or !statement_document.new_record? %>
+	  <%= doc.input :language_id,
+	                :as => :hidden,
+	                :value => statement_document.language_id %>
+	  <%= doc.input :title,
+	                :input_html => {:disabled => disabled} if disabled %>
+  	<% end %>
 
-		<% if !disabled %>
+	<% if !disabled %>
+	  <% if statement_node.new_record? %>
+	  	<%= content_tag :div, new_statement_image(statement_node) , :class => 'statement_content' %>
+	  	<%= hidden_field_tag "statement_node[statement_image_id]", statement_node.statement.statement_image_id %>
+	  <% end %>
       <%= doc.input :text,
                     :label => false,
                     :input_html => {:disabled => disabled,
@@ -37,14 +41,14 @@
                     :as => :hidden,
                     :value => @approved_node.id if !@approved_node.nil? %>
 
-		<% else %>
-		  <% content_tag :li do -%>
-		    <%= label_tag "question_statement_document_text",
-                      I18n.t("activerecord.attributes.statement_document.text") %>
-				<%= content_tag :div, sanitize(statement_document.text),
-                        :class => "static_text" %>
-			<% end %>
+	<% else %>
+		<% content_tag :li do -%>
+		  <%= label_tag "question_statement_document_text",
+                        I18n.t("activerecord.attributes.statement_document.text") %>
+			<%= content_tag :div, sanitize(statement_document.text),
+            	            :class => "static_text" %>
+		<% end %>
     <% end %>
-		<%= doc.hidden_field :statement_id %>
+	<%= doc.hidden_field :statement_id %>
   <% end %>
 <% end -%>
