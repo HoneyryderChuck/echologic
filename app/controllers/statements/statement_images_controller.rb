@@ -19,18 +19,21 @@ class StatementImagesController < ApplicationController
   #
   def new
     @statement_image = StatementImage.new
+    @pending = PendingAction.create
     respond_to_js :template_js => 'statement_images/new'
   end
 
   #
-  # creates image
+  # creates image and associates it with a certain pending action
   #
   # Method:   POST
   # Params:   statement_image: hash
   # Response: JS
   #
   def create
-    StatementImage.create(params[:statement_image])
+    image = StatementImage.create(params[:statement_image])
+    PendingAction.find(params[:pending_action_id]).update_attributes(:action => {:image_id => image.id}.to_json, :user => current_user)
+    respond_to(:html,:js)
   end
 
   #
@@ -54,6 +57,10 @@ class StatementImagesController < ApplicationController
   #
   def update
     @statement_image.update_attributes(params[:statement_image])
+    respond_to do |format|
+      format.html
+      format.js
+    end
   end
   
   
@@ -67,14 +74,15 @@ class StatementImagesController < ApplicationController
   # Response: JS
   #
   def load
-    @statement_image = StatementImage.last
+    @pending = PendingAction.find(params[:id])
+    @statement_image = StatementImage.find(JSON.parse(@pending.action)['image_id'])
     respond_to do |format|
-      if @statement_image.image.exists? and @statement_image.image_updated_at > 20.seconds.ago # Not a good enough filter, I must say
+      if @statement_image.image.exists?
         set_info 'discuss.messages.image_uploaded', :type => I18n.t("discuss.statements.types.#{params[:type]}")
         format.js {
           render_with_info do |page|
             page << "$('#statements form.#{params[:type]} .image_container .image').replaceWith('#{render :partial => 'statement_images/image'}');"
-            page << "$('#statements form.#{params[:type]} #statement_node_statement_image_id').val('#{@statement_image.id}');"            
+            page << "$('#statements form.#{params[:type]} #statement_node_statement_image_id').val('#{@pending.id}');"            
           end
         }
       else

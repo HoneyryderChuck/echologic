@@ -49,7 +49,7 @@ ActionController::Routing::Routes.draw do |map|
                 :path_names => {:edit => 'statement/:node_id/edit',
                                 :new => 'new/:type'}, :as => 'image'
   #Statement images load on form
-  map.load_statement_image 'image/load/:type', :controller => :statement_images, :action => :load
+  map.load_statement_image 'image/load/:type/:id', :controller => :statement_images, :action => :load
 
   # Add statement teasers
   map.add_teaser  'statement/:id/add/:type', :controller => :statements, :action => :add
