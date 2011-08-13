@@ -38,7 +38,7 @@ class ActivationsControllerTest < ActionController::TestCase
 
   test "should activate coming from the change email form" do
     u = users(:user)
-    p = PendingAction.new(:user => u,
+    p = PendingAction.new(:pending => u,
                           :action => {:email => "maingirl@g5.com",
                                       :email_confirmation => "maingirl@g5.com"}.to_json)
     p.save
