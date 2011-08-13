@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110707184338) do
+ActiveRecord::Schema.define(:version => 20110813131100) do
 
   create_table "about_item_translations", :force => true do |t|
     t.integer "about_item_id"
@@ -135,12 +135,13 @@ ActiveRecord::Schema.define(:version => 20110707184338) do
   end
 
   create_table "pending_actions", :id => false, :force => true do |t|
-    t.string   "uuid",       :limit => 36
+    t.string   "uuid",         :limit => 36
     t.text     "action"
-    t.boolean  "status",                   :default => false, :null => false
-    t.integer  "user_id"
+    t.boolean  "status",                     :default => false, :null => false
+    t.integer  "pending_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "pending_type"
   end
 
   create_table "profiles", :force => true do |t|
@@ -289,6 +290,7 @@ ActiveRecord::Schema.define(:version => 20110707184338) do
     t.integer  "lft"
     t.integer  "rgt"
     t.integer  "question_id"
+    t.integer  "twin_hub_id"
   end
 
   add_index "statement_nodes", ["creator_id"], :name => "index_statement_nodes_on_creator_id"
@@ -400,16 +402,16 @@ ActiveRecord::Schema.define(:version => 20110707184338) do
 
   add_index "web_addresses", ["user_id"], :name => "index_web_profiles_on_user_id"
 
-  create_view "closed_statement_permissions", "select `statements`.`id` AS `statement_id`,`tao_users`.`tao_id` AS `user_id` from (((`statements` left join `tao_tags` `tao_statements` on(((`statements`.`id` = `tao_statements`.`tao_id`) and (`tao_statements`.`tao_type` = 'Statement') and (`tao_statements`.`context_id` = 586794338)))) left join `tags` on((`tags`.`id` = `tao_statements`.`tag_id`))) left join `tao_tags` `tao_users` on(((`tags`.`id` = `tao_users`.`tag_id`) and (`tao_users`.`tao_type` = 'User') and (`tao_users`.`context_id` = 549825790)))) where (substr(`tags`.`value`,1,2) = '**')", :force => true do |v|
-    v.column :statement_id
-    v.column :user_id
-  end
-  
   create_view "statement_permissions", "select `statements`.`id` AS `statement_id`,`tao_users`.`tao_id` AS `user_id` from (((`statements` left join `tao_tags` `tao_statements` on(((`statements`.`id` = `tao_statements`.`tao_id`) and (`tao_statements`.`tao_type` = 'Statement') and (`tao_statements`.`context_id` = (select `enum_keys`.`id` from `enum_keys` where ((`enum_keys`.`type` = 'TagContext') and (`enum_keys`.`code` = 'topic'))))))) left join `tags` on((`tags`.`id` = `tao_statements`.`tag_id`))) left join `tao_tags` `tao_users` on(((`tags`.`id` = `tao_users`.`tag_id`) and (`tao_users`.`tao_type` = 'User') and (`tao_users`.`context_id` = (select `enum_keys`.`id` from `enum_keys` where ((`enum_keys`.`type` = 'TagContext') and (`enum_keys`.`code` = 'decision_making'))))))) where (substr(`tags`.`value`,1,2) = '**')", :force => true do |v|
     v.column :statement_id
     v.column :user_id
   end
-  
+
+  create_view "closed_statement_permissions", "select `statements`.`id` AS `statement_id`,`tao_users`.`tao_id` AS `user_id` from (((`statements` left join `tao_tags` `tao_statements` on(((`statements`.`id` = `tao_statements`.`tao_id`) and (`tao_statements`.`tao_type` = 'Statement') and (`tao_statements`.`context_id` = 586794338)))) left join `tags` on((`tags`.`id` = `tao_statements`.`tag_id`))) left join `tao_tags` `tao_users` on(((`tags`.`id` = `tao_users`.`tag_id`) and (`tao_users`.`tao_type` = 'User') and (`tao_users`.`context_id` = 549825790)))) where (substr(`tags`.`value`,1,2) = '**')", :force => true do |v|
+    v.column :statement_id
+    v.column :user_id
+  end
+
   create_view "event_permissions", "select distinct `e`.`id` AS `event_id`,`perm`.`statement_id` AS `closed_statement`,`perm`.`user_id` AS `granted_user_id` from ((((`events` `e` left join `statement_nodes` `s_nodes` on(((`e`.`subscribeable_id` = `s_nodes`.`id`) and (`e`.`subscribeable_type` = 'StatementNode')))) left join `statement_nodes` `roots` on((`roots`.`id` = `s_nodes`.`root_id`))) left join `statements` `s` on((`s`.`id` = `roots`.`statement_id`))) left join `statement_permissions` `perm` on((`perm`.`statement_id` = `s`.`id`)))", :force => true do |v|
     v.column :event_id
     v.column :closed_statement
@@ -450,5 +452,7 @@ ActiveRecord::Schema.define(:version => 20110707184338) do
     v.column :parent_id
     v.column :parent_node_id
   end
+
+  
 
 end
