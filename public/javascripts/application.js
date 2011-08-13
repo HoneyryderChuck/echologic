@@ -222,6 +222,7 @@
       element.submit(function(){
 				$(this).ajaxSubmit({
           beforeSend: function(){
+						$(document).trigger("upload_started");
 						$('#uploading_progress').show();
           },
           complete: function(){
@@ -231,7 +232,10 @@
 				    $.ajax({
               type: 'get',
               dataType: 'script',
-              url: element.data('image-redirect')
+              url: element.data('image-redirect'),
+							complete: function(data, status) {
+								$(document).trigger("upload_finished");
+							}
             });
             $('#dialogContent').dialog('close');
           }
