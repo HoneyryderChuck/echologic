@@ -211,7 +211,13 @@
   /* loads form ajaxs */
   function loadAjaxForms() {
     $('form.ajax_form').livequery(function () {
-      $(this).ajaxForm({ dataType : 'script' });
+      $(this).ajaxForm({
+				dataType : 'script',
+				beforeSubmit: function() {
+					if ($(this).hasClass('disabled')) { return false; } 
+					else { return true; }
+				}
+		  });
     });
   }
 
@@ -235,10 +241,16 @@
               url: element.data('image-redirect'),
 							complete: function(data, status) {
 								$(document).trigger("upload_finished");
+							},
+							error: function () {
+								$(document).trigger("upload_finished");
 							}
             });
             $('#dialogContent').dialog('close');
-          }
+          },
+					error: function() {
+						$(document).trigger("upload_finished");
+					}
         });
         return false;
       });

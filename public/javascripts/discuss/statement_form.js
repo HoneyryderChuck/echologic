@@ -43,6 +43,7 @@
 
 		function initialise() {
 
+      loadFormEvents();
 			loadRTEEditor();
 
 	        if (form.hasClass('embeddable')) {
@@ -66,6 +67,21 @@
 	          form.taggable();
 	        }
 	      }
+
+
+      /*
+       * Inits the listening to other possible events
+       */
+      function loadFormEvents() {
+				/* listen to upload image events */
+				$(document).bind("upload_started", function(){
+					form.addClass("disabled");
+				});
+				$(document).bind("upload_finished", function(){
+          form.removeClass("disabled");
+        });
+			}
+
 
 			/*
        * Loads the Rich Text Editor for the statement text.
