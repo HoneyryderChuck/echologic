@@ -4,6 +4,7 @@ class StatementNode < ActiveRecord::Base
   acts_as_nested_set :scope => :root_id, :base_conditions => "type != 'CasHub'"
 
   alias_attribute :target_id, :id
+  alias_attribute :target_root_id, :root_id
 
   def target_statement
     self
@@ -17,7 +18,7 @@ class StatementNode < ActiveRecord::Base
   after_destroy :destroy_associated_objects
 
   def destroy_associated_objects
-    destroy_statement
+    #destroy_statement   # It didn't work - hard to comprehend, why.
     destroy_shortcuts
     destroy_descendants
   end
@@ -26,7 +27,7 @@ class StatementNode < ActiveRecord::Base
   # Destroys the statement ONLY if this is the only statement node belonging the statement
   #
   def destroy_statement
-    self.statement.destroy if self.statement and (self.statement.statement_nodes - [self]).empty?
+    statement.destroy if statement and (statement.statement_nodes.map(&:target_id) - [target_id]).empty?
   end
 
   #
@@ -89,8 +90,9 @@ class StatementNode < ActiveRecord::Base
   end
 
   named_scope :by_creator, lambda {|id| {:conditions => ["creator_id = ?", id]}}
-  named_scope :published, lambda {|auth|
-    {:joins => :statement, :conditions => ["statements.editorial_state_id = ?", StatementState['published'].id] } unless auth
+  named_scope :published, lambda {|auth| {
+    :joins => :statement,
+    :conditions => ["statements.editorial_state_id = ?", StatementState['published'].id] } unless auth
   }
 
   # orders
@@ -150,7 +152,7 @@ class StatementNode < ActiveRecord::Base
     doc.statement = self.statement
     attributes.each {|k,v|doc.send("#{k.to_s}=", v)}
     self.statement.statement_documents << doc
-    return doc
+    doc
   end
 
   # updates an existing node with a new set of attributes
@@ -173,7 +175,7 @@ class StatementNode < ActiveRecord::Base
   # Checks if there is a document in any of the languages passed as argument
   #
   def translated_document?(lang_ids)
-    return statement_documents.for_languages(lang_ids).nil?
+    statement_documents.for_languages(lang_ids).nil?
   end
 
   #
@@ -287,7 +289,7 @@ class StatementNode < ActiveRecord::Base
   # about other possible attributes, check statements_for_parent documentation
   #
   def child_statements(opts={})
-    opts[:root_id] = self.root_id
+    opts[:root_id] = self.target_root_id
     opts[:parent_id] ||= self.target_id
     opts[:lft] ||= self.lft
     opts[:rgt] ||= self.rgt

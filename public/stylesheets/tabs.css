@@ -1,5 +1,8 @@
+
+/* Static submenus */
+
 .tabContainer {
-  margin: 0 auto;
+  margin: 0 auto 7px;
   padding-top: 20px;
   overflow: visible;
   position: relative;
@@ -11,19 +14,19 @@
   display: block;
 }
 
-.tabContainer .applicationTabs {
+.tabContainer .app_menu {
   width: 900px;
 }
 
-.tabContainer .applicationTabs a {
+.tabContainer .app_menu a {
   font-size: 15px !important;
   font-weight: normal;
   min-width: 75px !important;
 }
 
-/* APPLICATION TABS SECTION */
-.applicationTabs,
-.embedTabs {
+/* Application main menu */
+
+.app_menu {
   margin: 0 auto;
   overflow: visible;
   position: relative;
@@ -35,14 +38,12 @@
   display: block;
 }
 
-.applicationTabs ul,
-.embedTabs ul {
-  margin: 4px 0 7px;
+.app_menu ul {
+  margin: 0;
   padding: 0;
 }
 
-.applicationTabs li,
-.embedTabs li {
+.app_menu li.main_menu_item {
   background: url(../images/page/tabs/mainmenu_left_off.png) no-repeat scroll left top;
   height: 51px;
   display: inline-block;
@@ -50,10 +51,13 @@
   margin: 0;
   text-decoration: none;
   font-size: 15px;
+  position: relative;
+  z-index: 10;
+  cursor: pointer;
 }
 
-.applicationTabs a, .applicationTabs a.active,
-.embedTabs a, .embedTabs a.active {
+.app_menu a.main_menu_item,
+.app_menu a.main_menu_item.active {
   background: transparent url(../images/page/tabs/mainmenu_right_off.png) no-repeat scroll right top;
   margin: 0 0 0 21px;
   padding: 0 21px 0 0;
@@ -64,104 +68,107 @@
   min-width: 85px;
 }
 
-.applicationTabs a,
-.applicationTabs a:visited,
-.embedTabs a,
-.embedTabs a:visited {
-  color: #21587f;
-}
-
-.applicationTabs a:hover,
-.embedTabs a:hover {
-  color: #7bb031;
-}
-
-.applicationTabs li.active {
+.app_menu li.main_menu_item.active {
   background: url(../images/page/tabs/mainmenu_left_on.png) no-repeat scroll left top !important;
 }
 
-.applicationTabs a.active,
-.embedTabs a.active {
+.app_menu a.main_menu_item.active {
   background: transparent url(../images/page/tabs/mainmenu_right_on.png) no-repeat scroll right top !important;
   font-weight: bold;
-  color: #7bb031;
 }
 
-/**************/
-/* Embed Tabs */
-/**************/
-
-.embedTabs {
-  	
-}
-
-.embedTabs li {
-  background: none;
-}
-
-.embedTabs a, .embedTabs a.active {
-  background: none !important;
-	padding: 0;
-  margin: 0;
-	font-size: 14px;
-	min-width: 65px;
-}
-
-.embedTabs #echo_language_button {
-	position: absolute;
-	right: 195px;
-}
-
-/* My echo tab */
-.applicationTabs #my_echo_tab_container {
+.app_menu #my_echo_tab_container {
   position: absolute;
-  right: 55px;
+  right: 10px;
   top: 0;
 }
 
-/* Admin tab */
-.applicationTabs #admin_tab_container {
+.app_menu #admin_tab_container {
   position: absolute;
   left: 4px;
   top: 0;
 }
 
-#roadmap_tab_container {
-  position: absolute;
-  left: 55px;
+/* Labels */
+
+.main_menu_item a,
+.main_menu_item a:visited {
+  color: #21587f;
+}
+
+li.main_menu_item:hover a.main_menu_item,
+li.main_menu_item.active a.main_menu_item,
+.dropdown li:hover a {
+  color: #7bb031;
+}
+
+
+/* Dropdown menus */
+
+.main_menu_item .dropdown {
+  display: none;
+  z-index: 100;
+  padding: 0 3px;
+  background: #F8F9FA;
   width: 150px;
-  top: 0;
-  text-align: left;
-}
-
-#roadmap_tab {
-  height: 32px;
-}
-
-.roadmap_tab {
-  margin: 0 auto;
-  padding-bottom: 1px;
-  width: 990px;
-  position: relative;
-}
-
-.roadmap_tab img {
   position: absolute;
-  top: -23px;
-  z-index: 11;
+  top: 51px;
+  list-style: none outside none;
+  border: 2px solid #7bb031;
+  border-top: none;
+  border-radius: 14px;
+  -moz-border-radius: 14px;
+  -webkit-border-radius: 14px;
+  box-shadow: 0 10px 25px #CAD3DB;
+  -moz-box-shadow: 0 10px 25px #CAD3DB;
+  -webkit-box-shadow: 0 10px 25px #CAD3DB;
 }
 
-#roadmap_tab_title {
-  position: absolute;
-  color: #21587F;
-  font-size: 16px;
+.main_menu_item .dropdown li {
+  margin: 0;
+  padding: 0;
+}
+
+.main_menu_item .dropdown li a {
+  font-size: 15px;
   font-weight: bold;
-  text-decoration: none;
+  border-bottom: 1px dotted #BBBBBB;
+  margin: 0;
+  padding: 10px;
+  display: block;
 }
 
-#roadmap_progressbar {
-  width: 130px;
-  height: 9px;
+.main_menu_item .dropdown li.first a {
+  padding-top: 11px;
+}
+
+.main_menu_item .dropdown li.last a {
+  border-bottom: none;
+  padding-bottom: 9px;
+}
+
+#home_tab_container .dropdown {
+  left: -42px;
+}
+
+li.main_menu_item:hover .dropdown,
+li.main_menu_item.hover .dropdown {
   display: inline-block;
-  margin-left: 10px;
+}
+
+.main_menu_item .dropdown li.roadmap a {
+  color: #CAD3DB;
+}
+
+.main_menu_item .dropdown li.roadmap:hover a {
+  color: #7bb031;
+}
+
+.main_menu_item .dropdown li.default a,
+.main_menu_item .dropdown:hover li.default:hover a {
+  color: #7bb031;
+}
+
+.main_menu_item .dropdown:hover li.default a {
+  color: #21587f;
 }

@@ -5,7 +5,7 @@
 
 
 class Proposal < StatementNode
-  acts_as_draftable :tracked, :staged, :approved, :incorporated, :passed
+  acts_as_draftable :tracked, :ready, :staged, :approved, :incorporated, :passed
   acts_as_alternative :Proposal
   has_children_of_types [:Improvement,true], [:Argument,true],[:BackgroundInfo,true]
   has_linkable_types :Proposal, :ProArgument, :ContraArgument

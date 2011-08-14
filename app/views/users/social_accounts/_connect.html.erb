@@ -1,7 +1,7 @@
 <% provider ||= @provider %>
-<% token_url ||= redirect_token_url %>
-<% link_to SocialService.instance.get_provider_signup_url(provider, token_url),
-           :onClick => "return popup(this, true)",
+<% token_url ||= redirect_from_popup_to add_remote_url %>
+<% link_to SocialService.instance.get_provider_auth_url(provider, token_url),
+           :onClick => "return popup(this, null)",
            :class => 'connect',
            :id => provider do %>
   <%= content_tag :span, I18n.t("users.social_accounts.connect.title"),

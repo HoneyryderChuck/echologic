@@ -5,7 +5,7 @@ class FollowUpQuestion < Question
 
   delegate :level, :ancestors, :topic_tags, :topic_tags=, :tags, :taggable?, :echoable?, :editorial_state_id,
            :editorial_state_id=, :published, :locked_at, :supported?, :taggable?, :creator_id=,
-           :creator_id, :creator, :author_support, :ancestors, :target_id, :to => :question
+           :creator_id, :creator, :author_support, :ancestors, :target_id, :target_root_id, :to => :question
 
   validates_associated :question
 

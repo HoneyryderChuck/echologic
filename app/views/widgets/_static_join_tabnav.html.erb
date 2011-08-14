@@ -3,14 +3,14 @@
 
 render_tabnav :main,
               :generate_css => false,
-              :html => { :class => 'applicationTabs' } do
+              :html => { :class => 'app_menu' } do |tn|
 
-  add_tab :html => { :class => 'ajaxLink' } do |t|
+  tn.add_tab :html => { :class => 'ajaxLink main_menu_item' } do |t|
     t.named I18n.t('static.join.tabs.join')
     t.links_to hash_for_signin_path
   end
 
-  add_tab :html => { :class => 'ajaxLink' } do |t|
+  tn.add_tab :html => { :class => 'ajaxLink main_menu_item' } do |t|
     t.named I18n.t('static.join.tabs.forgot')
     t.links_to hash_for_new_password_reset_path
     t.highlights_on :controller => 'users/password_resets'

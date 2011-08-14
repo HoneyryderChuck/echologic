@@ -1,7 +1,7 @@
 <%about_path ||= static_path(:about)%>
 <%logout ||= true%>
 
-<div id="top_menu_container">
+<% content_tag :div, :id => 'top_menu_container' do %>
 
   <%= link_to I18n.t('layouts.outer_menu.logout'),
               signout_path,
@@ -19,12 +19,12 @@
               'http://blog.echo.to',
               :id => 'blog_button',
               :target => '_blank' %>
-  
-	<!-- Language choose section. -->
-	<% link_to('#', :id => 'echo_language_button') do %>
-	   <%= I18n.t('layouts.outer_menu.language') %>
-	<% end %>
 
-	<%= render :partial => "layouts/components/language_selector" %>
-  
-</div>
+  <% content_tag :span, :id => 'echo_language_button_container', :class => 'main_menu_item' do %>
+    <%= content_tag :span, I18n.t('layouts.outer_menu.language'),
+                    :id => 'echo_language_button',
+                    :class => 'main_menu_item' %>
+ 	  <%= render :partial => "layouts/components/language_selector" %>
+  <% end %>
+
+<% end %>

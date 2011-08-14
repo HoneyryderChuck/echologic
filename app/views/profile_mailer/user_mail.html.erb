@@ -8,7 +8,8 @@
 
 <%= I18n.t("mailers.user_mail.suffix", :url => connect_search_url(:id => @sender.profile.id,
                                                                   :locale => @language.code),
-                                       :sender => @sender.full_name) %>
+                                       :sender => @sender.full_name,
+                                       :locale => @language.code) %>
 
 <%= I18n.t('mailers.bye', :locale => @language.code) %>
 

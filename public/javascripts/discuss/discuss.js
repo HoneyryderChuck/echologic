@@ -3,7 +3,7 @@
  * Initialization on document ready.
  */
 $(document).ready(function () {
-	if ($('#function_container.discuss').length > 0) {
+	if ($('#echo_discuss').length > 0) {
   	if ($('#statements').length > 0) {
 	    initBreadcrumbs();
 			initStatements();

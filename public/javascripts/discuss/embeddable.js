@@ -33,6 +33,7 @@
 			var embedData = embeddable.find('.embed_data');
 			var entryTypes = embedData.find('.entry_types');
 			var embedUrl = embedData.find('input.embed_url');
+			var infoTypeInput = embedData.find('.info_type_input');
 
       var embedPreview = embeddable.find('.embed_preview');
       var embedCommand = embedPreview.find('.embed_command');
@@ -45,31 +46,48 @@
        * Initializes an embeddable.
        */
       function initialize() {
-				entryTypes.jqTransform();
         initEntryTypes();
         initEmbedURL();
       }
+
 
 			/*
        * Handles the click events on the background info type labels.
        */
       function initEntryTypes() {
-        var entryTypeLabels = entryTypes.find("li label");
-        var entryTypeRadios = entryTypes.find("li input[type='radio']");
-        entryTypeLabels.each(function(){
-          loadType($(this));
+				var entries = entryTypes.find("li").each(function() {
+          var entry = $(this);
+          entry.data('value', entry.data('value')).removeAttr('data-value');
         });
+
+        // Preselection
+				if (infoTypeInput.val().length > 0) {
+					selectedType = entries.siblings('.' + infoTypeInput.val());
+				  selectedType.addClass("selected");
+				}
+
+        // Click handling
         var previousType = selectedType;
-        entryTypeLabels.bind('click', function(){
-          deselectType();
-          selectType($(this));
-					if(previousType != selectedType) {triggerChangeEvent();}
-        });
-        entryTypeRadios.bind('click', function(){
-          deselectType();
-          selectType($(this).parent().siblings('label'));
-					if(previousType != selectedType) {triggerChangeEvent();}
-        });
+				entries.bind('click', function(){
+					deselectType();
+					selectType($(this));
+          if (previousType != selectedType) {
+            triggerChangeEvent();
+          }
+				});
+      }
+
+      function selectType(typeItem) {
+        typeItem.addClass('selected');
+        selectedType = typeItem;
+				infoTypeInput.val(typeItem.data('value'));
+				embedUrl.removeAttr('disabled');
+      }
+
+      function deselectType() {
+        if (selectedType) {
+          selectedType.removeClass('selected');
+        }
       }
 
       /*
@@ -80,25 +98,6 @@
           embeddable.trigger(changeEvent);
         }
 			}
-
-      function loadType(label) {
-        if (label.siblings().find('a.jqTransformRadio').hasClass('jqTransformChecked')) {
-          label.addClass('selected');
-          selectedType = label;
-        }
-      }
-
-      function selectType(label) {
-        label.addClass('selected').find('a.jqTransformRadio').addClass('jqTransformChecked');
-        selectedType = label;
-				embedUrl.removeAttr('disabled');
-      }
-
-      function deselectType() {
-        if (selectedType) {
-          selectedType.removeClass('selected').find('a.jqTransformRadio').removeClass('jqTransformChecked');
-        }
-      }
 
 
       /*
@@ -203,7 +202,6 @@
         $.scrollTo('form.embeddable .entry_type', settings['scroll_speed']);
       }
 
-
 			function isValidUrl(url) {
 				return url.match(/^(http|https|ftp):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i);
 			}
@@ -221,9 +219,8 @@
           var external_url = data['external_url'];
 
 					deselectType();
-          selectType(entryTypes.find('a.' + content_type).parent().siblings('label'));
+          selectType(entryTypes.find('.' + content_type));
           embedUrl.val(external_url);
-					//showEmbedPreview();
 				},
 
 				unlinkEmbeddedContent: function() {

@@ -1,9 +1,0 @@
-<% load_submenu :my_echo %>
-
-<h1><%= I18n.t('welcome.title') %></h1>
-
-<%= I18n.t('welcome.text') %><br/>
-
-<%= render :partial => 'my_echo/entry', :locals => {:id => 'profile_teaser', :entry => 'my_profile', :function_code => 'function_1'}%>
-<%= render :partial => 'my_echo/entry', :locals => {:id => 'function_button_holder', :entry => 'connect_search', :function_code => 'function_2'}%>
-<%= render :partial => 'my_echo/entry', :locals => {:id => 'function_button_holder', :entry => 'discuss_search', :function_code => 'function_3'}%>

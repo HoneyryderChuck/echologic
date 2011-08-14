@@ -1,4 +1,6 @@
 
+/* echo signinup */
+
 .signinup_dialog {
   overflow: hidden;
 }
@@ -41,8 +43,9 @@
 }
 
 .signinup_toggle_button {
-  padding: 5px 10px;
-  background: #EEE;
+  color: #FFF !important;
+  padding: 5px 15px;
+  background: #21587f;
   font-size: 13px;
   text-decoration: underline;
   position: absolute;
@@ -52,6 +55,8 @@
   -moz-border-radius: 22px;
   -webkit-border-radius: 22px;
 }
+
+.signinup_toggle_button:hover {background: #427192;}
 
 .signinup_container .hint {
   width: 320px !important;
@@ -119,9 +124,100 @@
   font-size: 13px;
 }
 
+/* Remote signinup */
+
 .signinup_container .social_container {
 	float: right;
-	height: 250px;
+  width: 335px;
+	height: 240px;
+  padding: 10px 20px 0 0;
+}
+
+.remote_signinup { position: relative; }
+
+.remote_providers {
+  position: absolute;
+  padding-top: 10px;
+}
+
+.remote_providers .provider {
+  background: url("../images/page/remote_providers_p1.png") no-repeat transparent;
+  width: 150px;
+  height: 50px;
+  float: left;
+  margin: 5px;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.remote_providers .facebook { background-position: 0 0; }
+.remote_providers .twitter { background-position: 0 -50px; }
+.remote_providers .google { background-position: 0 -100px; }
+.remote_providers .yahoo { background-position: 0 -150px; }
+.remote_providers .linkedin { background-position: 0 -200px; }
+.remote_providers .openid { background-position: 0 -250px; }
+
+.remote_providers .facebook:hover { background-position: -150px 0; }
+.remote_providers .twitter:hover { background-position: -150px -50px; }
+.remote_providers .google:hover { background-position: -150px -100px; }
+.remote_providers .yahoo:hover { background-position: -150px -150px; }
+.remote_providers .linkedin:hover { background-position: -150px -200px; }
+.remote_providers .openid:hover { background-position: -150px -250px; }
+
+.remote_input_panel {
+  position: absolute;
+  padding: 15px;
+  width: 290px;
+  border: 1px solid #AAA;
+  border-radius: 12px;
+  -moz-border-radius: 12px;
+  -webkit-border-radius: 12px;
+  box-shadow: inset 0 0 18px #CCC;
+  -moz-box-shadow: inset 0 0 18px #CCC;
+  -webkit-box-shadow: inset 0 0 18px #CCC;
+}
+
+.remote_input_panel .provider_logo {
+  margin: 0 0 20px 10px;
+  display: inline-block;
+}
+
+.remote_input_panel.openid .provider_logo {
+  background: url("../images/page/social_login_openid.png") no-repeat transparent;
+  width: 288px;
+  height: 77px;
+}
+
+.remote_input_panel .provider_input {
+  width: 265px;
+  border: 1px solid #999;
+  color: #21587f;
+  margin-left: 10px;
+}
+
+.remote_input_panel .signinup_button { float: right; }
+
+.remote_input_panel .back_button {
+  position: relative;
+  top: 25px;
+  padding-left: 0;
+  margin-left: 10px;
+}
+
+.remote_signinup .busy_sign {
+  background: url('../images/indicator_16.gif') left center no-repeat;
+  opacity: 0.4;
+  display: block;
+  width: 16px;
+  height: 16px;
+  position: absolute;
+  top: 200px;
+  left: 152px;
+}
+
+.remote_signinup .busy_sign.input {
+  top: 220px;
+  left: 160px;
 }
 
 

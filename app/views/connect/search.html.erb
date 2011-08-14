@@ -1,6 +1,5 @@
-<% load_submenu :connect do %>
-  <%= content_for :section, "connect search" %>
-<% end %>
+<% @function_name = 'connect_search' %>
+
 <%=
   if current_user.profile.completeness.nil? ||
        current_user.profile.completeness < Profile::COMPLETENESS_THRESHOLD
@@ -17,11 +16,14 @@
         :class => 'tag_value_autocomplete',
         'data-default' => I18n.t("connect.placeholder") %>
     <%= hidden_field_tag :sort, @sort %>
-  	<%= content_tag :span, '', :name => 'submit_button', :class => 'submit_button', :alt => 'search_button' %>
+  	<%= content_tag :span, '',
+                    :name => 'submit_button',
+                    :class => 'submit_button',
+                    :alt => 'search_button' %>
   <% end %>
 </div>
 
 <%= render :partial => 'connect/profiles/results' %>
 
-<%= render :partial => 'connect/profiles/details', 
+<%= render :partial => 'connect/profiles/details',
            :locals => {:profile => @profile} %>

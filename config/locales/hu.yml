@@ -3,16 +3,16 @@ hu:
   application:
 
     # Unexpected Error
-    unexpected_error: An unexpected error has occurred. Sorry for the inconvenience.
-    routing_error: Unknown URL. Redirecting...
-    remote_error: 'Failed to communicate with the Remote Service.'
+    unexpected_error: Egy váratlan hiba történt. Elnézést a kellemetlenségért.
+    routing_error: Ismeretlen URL. Átirányítás...
+    remote_error: 'Hiba történt a távoli szolgáltatóval való kommunikációban.'
 
     # General purpose resources
     general:
       more: tovább »
       hide: « bezár
       next: Következő
-      back: Előző
+      back: Vissza
       name: Név
       undefined: Ismeretlen
       email: E-Mail
@@ -122,11 +122,16 @@ hu:
   # ------------
   # USERS MODULE
   # ------------
+
   users:
     anonym: Név nélkül
     authors:
       teaser:
         title: 'Légy társszerző!'
+
+    remote_auth:
+      input_default:
+        openid: OpenID URL
     signup:
       label: 'Regisztráció'
       member_tag: Még nem vagy tag?
@@ -514,8 +519,21 @@ hu:
       echo_indicator:
         one: '{{supporter_count}} támogató'
         many: '{{supporter_count}} támogató'
+
       add_new: Új hozzászólás
+      embed_button: Beágyazom
+      embed_search_title: A talált kérdésfelvetések beágyazása
+      embed_search_hint: |-
+        Másold ki és illeszd be a lenti programrészletet a SAJÁT weboldaladba, hogy az aktuális keresés eredményei
+        ott is megjelenjenek és így visszhangot kelthess a saját közösségedben is.
+      embed_statement_title: A hozzászólás beágyazása
+      embed_statement_hint: |-
+        Másold ki és illeszd be a lenti programrészletet a SAJÁT weboldaladba, hogy ez a hozzászólás ott is
+        megjelenjen és így visszhangot kelthess a saját közösségedben is.
       copy_url: Link ide
+      copy_url_title: Link a hozzászóláshoz
+      copy_url_hint: 'Másold ki a hozzászóláshoz vezető linket és terjeszd a szót kedvenc csatornáidon keresztül.'
+
       create_question_link: Vess fel egy új kérdést
       create_proposal_link: Tégy új javaslatot
       create_improvement_link: Javasolj új kiegészítést
@@ -571,7 +589,6 @@ hu:
         follow_up_question: Kérjük mutasd be röviden az előzőek kapcsán felmerülő témát és tégy fel egy konkrét kérdést...
       tag_hint: 'Adj meg pár kulcsszót (tags)...'
       info_url_hint: 'Add meg a külső tartalomhoz vezető linket'
-      copy_url_hint: 'Másold ki a hozzászóláshoz vezető linket és terjeszd a szót kedvenc csatornáidon keresztül.'
 
       publish: Publikálom
       published: A kérdésfelvetést sikeresen publikáltad.

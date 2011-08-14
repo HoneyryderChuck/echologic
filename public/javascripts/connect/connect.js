@@ -1,6 +1,6 @@
 /* Do init stuff. */
 $(document).ready(function () {
-  if ($('#function_container.connect').length > 0) {
+  if ($('#echo_connect_search').length > 0) {
   	loadAvatarHolders();
 		initScrollToProfile();
   }

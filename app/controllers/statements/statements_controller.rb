@@ -24,7 +24,7 @@ class StatementsController < ApplicationController
   before_filter :check_write_permission, :only => [:echo, :unecho, :new, :new_translation]
   before_filter :check_empty_text, :only => [:create, :update, :create_translation]
 
-  before_filter :fetch_current_stack, :only => [:show, :add, :new, :cancel]
+  before_filter :fetch_current_stack, :only => [:show, :add, :new, :cancel, :update]
 
   include PublishableModule
   before_filter :is_publishable?, :only => [:publish]
@@ -512,7 +512,7 @@ class StatementsController < ApplicationController
       %w(origin bids).each{|s| options[s.to_sym] = params[s.to_sym]}
     redirect_to statement_node_url(@statement_node.target_statement, options)
   end
-  
+
   ##############
   # BREADCRUMB #
   ##############
@@ -525,9 +525,15 @@ class StatementsController < ApplicationController
   # Response: JSON
   #
   def ancestors
-    @statement_ids = @statement_node.self_and_ancestors.map(&:id)
+    statement_nodes = @statement_node.self_and_ancestors
+    @statement_ids = statement_nodes.map(&:id)
+    @bids = []
+    statement_nodes.each_with_index do |s, index|
+      break if index > statement_nodes.length - 2
+      @bids << "#{Breadcrumb.instance.generate_key(statement_nodes[index+1].u_class_name)}#{s.id}"
+    end
     respond_to do |format|
-      format.json{render :json => @statement_ids}
+      format.json{render :json => {:sids => @statement_ids, :bids => @bids}}
     end
   end
 
@@ -542,10 +548,10 @@ class StatementsController < ApplicationController
     @children_documents ||= {}
     @children[:Alternative] = @statement_node.paginated_alternatives(page,
                                                                      per_page,
-                                                                       :language_ids => filter_languages_for_children,
-                                                                       :user => current_user)
+                                                                     :language_ids => filter_languages_for_children,
+                                                                     :user => current_user)
     @children_documents.merge!(search_statement_documents :language_ids => filter_languages_for_children,
-                                                            :statement_ids => @children[:Alternative].flatten.map(&:statement_id))
+                                                          :statement_ids => @children[:Alternative].flatten.map(&:statement_id))
 
   end
 
@@ -571,8 +577,8 @@ class StatementsController < ApplicationController
             load_children :type => type
           else
             @children[type] ||= @statement_node.count_child_statements :language_ids => filter_languages_for_children,
-                                                                         :user => current_user,
-                                                                         :type => type
+                                                                       :user => current_user,
+                                                                       :type => type
           end
         end
       end
@@ -600,7 +606,7 @@ class StatementsController < ApplicationController
     @children[opts[:type]] = @statement_node.paginated_child_statements(opts)
     @children_documents ||= {}
     @children_documents.merge!(search_statement_documents :language_ids => filter_languages_for_children,
-                                                            :statement_ids => @children[opts[:type]].flatten.map(&:statement_id))
+                                                          :statement_ids => @children[opts[:type]].flatten.map(&:statement_id))
   end
 
   # aux function to load the children with the right set of languages
@@ -810,7 +816,8 @@ class StatementsController < ApplicationController
                    :title => Breadcrumb.instance.decode_terms(statement_document.title),
                    :label => I18n.t("discuss.statements.breadcrumbs.labels.#{Breadcrumb.instance.generate_key(@statement_node_type.name.underscore)}"),
                    :over => I18n.t("discuss.statements.breadcrumbs.labels.over.#{Breadcrumb.instance.generate_key(@statement_node_type.name.underscore)}")}
-    @bids = params[:bids]||''
+    @breadcrumb[:css] << " #{parent_node.info_type.code}_link" if parent_node.class.has_embeddable_data?
+    @bids = params[:bids] || ''
     @bids = @bids.split(",")
     @bids << @breadcrumb[:key]
     @bids = @bids.join(",")
@@ -865,9 +872,10 @@ class StatementsController < ApplicationController
         origin = index > 0 ? bids.select{|b|Breadcrumb.instance.origin_keys.include?(b[0,2])}[index-1] : ''
         breadcrumb[:key] = "#{key}#{value}"
         breadcrumb[:css] = "statement statement_link #{statement_node.u_class_name}_link"
+        breadcrumb[:css] << " #{statement_node.info_type.code}_link" if statement_node.class.has_embeddable_data?
         breadcrumb[:url] = statement_node_url(statement_node,
-                                                               :bids => bids[0, bids.index(bid)].join(","),
-                                                               :origin => origin)
+                                              :bids => bids[0, bids.index(bid)].join(","),
+                                              :origin => origin)
         breadcrumb[:title] = statement_document.title
       end
       breadcrumb[:label] = I18n.t("discuss.statements.breadcrumbs.labels.#{key}")
@@ -976,7 +984,7 @@ class StatementsController < ApplicationController
   def search_statement_nodes(opts = {})
     opts[:language_ids] ||= filter_languages
     StatementNode.search_statement_nodes(opts.merge({:user => current_user,
-                                                       :show_unpublished => current_user && current_user.has_role?(:editor)}))
+                                                     :show_unpublished => current_user && current_user.has_role?(:editor)}))
   end
 
   #
@@ -990,7 +998,7 @@ class StatementsController < ApplicationController
   def search_statements(opts = {})
     opts[:languages] ||= filter_languages
     Statement.search_statements(opts.merge({:user => current_user,
-                                              :show_unpublished => current_user && current_user.has_role?(:editor)}))
+                                            :show_unpublished => current_user && current_user.has_role?(:editor)}))
   end
 
   #
@@ -1345,7 +1353,7 @@ class StatementsController < ApplicationController
   # Logs the exception and redirects to home.
   def log_error_home(e, message)
     log_message_error(e, message) do
-      flash_error and redirect_to_home
+      flash_error and redirect_to_app_home
     end
   end
 

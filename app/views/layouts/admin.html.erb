@@ -20,6 +20,7 @@
                             'formtastic',
                             'formtastic_changes',
                             'admin',
+                            'embed',
                             :cache => 'echo_admin' %>
 
 		<!-- Javascript -->
@@ -30,47 +31,30 @@
 
   	<%= javascript_tag "var AUTH_TOKEN = #{form_authenticity_token.inspect};" if protect_against_forgery? -%>
 
-    <%# TODO remove partially needed files from inclusion. %>
-    <%= yield :head %>
   </head>
 
-	<body>
-    <div id="header">
-      <div class="main_logo">
+
+  <% content_tag :body do %>
+
+    <% content_tag :div, :id => 'header' do %>
+      <% content_tag :div, :class => 'main_logo' do %>
         <%= link_to(image_tag('page/echo_logo.png'), current_user ? discuss_search_path : root_path) %>
-        <%#= link_to(image_tag('page/beta_stamp.png', :class => 'stamp'),
-                    current_user ? discuss_search_path : root_path) %>
         <%= image_tag('page/beta_label.png', :class => 'label') %>
-      </div>
+      <% end %>
       <%= render :partial => "users/user_sessions/login" %>
-    </div>
+    <% end %>
 
-
-    <!-- Messaging section. -->
-    <%#= render :partial => 'layouts/components/messages' %>
-
-    <!-- Main menu -->
     <%= tabnav :main %>
-
-    <div id="application_container">
-      <!-- Submenu -->
-      <%= yield :submenu %>
-
-      <!-- The chosen function -->
-      <div id="function_container">
-        <%#= tabnav :admin if current_user and current_user.has_role? :admin %>
+    <% content_tag :div, :id => 'app_container' do %>
+      <% content_tag :div,
+                     :id => 'echo_' + (@function_name || 'function'),
+                     :class => 'function_container' do %>
         <%= yield %>
-      </div>
+      <% end %>
+      <%= content_tag :span, '', :class => 'border bottom' %>
+      <%= content_tag :span, '', :class => 'border top' %>
+    <% end %>
 
-      <span class="border bottom"></span>
-      <span class="border top"></span>
-    </div>
+  <% end %>
 
-    <!-- Bottom menu -->
-    <%#= render :partial => "layouts/components/bottom_menu" %>
-
-    <!-- Dialog container for outer menu. -->
-    <!--div id="dialogContent" style="display:none;"></div-->
-
-  </body>
 </html>

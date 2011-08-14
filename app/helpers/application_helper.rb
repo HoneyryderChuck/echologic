@@ -18,16 +18,6 @@ module ApplicationHelper
     val
   end
 
-  def load_submenu(key)
-    content_for :submenu, tabnav(key)
-    if block_given?
-      yield
-    else
-      content_for :section, key
-    end
-  end
-
-
   # Return a progressbar
   def insert_progressbar(percent)
     tooltip = I18n.t('application.roadmap.progress_tooltip', :progress => percent)
@@ -114,9 +104,10 @@ module ApplicationHelper
     val
   end
 
-  ########################
-  # POP-UP LOGIN HELPERS #
-  ########################
+
+  ####################
+  # Signinup methods #
+  ####################
 
   def signinup_toggle_button(type)
     toggle_type = type.eql?('signin') ? 'signup' : 'signin'
@@ -138,45 +129,40 @@ module ApplicationHelper
     content
   end
 
-  def signin_social_link
-    janrain_login_widget signin_remote_url, :language => I18n.locale
+
+  #
+  # Renders the Login panel for all remote authentication providers.
+  #
+  def remote_signin_panel
+    render :partial => 'users/social_accounts/signinup',
+           :locals => {:mode => :signin,
+                       :token_url => u(redirect_from_popup_to(signin_remote_url)) }
   end
 
-  def signup_social_link
-    janrain_login_widget signup_remote_url, :language => I18n.locale
+  #
+  # Renders the Register panel for all remote authentication providers.
+  #
+  def remote_signup_panel
+    render :partial => 'users/social_accounts/signinup',
+           :locals => {:mode => :signup,
+                       :token_url => u(redirect_from_popup_to(signup_remote_url)) }
   end
 
-  def redirect_token_url(opts= {})
-    # first step: create the url to redirect everything in the end
-    redirect_url = add_remote_url + '?' + (
-      opts.merge({:authenticity_token => form_authenticity_token}).collect { |n| "#{n[0]}=#{ u(n[1]) }" if n[1] }
+  #
+  # Wraps the given target URL so that a popup window will redirect to it when it gets closed.
+  #
+  def redirect_from_popup_to(target_url, params={})
+    # Create the URL to redirect everything in the end
+    redirect_url = target_url + '?' + (
+      params.merge({:authenticity_token => form_authenticity_token}).collect { |n| "#{n[0]}=#{u(n[1])}" if n[1] }
     ).compact.join('&')
 
-    # second step: create the url to which we will be redirect at the end of the external login
+    # Create the wrapper URL the popup should redirect at the end
     token_url = redirect_from_popup_url + '?' + (
     { :redirect_url => redirect_url,
-      :authenticity_token => form_authenticity_token }.collect { |n| "#{n[0]}=#{ u(n[1]) }" if n[1] }
+      :authenticity_token => form_authenticity_token }.collect { |n| "#{n[0]}=#{u(n[1])}" if n[1] }
     ).compact.join('&')
     token_url
   end
 
-
-  def janrain_login_widget(token_url, options={})
-    url = token_url + '?' + (
-      { :authenticity_token => form_authenticity_token }.collect { |n| "#{n[0]}=#{ u(n[1]) }" if n[1] }
-    ).compact.join('&')
-    <<-EOF
-    <iframe src='http://#{RPX_APP_NAME}/openid/embed?#{embed_params(url, options)}'
-    scrolling='no' frameBorder='no' allowtransparency='true'
-    style='width:400px;height:240px'></iframe>
-    EOF
-  end
-
-  def embed_params(url, options={})
-    {
-      :token_url => CGI::escape(url),
-      :language_preference => options[:language],
-      :flags => 'show_provider_list,hide_sign_in_with'
-    }.map{|k,v| "#{k}=#{v}" if v}.compact.join('&amp;')
-  end
 end

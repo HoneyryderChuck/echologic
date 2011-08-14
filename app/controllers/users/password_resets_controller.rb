@@ -10,7 +10,7 @@ class Users::PasswordResetsController < ApplicationController
   # Render password reset creation partial
   def new
     render_static_new :template => 'users/password_resets/new' do |format|
-      format.js {render :template => 'users/components/users_form', 
+      format.js {render :template => 'users/components/users_form',
                         :locals => {:partial => 'users/password_resets/new', :css_class => "basic_profile_box"}}
     end
   end
@@ -21,9 +21,9 @@ class Users::PasswordResetsController < ApplicationController
     begin
       if @user
         @user.deliver_password_reset_instructions!
-        redirect_with_info(root_path, 'users.password_reset.messages.success')
+        redirect_with_info(base_url, 'users.password_reset.messages.success')
       else
-        later_call_with_error(root_path, new_password_reset_path, 'users.password_reset.messages.not_found')
+        later_call_with_error(base_url, new_password_reset_path, 'users.password_reset.messages.not_found')
       end
     rescue Exception => e
       log_message_error(e, "Error creating user '#{@user.nil? ? params[:email] : @user.id}' password.")
@@ -34,10 +34,10 @@ class Users::PasswordResetsController < ApplicationController
 
   # Render the edit partial
   def edit
-    later_call_with_info(root_path, request.url) do |format|
+    later_call_with_info(base_url, request.url) do |format|
       format.js {
         load_user_using_perishable_token(true)
-        render :template => 'users/components/users_form', 
+        render :template => 'users/components/users_form',
                :locals => {:partial => 'users/password_resets/edit', :css_class => "basic_profile_box"}
       }
     end
@@ -48,10 +48,10 @@ class Users::PasswordResetsController < ApplicationController
     begin
       @user.old_password = true # Variable that allows the password validations. TODO: rename it
       if @user.update_attributes(params[:user])
-        redirect_with_info(root_path, 'users.password_reset.messages.reset_success')
+        redirect_with_info(base_url, 'users.password_reset.messages.reset_success')
       else
         set_error @user#'users.password_reset.messages.reset_failed'
-        later_call_with_error(root_path, request.referer, @user)
+        later_call_with_error(base_url, request.referer, @user)
       end
     rescue Exception => e
       log_message_error(e, "Error updating user '#{@user.id}' password.")
@@ -74,10 +74,10 @@ class Users::PasswordResetsController < ApplicationController
         "reset password process."
         if js
           render :update do |page|
-            page.redirect_to root_url
+            page.redirect_to base_url
           end
         else
-          redirect_to root_url
+          redirect_to base_url
         end
     end
   end

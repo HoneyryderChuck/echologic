@@ -24,11 +24,15 @@
                             'connect',
                             'my_echo',
                             'admin',
+                            'embed',
                             :cache => 'echo_app' %>
 
 
     <!-- Javascript -->
     <%= javascript_include_tag :defaults,
+                               'app/history',
+                               'app/placeholder',
+                               'app/remote_signinup',
                                'discuss/discuss',
                                'discuss/statement',
                                'discuss/statement_form',
@@ -38,18 +42,15 @@
                                'discuss/expandable',
                                'discuss/breadcrumbs',
                                'discuss/statement_search',
-                               'discuss/placeholder',
                                'discuss/embeddable',
-                               'connect',
-                               'my_echo',
-                               'history',
+                               'connect/connect',
+                               'myecho/my_echo',
                                'jquery.color',
                                'jquery.simplyCountable',
                                'jquery.event-filter.min',
                                'jquery.getUrlParam',
                                'jquery.ba-url.min',
-                               'jquery.autogrow',
-                               'jquery.autocomplete',
+                               'jquery.autocomplete.min',
                                'jquery.forms',
                                'jquery.tooltip.min',
                                'jquery.scrollTo.min',
@@ -61,54 +62,40 @@
                                'jquery.jscrollpane.min.js',
                                'jquery.livequery',
                                'jquery.toggleval',
-                               'jquery.jqtransform',
                                'jquery.embedly.min',
                                :cache => 'echo_app' %>
 
     <%= javascript_tag "var AUTH_TOKEN = #{form_authenticity_token.inspect};" if protect_against_forgery? -%>
-
-    <%# TODO remove partially needed files from inclusion. %>
-    <%= yield :head %>
   </head>
 
+  <% content_tag :body do %>
 
-  <body>
-    <div id="header">
-      <div class="main_logo">
-        <%= link_to(image_tag('page/echo_logo.png'), current_user ? discuss_search_path : root_path) %>
-        <%#= link_to(image_tag('page/beta_stamp.png', :class => 'stamp'),
-                    current_user ? discuss_search_path : root_path) %>
-        <%= image_tag('page/beta_label.png', :class => 'label') %>
-      </div>
-      <%= render :partial => "layouts/components/top_menu" %>
-      <%= render :partial => "users/user_sessions/login" %>
-    </div>
-
-
-    <!-- Messaging section. -->
     <%= render :partial => 'layouts/components/messages' %>
 
-    <!-- Main menu -->
+    <% content_tag :div, :id => 'header' do %>
+      <% content_tag :div, :class => 'main_logo' do %>
+        <%= link_to(image_tag('page/echo_logo.png'), current_user ? discuss_search_path : root_path) %>
+        <%= image_tag('page/beta_label.png', :class => 'label') %>
+      <% end %>
+      <%= render :partial => "layouts/components/top_menu" %>
+      <%= render :partial => "users/user_sessions/login" %>
+    <% end %>
+
     <%= tabnav :main %>
-
-    <div id="application_container">
-      <!-- Submenu -->
-      <%= yield :submenu %>
-
-      <!-- The chosen function -->
-      <div id="function_container" class="<%= yield :section %>">
-      	<%#= tabnav :admin if current_user and current_user.has_role? :admin %>
+    <% content_tag :div, :id => 'app_container' do %>
+      <% content_tag :div,
+                     :id => 'echo_' + (@function_name || 'function'),
+                     :class => 'function_container' do %>
         <%= yield %>
-      </div>
+      <% end %>
+      <%= content_tag :span, '', :class => 'border bottom' %>
+      <%= content_tag :span, '', :class => 'border top' %>
+    <% end %>
 
-      <span class="border bottom"></span>
-      <span class="border top"></span>
-    </div>
-
-    <!-- Bottom menu -->
     <%= render :partial => "layouts/components/bottom_menu" %>
 
     <!-- Dialog container for outer menu. -->
-    <div id="dialogContent" style="display:none;"></div>
-  </body>
+    <div id="dialogContent" style="display: none;"></div>
+  <% end %>
+
 </html>

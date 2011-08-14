@@ -123,8 +123,6 @@
       }
 
 
-
-
       /************************************/
       /* For normal statements (not form) */
       /************************************/
@@ -214,7 +212,7 @@
 					if (social_echo_button.is(":visible") && expandableApi.isLoaded()) {
             expandableApi.toggle();
           }
-          social_echo_button.animate(toggleParams, 500);
+          social_echo_button.animate(toggleParams, 350);
         }
       }
 

@@ -1,13 +1,13 @@
 
 /* General styles */
 
-#function_container h1 {
+.function_container h1 {
   color: #21587f;
   font-size: 30px;
   margin: 12px 0 20px;
 }
 
-#function_container h2 {
+.function_container h2 {
   color: #7bb031;
   font-size: 15px;
   font-weight: bold !important;
@@ -267,8 +267,10 @@
 .admin_action {
   background-color: #db4c3d;
   color: #fff !important;
-  margin: 0 3px;
+  margin: 30px 3px 0;
   padding: 3px 9px;
+  display: inline-block;
+  border-radius: 12px;
   -moz-border-radius: 12px;
   -webkit-border-radius: 12px;
 }
@@ -304,7 +306,7 @@
 }
 
 .delete_tag_button {
-  background:transparent url(../images/page/icons/delete_tag_button.png) no-repeat scroll 0 0;
+  background:transparent url(../images/page/icons/small_x_button.png) no-repeat scroll 0 0;
   width: 12px;
   height: 12px;
   display: inline-block;
@@ -526,20 +528,21 @@
   -webkit-border-radius: 3px;
 }
 
-/* Application and function layout */
-
-#application_container {
+#app_container {
   width: 100%;
-  z-index: 5;
   clear: both;
   background: #fff;
   position: relative;
   overflow: visible;
-  margin-bottom: 12px;
   min-height: 410px;
+  margin: 7px 0 12px;
+  display: inline-block;
+  z-index: 5;
 }
 
-#application_container .border {
+/* BORDER SECTION */
+
+#app_container .border {
   width: 100%;
   height: 16px;
   background: url(../images/page/box/borders_7bb031_iwot_topbottom.png) repeat-x;
@@ -548,17 +551,17 @@
 
 }
 
-#application_container .bottom {
+#app_container .bottom {
   background-position: bottom;
   bottom: -16px;
 }
 
-#application_container .top {
+#app_container .top {
   background-position: top;
   top: -16px;
 }
 
-#function_container {
+.function_container {
   margin: 0 auto;
   width: 990px;
   padding-bottom: 1px;
@@ -602,9 +605,9 @@
 }
 
 /* Roadmap */
-#function_container .roadmap {
+.function_container .roadmap {
   width: 830px;
-  margin: 30px 66px;
+  padding: 30px 66px;
 }
 
 /* Submenus */
@@ -915,11 +918,18 @@
 .jspHorizontalBar .jspDrag {
   position: absolute;
 	background: #97b0bf;
-	cursor: pointer;
 	overflow: hidden;
   border-radius: 5px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
+}
+
+.jspVerticalBar .jspDrag {
+  cursor: ns-resize;
+}
+
+.jspHorizontalBar .jspDrag {
+  cursor: ew-resize;
 }
 
 .jspVerticalBar .jspDrag {
@@ -932,14 +942,6 @@
   height: 10px !important;
 }
 
-/*
- * Embed
- */
-
-.embed_menu {
-	position: relative;
-  min-height: 70px;
-}
 
 /* Action Panels */
 

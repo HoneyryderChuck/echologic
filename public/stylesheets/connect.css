@@ -16,7 +16,7 @@
 
 .segments ul {
   margin: 0;
-  padding: 0;
+  padding: 0 0 10px;
 }
 
 .segments li {
@@ -237,6 +237,7 @@
 /* Actions part */
 #profile_details_container .action_bar {
   float: right;
+  text-align: center;
 }
 
 #profile_details_container .actions_container {

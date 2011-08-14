@@ -4,8 +4,8 @@
     <%= I18n.t("users.social_accounts.guide") %>
   </div>
 	<ul id="social_account_list">
-			<% token_url = redirect_token_url %>
-      <% SocialService.instance.social_providers.each do |provider| %>
+			<% token_url = redirect_from_popup_to(add_remote_url) %>
+      <% SocialService.instance.sharing_providers.each do |provider| %>
 			  <%= content_tag :div, social_account_button(provider, token_url),
                         :class => 'social_account' %>
       <% end %>

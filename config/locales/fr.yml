@@ -133,11 +133,16 @@ fr:
   # ------------
   # USERS MODULE
   # ------------
+
   users:
     anonym: Anonym
     authors:
       teaser:
         title: 'Devenez co-auteur!'
+
+    remote_auth:
+      input_default:
+        openid: Votre URL OpenID
     signup:
       label: "S'inscrire"
       member_tag: "Vous n'êtes pas encore membre ?"
@@ -488,6 +493,7 @@ fr:
       current_improvement: "Le rajout affiché"
       current_pro_argument: "L'argument PRO actuellement publié"
       current_contra_argument: "L'argument CONTRE actuellement publié"
+      current_background_info: 'The currently displayed background info'
       current_follow_up_question: "L'actuelle question suivie publiée"
       back_to_question: 'Retour à la question actuelle'
       back_to_proposal: 'Retour à la proposition actuelle'
@@ -502,6 +508,8 @@ fr:
       next_pro_argument: "Lire l'argument suivant de la proposition actuelle"
       prev_contra_argument: "Lire l'argument antérieur concernant la proposition actuelle"
       next_contra_argument: "Lire l'argument au sujet de la proposition actuelle"
+      prev_background_info: 'See previous background info for the current statement'
+      next_background_info: 'See next background info for the current statement'
       prev_follow_up_question: 'Lire la question suivie précédente dans le contexte affiché ci-dessus'
       next_follow_up_question: 'Lire laprochaine "question suivie" dans le contexte affiché ci-dessus'
       create_question: 'Poser une nouvelle question'
@@ -511,6 +519,8 @@ fr:
         Vous avez une idée concernant la proposition actuelle? Veuillez l'indiquer ici!
       create_pro_argument: 'Envoyer un nouvel argument PRO concernant cette proposition'
       create_contra_argument: 'Envoyer un nouvel argument CONTRE concernant cette proposition'
+      create_alternative: 'Post a new opposition to this statement'
+      create_background_info: 'Recommend a new piece of background information related to this statement'
       create_follow_up_question: 'Envoyer une question suivie soulevée par le constat actuel'
       echo: |
         Apportez votre 'echo' à cette proposition!
@@ -526,22 +536,44 @@ fr:
         improvement: "Regarder tous les rajouts proposés concernant l'actuelle proposition"
         pro_argument: "Regarder tous les arguments concernant l'actuelle proposition"
         contra_argument: "Regarder tous les arguments concernant l'actuelle proposition"
+        background_info: See all background infos belonging to the current statement
+      link_statement: |-
+        Enter a part of the title or paste in the URL of a statement.
+        Afterwards press this button to reuse the statement in the current context.
+      unlink_statement: "Click the button again to unlink the statement."
 
     statements:
       label: 'Voter'
-      echo_link: 'Soutenez ce (echo)'
+      echo_link: 'Soutenir cet (echo)'
       unecho_link: 'Retirer votre vote'
       echo_indicator:
         one: '{{supporter_count}} supporter'
         many: '{{supporter_count}} supporters'
-      add_new: Nouvel élément...
+
+      add_new: Nouvelle déclaration
+      embed_button: Intégrer
+      embed_search_title: Intégrer résultats de recherche
+      embed_search_hint: |-
+        Copiez et collez le code ci-dessous pour l'intégrer ces résultats de recherche dans
+        VOTRE page web et créez un echo dans votre communauté.
+      embed_statement_title: Intégrer contribution
+      embed_statement_hint: |-
+        Copiez et collez le code ci-dessous pour l'intégrer dans VOTRE page web et créez un echo dans votre communauté.
+      copy_url: Link to
+      copy_url_title: Link to statement
+      copy_url_hint: 'Copy the link to this statement and use it to spread the word via your favorite channels.'
+
       create_question_link: 'Poser une nouvelle question'
       create_proposal_link: 'Soumettre de nouvelles propositions'
       create_internal_link: 'Une idée nouvelle'
       create_improvement_link: 'Soumettre un rajout'
       create_pro_argument_link: Ajouter un nouvel argument PRO
       create_contra_argument_link: Ajouter un nouvel argument CONTRE
+      create_alternative_link: Add new opposition
+      create_background_info_link: Add new background info
       create_follow_up_question_link: Ajouter une nouvelle question suivie
+      preview_embedded_content: Aperçu
+      open_embedded_content: Ouvrir une nouvelle fenêtre
 
       statement_language_hint: |
         Veuillez préciser vos connaissances linguistiques et votre niveau respectif dans <a href='{{url}}'>profil</a>.
@@ -557,22 +589,29 @@ fr:
       read_permission: |
         Vous n'êtes pas autorisé(e) à lire ces contributions.
       title_hint:
-        question: Entrez le titre de la question en... français?
-        proposal: Entrer le titre de votre proposition en... français?
-        improvement: "Entrer le titre du rajout en... français?"
+        question: Entrez le titre de la question en... Français?
+        proposal: Entrer le titre de votre proposition en... Français?
+        improvement: "Entrer le titre du rajout en... Français?"
         pro_argument: |
-          Entrer le titre de l'argument PRO en... français?
+          Entrer le titre de l'argument PRO en... Français?
         contra_argument: |
-          Entrer le titre de l'argument CONTRE en... français?
-        follow_up_question: Entrer le titre de la question de suivi en... français?
+          Entrer le titre de l'argument CONTRE en... Français?
+        background_info: Enter the background info title in... French?
+        follow_up_question: Entrer le titre de la question de suivi en... Français?
       text_hint:
+        alternative_prefix: |
+          OPPOSITIONS are mutually exclusive to the original statement and all its other alternatives.<br/><br/>
         question: Veuillez décrire la thématique et donnez quelques détails...
         proposal: Veuillez fournir davantage de détails sur votre proposition...
         improvement: Veuillez décrire votre idée d'amélioration avec plus de détails...
         pro_argument: Veuillez donner davantage de détails de votre argument PRO...
         contra_argument: Veuillez donner davantage de détails de votre argument CONTRE...
+        background_info: |
+          Please describe the recommended background information shortly and tell why you
+          think it is interesting in this context...
         follow_up_question: Veuillez donner davantage de détails de votre question suivie...
-      tag_hint: 'Mots-clefs idoines...'
+      tag_hint: 'Mots-clefs (Tags) idoines...'
+      info_url_hint: 'Enter the link to the external content'
 
       publish: Publier
       published: La discussion a été publiée avec succès.
@@ -584,6 +623,8 @@ fr:
         improvement: 'Rajout'
         pro_argument: 'Argument PRO'
         contra_argument: 'Argument CONTRE'
+        alternative: 'Opposition'
+        background_info: 'Background Info'
         follow_up_question: 'Question suivie'
       new:
         question:  'Nouvelle question'
@@ -591,20 +632,25 @@ fr:
         improvement: 'Nouveau rajout'
         pro_argument: 'Nouvel argument PRO'
         contra_argument: 'Nouvel argument CONTRE'
+        background_info: 'New Background Info'
         follow_up_question: 'Nouvelle question suivie'
       headings:
         question: 'Questions'
         proposal: 'Propositions'
         improvement: 'Rajouts'
-        argument: 'Pros & Cons'
+        argument: 'Pro & Contre'
+        alternatives: 'Alternatives'
+        background_info: 'Background Infos'
         follow_up_question: 'Questions suivie'
       sibling_labels:
         question: 'Questions'
         proposal: 'Propositions'
         improvement: 'Rajouts'
         argument: 'Arguments'
+        background_info: 'Backgrounds'
         follow_up_question: 'Questions'
       siblings:
+        background_info: 'Background Infos'
         follow_up_question: 'Question suivie dans le contexte affiché ci-dessus'
 
       topic: Thème (Tags / mots-clefs)
@@ -647,8 +693,15 @@ fr:
       no_document_in_language: "Le constat n'existe pas dans votre langue."
       supporter_to_share: Vous devez approuver ce point de vue pour le partager.
       published_to_share: 'La contribution est en cours de transmission. Pendant la transmission vous ne pouvez pas la partager.'
-      cannot_be_edited: "Dommage, vous ne pouvez pas éditer ce constat après que les autres membres l'aient approuvé. Cette disposition évitera aussi des piratages éventuels."
+      cannot_be_edited: |
+        Dommage, vous ne pouvez pas éditer ce constat après que les autres membres l'aient approuvé.
+        Cette disposition évitera aussi des piratages éventuels.
+      cannot_be_linked: Désolé, cette contribution ne peut pas être reliée au context présent.
       echos_label: Support
+
+      linking:
+        disabled: Link
+        enabled: Linked
 
       breadcrumbs:
         discuss_search: Chercher des résultats
@@ -657,11 +710,21 @@ fr:
           ds: ''
           mi: ''
           sr: 'Chercher des résultats pour'
+          pr: 'Proposals for'
+          im: 'Additions for'
+          ar: 'Arguments for'
+          bi: 'Background Infos for'
           fq: 'Questions suivies pour'
+          jp: 'Following link in'
           over:
             ds: 'Retour à'
             mi: 'Retour à'
             sr: 'Retour à chercher des résultats pour'
+            pr: 'Retour à'
+            im: 'Retour à'
+            ar: 'Retour à'
+            bi: 'Retour à'
+            jp: 'Retour à'
             fq: 'Retour à'
 
       upload_image:
@@ -691,6 +754,10 @@ fr:
         contra_argument: |
           Voici le rang qu'aurait votre idée gagnante.<br/><br/>Quel serait votre argument CONTRE?<br/><br/>
           Cliquez sur le bouton ci-dessus pour entrer votre argument contre MAINTENANT!
+        background_info: |
+          This is where a new background info related to the current statement could appear.<br/><br/>
+          Would you like to recommend one?<br/><br/>
+          Press the button above to enter it NOW!
         follow_up_question: |
           Voici le rang qu'aurait votre idée gagnante.<br/><br/>En avez vous une question suivie?<br/><br/>
           Cliquez sur le bouton ci-dessus pour la soumettre MAINTENANT!
@@ -769,6 +836,7 @@ fr:
         concernments: 'Compétences'
         web_addresses: 'Votre @ ou votre site'
       actions:
+        send_mail: "Send Message"
         report: 'Signaler'
     messages:
       empty: |
@@ -794,8 +862,17 @@ fr:
     create:
       thank_you: Merci de votre message.
 
+  user_mail:
+    new:
+      title: Send Mail
+      guide: Here you can send an E-Mail to contact the selected echo member.
+      subject: Subject
+      text: Message
+    create:
+      thank_you: |-
+        Votre message a été envoyé avec succès.
 
-# Model resources
+  # Model resources
   activerecord:
     errors:
       models:
@@ -855,6 +932,10 @@ fr:
       feedback:
         message: Message
       statement_node: Image fichier
+      statement:
+        info_type_id: 'Content Type'
+      statement_data:
+        info_url: 'Background Info Link'
       statement_document:
         language_id: 'Langue'
         language: 'Langue'

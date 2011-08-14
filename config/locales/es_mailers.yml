@@ -6,6 +6,7 @@ es:
       follow_echo: Siga echo
     greeting: 'Estimado/a {{name}},'
     echo_community: 'comunidad echo'
+    echo_member: 'miembro echo'
     bye: |
       Saludos cordiales,
 
@@ -51,6 +52,10 @@ es:
       sent: |-
         Your newsletter mails are being delivered...
 
+    user_mail:
+      subject: "[Mensaje echo] {{subject}}"
+      prefix: "{{sender}} te ha enviado un mensaje via echo:"
+      suffix: "Puedes responder {{sender}} directamente respondiendo a este mensaje o mira en su perfil echo: {{url}}"
 
     activity_tracking:
       subject: echo - Notificaciones de la actividad
@@ -62,7 +67,7 @@ es:
         created_improvement_proposals: 'Nuevo contenido para la propuesta "<strong>{{title}}</strong>":'
         created_pro_arguments: 'Nuevo contenido para la propuesta "<strong>{{title}}</strong>":'
         created_contra_arguments: 'Nuevo contenido para la propuesta "<strong>{{title}}</strong>":'
-        created_background_infos: 'New content in the statement "<strong>{{title}}</strong>":'
+        created_background_infos: 'Nuevo cambio en el contenido "<strong>{{title}}</strong>":'
         created_follow_up_questions: 'Nuevas preguntas de seguimiento para "<strong>{{title}}</strong>":'
         tag_link: "{{tag}} ({{count}})"
       unsubscribe: |-

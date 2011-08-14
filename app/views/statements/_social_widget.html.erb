@@ -26,7 +26,7 @@
 
    <% content_tag :div, :class => 'submit_block block center' do %>
      <%= submit_tag I18n.t('users.social_accounts.share.submit'),
-                    :class => "formButton200 #{current_user.using_rpx? ? '' : 'disabled'}", :disabled => !current_user.using_rpx? %>
+                    :class => "form_button_200 #{current_user.using_rpx? ? '' : 'disabled'}", :disabled => !current_user.using_rpx? %>
      <%= content_tag :span, I18n.t('application.general.or'),
                      :class => 'or_cancel' %>
      <%= content_tag :span, I18n.t('application.general.cancel'),

@@ -3,12 +3,45 @@ require 'singleton'
 class SocialService
   include Singleton
 
-  attr_accessor :service, :social_providers, :default_echo_image
+  attr_accessor :service, :sharing_providers, :default_echo_image
 
   def initialize
   end
 
 
+  ####################
+  # Remote providers #
+  ####################
+
+  #
+  # Returns data about all supported remote authentication providers.
+  #
+  def signinup_provider_data
+    @service.signinup_provider_data
+  end
+
+  #
+  # DEPRECATED: Gets the URL for the given provider to be called for remote authentication
+  # with the token URL to be redirected to afterwards.
+  #
+  def get_provider_auth_url(provider, token_url)
+    @service.get_provider_auth_url(provider, token_url)
+  end
+
+
+  def load_basic_profile_options(profile_info)
+    {:email => profile_info['verifiedEmail'] || profile_info['email'],
+     :full_name => profile_info['displayName'] || profile_info['preferredUsername']}
+  end
+
+
+  ##############
+  # echo Users #
+  ##############
+
+  #
+  # Gets the appropriate echo user for the given token after successful remote authentication.
+  #
   def get_user(token)
     profile_info = get_profile_info(token)
     return nil if profile_info.blank?
@@ -24,6 +57,11 @@ class SocialService
   def get_user_data(identifier)
     @service.get_user_data(identifier)
   end
+
+
+  ###########################
+  # Social account mappings #
+  ###########################
 
   def mappings(primary_key)
     @service.mappings(primary_key)
@@ -44,6 +82,11 @@ class SocialService
   def all_mappings
     @service.all_mappings
   end
+
+
+  ##################
+  # Social Sharing #
+  ##################
 
   def share_activities(providers, opts={})
     providers_status = {:success => [], :failed => [], :timeout => []}
@@ -68,7 +111,7 @@ class SocialService
 
   def share_activity(identifier, activity)
     begin
-      @service.activity(identifier, activity)
+      @service.share_activity(identifier, activity)
     rescue Exception => e
       puts "Something went wrong with #{identifier}"
       false
@@ -79,19 +122,8 @@ class SocialService
   end
 
 
-  def get_provider_signup_url(provider, token_url)
-    @service.get_provider_signup_url(provider, token_url)
-  end
-
-
-  def load_basic_profile_options(profile_info)
-    {:email => profile_info['verifiedEmail'] || profile_info['email'],
-     :full_name => profile_info['displayName'] || profile_info['preferredUsername']}
-  end
-
-
   private
-  def create_activity(providerName, attrs={})
+  def create_activity(provider_name, attrs={})
     opts = attrs.clone
 
     # Handling images
@@ -114,8 +146,8 @@ class SocialService
     opts[:action] += " #{opts[:tags]}" if opts[:tags]
     opts[:user_generated_content] = opts[:action]
 
-    opts[:url] = "" if providerName.eql?('twitter')
-    opts[:action] = "made an echo" if providerName.eql?('facebook')
+    opts[:url] = "" if provider_name.eql?('twitter')
+    opts[:action] = "made an echo" if provider_name.eql?('facebook')
 
     #TAG TEST
     opts.to_json

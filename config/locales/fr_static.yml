@@ -105,7 +105,7 @@ fr:
 
         action: |-
           Essayez le prototype »<br/>
-          echo 0.16 est on-line
+          echo 0.17 est on-line
 
       # about section
       about:

@@ -124,12 +124,16 @@ de:
   # ------------
   # USERS MODULE
   # ------------
+
   users:
     anonym: Anonym
     authors:
       teaser:
         title: 'Werden Sie MitautorIn!'
-    # User sessions section
+
+    remote_auth:
+      input_default:
+        openid: Ihre OpenID URL
     signup:
       label: 'Registrieren'
       member_tag: Sind Sie noch kein Mitglied?
@@ -524,8 +528,21 @@ de:
       echo_indicator:
         one: '{{supporter_count}} UnterstützerIn'
         many: '{{supporter_count}} UnterstützerInnen'
+
       add_new: Neues Statement
+      embed_button: "Einbinden"
+      embed_search_title: Suchergebnisse einbinden
+      embed_search_hint: |-
+        Kopieren Sie den unteren Code und fügen Sie ihn in den Quellcode IHRER Website ein, um diese Suchergebnisse
+        auf Ihrer Seite anzuzeigen und ein Echo in Ihrer Community zu erzeugen.
+      embed_statement_title: Aussage einbinden
+      embed_statement_hint: |-
+        Kopieren Sie den unteren Code und fügen Sie ihn in den Quellcode IHRER Website ein, um diese Aussage auf
+        Ihrer Seite anzuzeigen und ein Echo in Ihrer Community zu erzeugen.
       copy_url: Link zu
+      copy_url_title: Link zum Statement
+      copy_url_hint: 'Kopieren Sie den Link zum Statement und teilen Sie ihn über Ihre bevorzugten Netzwerke und Kanäle.'
+
       create_question_link: 'Neue Fragestellung hinzufügen'
       create_proposal_link: 'Neuen Vorschlag erstellen'
       create_internal_link: 'Neue Idee?'
@@ -537,7 +554,6 @@ de:
       create_follow_up_question_link: Neue Folgefrage hinzufügen
       preview_embedded_content: Vorschau
       open_embedded_content: In neuem Fenster öffnen
-
 
       statement_language_hint: |
         Bitte stellen Sie Ihre Sprachkenntnisse in Ihrem <a href='{{url}}'>Profil</a> ein.
@@ -580,7 +596,6 @@ de:
         follow_up_question: Bitte erläutern Sie Ihre Folgefrage näher...
       tag_hint: 'Schlagworte hier eingeben...'
       info_url_hint: 'Geben Sie den Link zum externen Inhalt ein'
-      copy_url_hint: 'Kopieren Sie den Link zum Statement und teilen Sie ihn über Ihre bevorzugten Netzwerke und Kanäle.'
 
       publish: Freigeben
       published: Die Fragestellung wurde erfolgreich freigegeben.

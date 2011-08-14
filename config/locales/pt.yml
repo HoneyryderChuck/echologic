@@ -14,7 +14,7 @@ pt:
       more: mais »
       hide: « ok
       next: Seguinte
-      back: de volta
+      back: De volta
       name: Nome
       undefined: Ainda não inserido
       email: E-Mail
@@ -115,11 +115,16 @@ pt:
   # ------------
   # USERS MODULE
   # ------------
+
   users:
     anonym: Anónimo
     authors:
       teaser:
         title: 'Torne-se um co-autor!'
+
+    remote_auth:
+      input_default:
+        openid: O seu endereço OpenID
     signup:
       label: Inscrição
       member_tag: Ainda não é membro?
@@ -498,8 +503,19 @@ pt:
       echo_indicator:
         one: '{{supporter_count}} apoiante'
         many: '{{supporter_count}} apoiantes'
-      add_new: Novo Conteúdo
+
+      add_new: Novo conteúdo
+      embed_button: Embeber
+      embed_search_title: Embeber resultados da procura
+      embed_search_hint: |-
+        Copy and paste the code below to embed these search results into YOUR website and make an echo in your community.
+      embed_statement_title: Embed statement
+      embed_statement_hint: |-
+        Copy and paste the code below to embed this statement into YOUR website and make an echo in your community.
       copy_url: Link para
+      copy_url_title: Link para o conteúdo
+      copy_url_hint: 'Copie o link para este conteúdo e use-o para espalhar a mensagem através dos seus canais sociais favoritos.'
+
       create_question_link: 'Criar uma nova questão'
       create_proposal_link: 'Criar nova proposta'
       create_internal_link: 'Nova ideia?'
@@ -545,7 +561,6 @@ pt:
         follow_up_question: Por favor descreva a questão complementar mais detalhadamente...
       tag_hint: 'Palavra-chave (tags) do tema'
       info_url_hint: 'Insira o URL do conteúdo externo'
-      copy_url_hint: 'Copie o link para este conteúdo e use-o para espalhar a mensagem através dos seus canais sociais favoritos.'
 
       publish: Publicar
       published: A questão foi publicada com sucesso.

@@ -7,7 +7,7 @@ class Users::ActivationsController < ApplicationController
   # Setup basic profile after registering for an echo account with an E-Mail address.
   #
   def basic_profile
-    later_call_with_info(root_path, request.url) do |format|
+    later_call_with_info(base_url, request.url) do |format|
       format.js {
        @user = User.find_by_perishable_token(params[:activation_code], 1.week)
        if @user.nil?
@@ -36,19 +36,19 @@ class Users::ActivationsController < ApplicationController
 
         via_form = params.has_key?(:user)
         if @user.nil?
-          redirect_or_render_with_error(root_path, "users.activation.messages.no_account")
+          redirect_or_render_with_error(base_url, "users.activation.messages.no_account")
           return
         elsif via_form # Coming from setup basic profile form
           if params[:user].delete(:agreement).nil?
-            redirect_or_render_with_error(root_path, "users.activation.messages.no_agreement")
+            redirect_or_render_with_error(base_url, "users.activation.messages.no_agreement")
             return
           elsif params[:user][:full_name].try(:strip).blank?
-            redirect_or_render_with_error(root_path, "users.activation.messages.no_full_name")
+            redirect_or_render_with_error(base_url, "users.activation.messages.no_full_name")
             return
           end
         end
         if @user.active?
-          redirect_or_render_with_error(root_path, "users.activation.messages.already_active")
+          redirect_or_render_with_error(base_url, "users.activation.messages.already_active")
           return
         end
 
@@ -61,7 +61,7 @@ class Users::ActivationsController < ApplicationController
             redirect_with_info(my_profile_path, 'users.activation.messages.success')
           else
             set_error 'users.activation.messages.failed'
-            redirect_or_render_with_error(root_path, @user)
+            redirect_or_render_with_error(base_url, @user)
           end
 
         else
@@ -76,7 +76,7 @@ class Users::ActivationsController < ApplicationController
 
             if @user.signup!(params[:user]) and @user.profile.save
               @user.deliver_activate!
-              redirect_or_render_with_info(root_path, 'users.users.messages.created') do |page|
+              redirect_or_render_with_info(base_url, 'users.users.messages.created') do |page|
                 page << "$('#dialogContent').dialog('close');"
               end
             else
@@ -100,9 +100,9 @@ class Users::ActivationsController < ApplicationController
     @action = PendingAction.find(params[:token])
 
     if @action.nil?
-      redirect_or_render_with_error(root_path, "users.activation.messages.no_account")
+      redirect_or_render_with_error(base_url, "users.activation.messages.no_account")
     elsif @action.status
-      redirect_or_render_with_error(root_path, "users.activation.messages.already_active")
+      redirect_or_render_with_error(base_url, "users.activation.messages.already_active")
     else
       @user = @action.pending
       User.transaction do
@@ -113,7 +113,7 @@ class Users::ActivationsController < ApplicationController
           redirect_with_info(my_profile_path, 'users.activation.messages.email_success')
         else
           set_error 'users.activation.messages.failed'
-          redirect_or_render_with_error(root_path, @user)
+          redirect_or_render_with_error(base_url, @user)
         end
       end
     end

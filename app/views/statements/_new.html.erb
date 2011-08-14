@@ -7,7 +7,7 @@
 						                   #{params[:hub]}
 						                   #{@statement_node_type.taggable? ? 'taggable' : ''}
 						                   #{@statement_node_type.echoable? ? 'echoable' : ''}
-                               #{@statement_node_type.has_embeddable_data? ? 'embeddable' : ''}",
+                               #{@statement_node_type.has_embeddable_data? ? 'embeddable no_type' : ''}",
                     'dom-parent' => statement_node.parent_node ?
                                    "#{dom_class(statement_node.parent_node)}_#{statement_node.parent_node.id}" :
                                    params[:origin] } do |form| -%>
@@ -16,11 +16,11 @@
   <%= hidden_field_tag :bids, @bids || params[:bids] || '' %>
 	<%= hidden_field_tag :sids, params[:sids] if params[:sids] %>
   <%= hidden_field_tag :hub, params[:hub] if params[:hub] %>
-	
+
 
 	<%= render :partial => 'statements/form/form_header', :locals => {:form => form, :statement_node => statement_node} %>
   <%= render :partial => 'statements/form/form_content',
                          :locals => {:form => form, :statement_node => statement_node,
                                      :headline => I18n.t("discuss.statements.new.#{node_type(statement_node)}") }%>
-	
+
 <% end -%>

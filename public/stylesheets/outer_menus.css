@@ -1,84 +1,89 @@
-/*
- * Contains the styling information for top and bottom menu.
- */
 
 /* Top menu */
 
-#top_menu_container {
-  position:    relative;
-}
-
-#top_menu_container a, #top_menu_container a:visited {
-  color:       #7691A2;
+#top_menu_container a,
+#top_menu_container a:visited,
+#top_menu_container #echo_language_button {
+  color: #7691A2;
   font-family: arial,Helvetica,sans-serif;
-  margin:      5px 2px 0 10px;
+  margin: 5px 2px 0 10px;
   padding-left: 20px;
-  text-decoration:none;
-  float:       right;
-  font-size:   12px;
+  text-decoration: none;
+  float: right;
+  font-size: 12px;
+  cursor: pointer;
 }
 
 #top_menu_container a img {
-  border:      0px;
+  border: 0;
 }
 
-#top_menu_container a:hover {
-  color:       #1A4864;
+#top_menu_container a:hover,
+#top_menu_container #echo_language_button:hover {
+  color: #1A4864;
 }
 
 #blog_button {
-  background:  transparent url(../images/page/icons/blog.png) no-repeat scroll;
+  background: transparent url(../images/page/icons/blog.png) no-repeat scroll;
 }
 
 #feedback_button {
-  background:  transparent url(../images/page/icons/feedback.png) no-repeat scroll;
+  background: transparent url(../images/page/icons/feedback.png) no-repeat scroll;
 }
 
 #about_echo_button {
-  background:  transparent url(../images/page/icons/about.png) no-repeat scroll;
+  background: transparent url(../images/page/icons/about.png) no-repeat scroll;
 }
 
-#echo_language_button {
-  background:  transparent url(../images/page/icons/babelfish.png) no-repeat scroll;
+#top_menu_container #echo_language_button {
+  background: transparent url(../images/page/icons/babelfish.png) no-repeat scroll 0 -16px;
+  height: 28px;
+  margin-left: 0;
 }
 
 #logout_button {
-  background:  transparent url(../images/page/icons/logout.png) no-repeat scroll;
+  background: transparent url(../images/page/icons/logout.png) no-repeat scroll;
 }
 
-#echo_language_button, #blog_button:hover, #feedback_button:hover, #about_echo_button:hover, #logout_button:hover {
+#blog_button:hover,
+#feedback_button:hover,
+#about_echo_button:hover,
+#logout_button:hover {
   background-position: 0 -16px;
 }
 
-#language_selector {
-  position:    absolute;
-  min-width:   100px;
-  z-index:     510;
-}
-
-#language_selector ul {
-  list-style-type:none;
-  padding: 0;
-  margin: -5px 0 0 0;
-}
-
-#language_selector li {
-  list-style-position: inside;
-  padding: 0;
-  border-top: 1px solid #efefef;
-}
-
-#language_selector li:first-child {
-  border-top: none;
-}
-
-#language_selector a, #language_selector a:visited {
-  padding: 0;
-  float: none;
+#top_menu_container #echo_language_button_container {
+  position: relative;
   display: inline-block;
-  font-size: 14px;
-  font-weight: bold;
+  float: right;
 }
+
+#top_menu_container #echo_language_button_container .dropdown {
+  top: 15px;
+}
+
+#top_menu_container #echo_language_button_container:hover .dropdown,
+#top_menu_container #echo_language_button_container.hover .dropdown {
+  display: inline-block;
+}
+
+#echo_language_button_container .language_selector.dropdown {
+  border-color: #999;
+}
+
+#echo_language_button_container .language_selector.dropdown a {
+  color: #7691A2;
+  margin: 0 2px;
+  padding: 10px;
+  font-size: 15px;
+  float: none;
+  text-align: center;
+}
+
+#echo_language_button_container .language_selector.dropdown a:hover {
+  color: #1A4864;
+}
+
 
 /* Buttom menu */
 
@@ -101,13 +106,3 @@
   color:       #FFF;
 }
 
-/*
- * Embed
- */
-
-.embed_menu #logout_button {
-	background: none repeat scroll 0 0 transparent;
-  left: 289px;
-  position: absolute;
-	z-index: 99;
-}

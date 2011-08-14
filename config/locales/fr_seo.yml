@@ -32,6 +32,9 @@ fr:
           features:        "echo social - Fonctionnalités"
           extensions:      "echo social - Extensions"
 
+      application:
+        redirect_from_popup: 'Redirection...'
+
       # users: de.seo.title.users
       users:
         users:

@@ -1,3 +1,4 @@
+<% @function_name = 'my_questions' %>
+
 <% questions ||= @questions %>
-<% load_submenu :discuss %>
 <%= render 'statements/questions/my_questions', :locals => {:questions => questions} %>

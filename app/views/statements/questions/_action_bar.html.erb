@@ -1,6 +1,7 @@
 <div id="action_bar" class="action_bar">
 	<% create_question_link_for %>
-	<% render_discuss_search_embed_button %>
-	<%= render_embed_panel(discuss_search_url(:mode => :embed, :search_terms => params[:search_terms])) %>
+  <% content_tag(:div, :class => "embed_button_container") do %>
+	  <%= render_discuss_search_embed_button %>
+  <% end %>
   <%= render :partial => 'statements/questions/featured_topics' %>
 </div>

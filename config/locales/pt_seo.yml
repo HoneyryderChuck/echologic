@@ -33,6 +33,8 @@ pt:
           features:        'echo social - Características'
           extensions:      'echo social - Extensões'
 
+      application:
+        redirect_from_popup: 'Redireccionando...'
 
       # users: de.seo.title.users
       users:

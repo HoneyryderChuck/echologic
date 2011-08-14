@@ -20,12 +20,6 @@
   position: relative;
 }
 
-.embed_menu .main_logo {
-	position: absolute;
-  right: 62px;
-  top: -23px;
-}
-
 .main_logo a img {
   border: none;
   margin: -2px 0 2px;
@@ -78,17 +72,9 @@
 #login_container {
   clear: right;
   float: right;
-  padding: 13px 0 8px;
+  padding-bottom: 8px;
   height: 46px;
 
-}
-
-.embed_menu #login_container {
-	clear: none;
-	float: none;
-	position: absolute;
-	top: -15px;
-	left: 155px;
 }
 
 #login_container .signup {
@@ -618,4 +604,7 @@
 	color: #21587f;
 	padding: 33px 10px 5px !important;
   width: 300px !important;
+  border-radius: 8px;
+  -moz-border-radius: 8px;
+  -webkit-border-radius: 8px;
 }

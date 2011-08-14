@@ -43,7 +43,7 @@ module ActiveRecord
               self.social_identifiers.each do |si|
                 return true if email.eql? JSON.parse(si.profile_info)['verifiedEmail']
               end
-              return false
+              false
             end
 
             def check_social_accounts

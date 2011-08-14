@@ -1,4 +1,3 @@
-# Localization in Spanish.
 
 es:
 
@@ -119,12 +118,16 @@ es:
   # ------------
   # USERS MODULE
   # ------------
+
   users:
     anonym: Anónimo
     authors:
       teaser:
         title: 'Conviértete en co-autor!'
-    # User sessions section
+
+    remote_auth:
+      input_default:
+        openid: Tu OpenID URL
     signup:
       label: 'Regístrate'
       member_tag: '¿No eres aún miembro?'
@@ -477,6 +480,7 @@ es:
       current_improvement: 'Mejora actual'
       current_pro_argument: 'El argumento a favor actual'
       current_contra_argument: 'El argumento en contra actuat'
+      current_background_info: 'Antecendentes actualmente mostrados'
       current_follow_up_question: 'La pregunta de seguimiento actual'
       back_to_question: 'Volver a la cuestión actual'
       back_to_proposal: 'Volver a la propuesta actual'
@@ -491,6 +495,8 @@ es:
       next_pro_argument: 'Leer el siguiente argumento de esta propuesta'
       prev_contra_argument: 'Leer el argumento previo de este propuesta'
       next_contra_argument: 'Leer el siguiente argumento de esta propuesta'
+      prev_background_info: 'Lea los antecedentes previos sobre este contenido'
+      next_background_info: 'Lea los siguientes antecedentes sobre este contenido'
       prev_follow_up_question: 'Leer la pregunta de seguimiento previa según lo indicado arriba'
       next_follow_up_question: 'Leer la siguiente pregunta de seguimiento según lo indicado arriba'
       create_question: 'Crear nueva discusión'
@@ -498,6 +504,8 @@ es:
       create_improvement: 'Crear nueva mejora'
       create_pro_argument: "Crear un nuevo argumento a favor de esta propuesta"
       create_contra_argument: "Crear un nuevo argumento en contra de esta propuesta"
+      create_alternative: "Crear una nueva oposición al contenido"
+      create_background_info: "Recomienda antecedentes complementarios para este contenido"
       create_follow_up_question: "Crear una nueva pregunta de seguimiento en relación a este contenido"
       echo: 'Apoya esta opinión con tu voto!'
       unecho: 'Retira tu voto si ya no estás de acuerdo'
@@ -511,6 +519,11 @@ es:
         improvement: Accede a todas las mejoras lanzadas para la propuesta actual
         pro_argument: Accede a todos los argumentos relativos a la propuesta actual
         contra_argument:  Accede a todos los argumentos relativos a la propuesta actual
+        background_info:  Vea todos los antecedentes pertenecientes al contenido actual
+      link_statement: |
+        Introduzca una parte del título o pegue la URL de uno de los contenidos.
+        Seguidamente presione este botón para asociar el contenido en el contexto actual.
+      unlink_statement: "Presione de nuevo el botón para disociar el contenido."
 
     statements:
       label: 'votos'
@@ -519,14 +532,33 @@ es:
       echo_indicator:
         one: '{{supporter_count}} voto'
         many: '{{supporter_count}} votos'
-      add_new: Crear nuevo/a...
+
+      add_new: Nuevo contenido
+      embed_button: Insertar
+      embed_search_title: Insertar resultados de búsqueda.
+      embed_search_hint: |-
+        Copie y pegue el código de abajo para insertar estos resultados de búsqueda en TU página web y
+        hacer un echo en tu comunidad.
+      embed_statement_title: Contenido insertado
+      embed_statement_hint: |-
+        Copie y pegue el código de abajo para insertar este contenido en TU página web y
+        hacer un echo en tu comunidad.
+      copy_url: Enlace a
+      copy_url_title: Enlace al contenido
+      copy_url_hint: |-
+        Copia el enlace de este contenido y utilízalo para extender la palabra a través de tus canales favoritos.
+
       create_question_link: 'Crear nuevo debate'
       create_proposal_link: 'Crear nueva propuesta'
       create_internal_link: 'Nueva Idea?'
       create_improvement_link: 'Crear nueva mejora'
-      create_pro_argument_link: Crear un nuevo argumento a favor
-      create_contra_argument_link: Crear un nuevo argumento en contra
+      create_pro_argument_link: Crear un nuevo argumento a FAVOR
+      create_contra_argument_link: Crear un nuevo argumento en CONTRA
+      create_alternative_link: Crear una nueva oposición
+      create_background_info_link: Crear un nuevo antecedente
       create_follow_up_question_link: Formular una nueva pregunta de seguimiento
+      preview_embedded_content: Vista previa
+      open_embedded_content: Abrir en nueva ventana
 
       statement_language_hint: |
         Para realizar algún comentario, selecciona por favor, el conocimiento de idiomas en tu <a href='{{url}}'>Perfil</a>.
@@ -540,20 +572,27 @@ es:
       tag_permission: |
         Lo sentimos, pero no tienes permiso para insertar esta '{{tag}}' nota.
       title_hint:
-        question: Introduce el título de la pregunta en...
-        proposal: Introduce el título de la propuesta en...
-        improvement: Introduce el título de la mejora en...
-        pro_argument: Introduce el título del argumento a favor en...
-        contra_argument: Introduce el título del argumento en contra en...
-        follow_up_question: Introduce el título de la pregunta de seguimiento en...
+        question: Introduce el título de la pregunta en... Español?
+        proposal: Introduce el título de la propuesta en... Español?
+        improvement: Introduce el título de la mejora en... Español?
+        pro_argument: Introduce el título del argumento a favor en... Español?
+        contra_argument: Introduce el título del argumento en contra en... Español?
+        background_info: Introduce el título de los antecedentes en... Español?
+        follow_up_question: Introduce el título de la pregunta de seguimiento en... Español?
       text_hint:
+        alternative_prefix: |
+          Las OPOSICIONES son mutualmente exclusivas al contenido original y sus alternativas.<br/><br/>
         question: Por favor, describe el asunto y desarrolla algunos detalles sobre el tema...
         proposal: Por favor, formula tu propuesta en detalle...
         improvement: Por favor, formula tu idea de mejora en detalle...
         pro_argument: Por favor, formula tu argumento a favor en detalle...
         contra_argument: Por favor, formula tu argumento en contra en detalle...
+        background_info: |
+          Por favor, describe brevemente el antecedente recomendado y explica por qué piensas que es
+          interesante en este contexto...
         follow_up_question: Por favor, formula tu pregunta de seguimiento en detalle...
       tag_hint: 'Clasificado por temas'
+      info_url_hint: 'Escribe el enlace al contenido externo'
 
       publish: Publicar
       published: Este debate ha sido publicada con éxito.
@@ -565,27 +604,34 @@ es:
         improvement: 'Mejora'
         pro_argument: 'Argumento a favor'
         contra_argument: 'Argumento en contra'
+        alternative: 'Oposiciones'
+        background_info: 'Antecedentes'
         follow_up_question: 'Pregunta de seguimiento'
       new:
         question:  'Nuevo Debate'
         proposal:  'Nueva Propuesta'
         improvement: 'Nueva Mejora'
-        pro_argument: 'Nuevo argumento a favor'
-        contra_argument: 'Nuevo argumento en contra'
+        pro_argument: 'Nuevo argumento a FAVOR'
+        contra_argument: 'Nuevo argumento en CONTRA'
+        background_info: 'Nuevo Antecedente'
         follow_up_question: 'Nueva pregunta de seguimiento'
       headings:
         question: 'Cuestiones'
         proposal: 'Propuestas'
         improvement: 'Mejora'
         argument: 'Pros & Cons'
+        alternatives: 'Alternativas'
+        background_info: 'Antecedentes'
         follow_up_question: 'Preguntas de Seguimiento'
       sibling_labels:
         question: 'Cuestiones'
         proposal: 'Propuestas'
         improvement: 'Mejora'
         argument: 'Argumentos'
+        background_info: 'Antecedentes'
         follow_up_question: 'Cuestiones'
       siblings:
+        background_info: 'Antecedentes'
         follow_up_question: 'Pregunta de seguimiento según lo indicado arriba'
 
       topic: Tema (Tags / Palabras clave)
@@ -628,8 +674,15 @@ es:
       no_document_in_language: 'Este contenido no está disponible en inglés.'
       supporter_to_share: 'Tienes que apoyar este contenido para poder compartirlo.'
       published_to_share: 'Este debate está aún por publicar. Lo sentimos, pero hasta entonces, no puedes compartirlo.'
-      cannot_be_edited: 'Lo sentimos, pero no puedes editar este contenido hasta obtener el apoyo de otros miembros. El motivo es evitar el falseamiento de opiniones.'
+      cannot_be_edited: |
+        Lo sentimos, pero no puedes editar este contenido hasta obtener el apoyo de otros miembros.
+        El motivo es evitar el falseamiento de opiniones.
+      cannot_be_linked: Desafortunadamente este contenido no puede ser asociado en el contexto actual.
       echos_label: Support
+
+      linking:
+        disabled: Asociar
+        enabled: Asociado
 
       breadcrumbs:
         discuss_search: Buscar resultados
@@ -638,11 +691,21 @@ es:
           ds: ''
           mi: ''
           sr: 'Preguntas encontrada por'
+          pr: 'Propuestas para'
+          im: 'Mejorías para'
+          ar: 'Argumentos para'
+          bi: 'Antecedentes para'
+          jp: 'Siguiendo link de'
           fq: 'Preguntas de seguimiento para'
           over:
             ds: 'Volver a'
             mi: 'Volver a'
             sr: 'Volver a buscar resultados para'
+            pr: 'Volver a'
+            im: 'Volver a'
+            ar: 'Volver a'
+            bi: 'Volver a'
+            jp: 'Volver a'
             fq: 'Volver a'
 
       upload_image:
@@ -666,6 +729,10 @@ es:
           Presiona el botón de arriba para introducirla AHORA!
         contra_argument: |
           Aquí podría aparecer tu idea ganadora.<br/><br/>Tienes una?<br/><br/>
+          Presiona el botón de arriba para introducirla AHORA!
+        background_info: |
+          Aquí es donde un nuevo antecedente relacionados al contenido actual pueden aparecer.<br/><br/>
+          Te gustaría recomendar uno?<br/><br/>
           Presiona el botón de arriba para introducirla AHORA!
         follow_up_question: |
           Aquí podría aparecer tu idea ganadora.<br/><br/>Tienes una?<br/><br/>
@@ -745,6 +812,7 @@ es:
         concernments: 'Competencias'
         web_addresses: 'Dirección Web'
       actions:
+        send_mail: "Enviar Mensaje"
         report: "Denunciar"
     messages:
       empty:           'No se han encontrado resultados para tu búsqueda. Por favor, intenta de nuevo con otra palabra.'
@@ -766,6 +834,15 @@ es:
       send: Enviar mensaje
     create:
       thank_you: Muchas gracias por tu mensaje!
+
+  user_mail:
+    new:
+      title: Enviar Mensaje
+      guide: Aquí puedes enviar un mensaje para contactar al miembro echo seleccionado.
+      subject: Sujeto
+      text: Mensaje
+    create:
+      thank_you: Tu mensaje ha sido enviado con éxito.
 
 
 # Model resources
@@ -834,7 +911,10 @@ es:
         text: 'Resumen'
         title: 'Titulo'
         image: 'Imagen'
-
+      statement:
+        info_type_id: 'Tipo de Contenido'
+      statement_data:
+        info_url: 'Enlace de los Antecedentes'
       about_item:
         photo: 'Foto'
         name: 'Nombre'

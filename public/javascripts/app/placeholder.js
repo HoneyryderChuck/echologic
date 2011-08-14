@@ -7,7 +7,7 @@
 			"text_area_class" : ".statement_text",
 			"changed_class" : "changed",
 			"default_attr"  : "data-default",
-			"focus_class"   : "has_focus"
+			"focus_class"   : "focused"
     };
 
 		// Merging settings with defaults
@@ -24,9 +24,9 @@
     });
 
 
-    /****************/
-    /* The echoable */
-    /****************/
+    /*******************/
+    /* The placeholder */
+    /*******************/
 
     function Placeholder(container) {
       initialize();

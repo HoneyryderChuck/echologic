@@ -1,14 +1,18 @@
 <% statement_node ||= @statement_node %>
 <% statement_document ||= @statement_document %>
 
-<% semantic_form_for statement_node, :html => {:class => "ajax_form edit wide_form statement 
-                                                          #{statement_node.taggable? ? 'taggable' : ''} 
-                                                          #{statement_node.echoable? ? 'echoable' : ''}
-                                                          #{statement_node.class.has_embeddable_data? ? 'embeddable' : ''}",
+<% semantic_form_for statement_node,
+                     :html => {:class => "ajax_form edit wide_form statement
+                                         #{statement_node.taggable? ? 'taggable' : ''}
+                                         #{statement_node.echoable? ? 'echoable' : ''}
+                                         #{statement_node.class.has_embeddable_data? ? ('embeddable ' + statement_node.info_type.code) : ''}",
                             'data-siblings' => @siblings ? @siblings[dom_id(statement_node)].to_json : ''} do |form| -%>
+														
+  <%= hidden_field_tag :cs, params[:cs] if params[:cs] %>
+	
 	<%= render :partial => 'statements/form/form_header', :locals => {:form => form, :statement_node => statement_node} %>
-  <%= render :partial => 'statements/form/form_content', 
+  <%= render :partial => 'statements/form/form_content',
              :locals => {:form => form, :statement_node => statement_node,
-                         :headline => I18n.t("discuss.statements.edit", 
+                         :headline => I18n.t("discuss.statements.edit",
                                              :type => I18n.t("discuss.statements.types.#{node_type(statement_node)}"))} %>
 <% end -%>

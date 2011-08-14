@@ -24,7 +24,7 @@
     <% end %>
 
     <% content_tag :div, :class => "social_container" do %>
-      <%= send("#{type}_social_link")%>
+      <%= send("remote_#{type}_panel")%>
     <% end %>
   <% end %>
 

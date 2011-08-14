@@ -184,10 +184,10 @@ class Users::UsersController < ApplicationController
           current_user.delete_account
           respond_to do |format|
             set_info "users.echo_account.delete_account.success"
-            format.html { flash_info and redirect_to root_path }
+            format.html { flash_info and redirect_to base_url }
             format.js {
               render_with_info do |page|
-                page.redirect_to root_path
+                page.redirect_to base_url
               end
             }
           end

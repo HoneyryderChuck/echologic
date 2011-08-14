@@ -1,0 +1,14 @@
+
+<% content_tag :ul, :class => 'dropdown' do %>
+
+  <% content_tag :li, :class => 'default first' do %>
+     <%= link_to I18n.t('layouts.connect.tabs.search'),
+                 connect_search_path %>
+  <% end %>
+
+  <% content_tag :li, :class => 'roadmap last' do %>
+     <%= link_to I18n.t('application.roadmap.title'),
+                 connect_roadmap_path %>
+  <% end %>
+
+<% end %>

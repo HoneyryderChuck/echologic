@@ -1,13 +1,19 @@
-/* Do init stuff. */
 
+/* Initializes the different My echo functions. */
 $(document).ready(function () {
-	if ($('#function_container.my_echo').length > 0) {
+	if ($('#echo_my_profile').length > 0) {
   	loadComponentAutoComplete();
   	loadProfileEditForm();
-  	initEchoAccountButtons();
+  }
+  if ($('#echo_my_settings').length > 0) {
+    initEchoAccountButtons();
   }
 });
 
+
+/**************/
+/* My Profile */
+/**************/
 
 function loadComponentAutoComplete() {
   var options = {minChars: 3, selectFirst: false};
@@ -39,6 +45,10 @@ function loadProfileEditForm() {
   });
 }
 
+
+/***************/
+/* My Settings */
+/***************/
 
 function initEchoAccountButtons() {
 	var container = $('#echo_account_settings');

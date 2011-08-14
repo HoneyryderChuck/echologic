@@ -1,8 +1,8 @@
-<%= tabnav :admin %>
+<% @function_name = 'admin_report' %>
 
-<h1>Listing reports</h1>
+<h1>Reported users</h1>
 
-<div id="active_reports_container" style="width:300px; float:left; border-right:1px solid #ccc; padding-right:5px;">
+<div id="active_reports_container">
   <h2>Active reports</h2>
   <i><%= @active.count %> active reports:</i>
   <ul>
@@ -10,15 +10,13 @@
   </ul>
 </div>
 
-<div id="done_reports_container" style="width:200px; float:left; padding-left:5px;">
-  <h2>Done reports</h2>
+<div id="done_reports_container">
+  <h2>Processed reports</h2>
   <i><%= @done.count %> done reports:</i>
   <ul>
     <%= render @done %>
   </ul>
 </div>
 
-<div id="details_container" class="tab_details_container" style="width:300px; float:right; border-left:1px dotted #ccc; padding-left:20px;">
-  
-</div>
+<div id="details_container" class="tab_details_container"></div>
 

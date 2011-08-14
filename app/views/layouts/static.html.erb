@@ -20,15 +20,16 @@
 
     <!-- Javascript -->
     <%= javascript_include_tag :defaults,
+                               'app/remote_signinup',
                                'fragment_observer',
                                'jquery.forms',
                                'jquery.ba-url.min',
-                               'jquery.autogrow',
                                'jquery.tooltip.min',
                                'jquery.cycle.lite.1.0.min',
                                'jquery.mousewheel',
                                'jquery.jscrollpane.min',
                                'jquery.livequery',
+                               'jquery.toggleval',
                                :cache => 'echo_home' %>
     <%= javascript_tag "var AUTH_TOKEN = #{form_authenticity_token.inspect};" if protect_against_forgery? -%>
   </head>
@@ -42,8 +43,6 @@
     <div id="header">
       <div class="main_logo">
         <%= link_to(image_tag('page/echo_logo.png'), root_path) %>
-        <%# link_to(image_tag('page/beta_stamp.png',
-                              :class => 'stamp'), root_path) %>
         <%= image_tag('page/beta_label.png', :class => 'label') %>
       </div>
       <%= render :partial => "layouts/components/top_menu"%>

@@ -16,7 +16,7 @@ class Users::UserSessionsController < ApplicationController
         @user_session = UserSession.new(params[:user_session])
         if @user_session.save
           # if the user failed to log in with a social account just previously,
-        # this will be added as the user logs in with its' echo account
+          # this will be added as the user logs in with its' echo account
           user = User.find_by_email(params[:user_session][:email])
           add_social_to_user(user) if session[:identifier]
           user.check_social_accounts
@@ -64,12 +64,17 @@ class Users::UserSessionsController < ApplicationController
           end
         end
       else
-        redirect_to redirect_url
+        redirect_or_render_with_error(redirect_url, "application.remote_error")
       end
-    rescue RpxService::RpxServerException
+    rescue RpxService::RpxServerException => e
+      log_message_error(e, "Error logging in with social account - RpxServerException")
+      redirect_or_render_with_error(redirect_url, "application.remote_error")
+    rescue RpxService::RpxException => e
+      log_message_error(e, "Error logging in with social account - RpxException")
       redirect_or_render_with_error(redirect_url, "application.remote_error")
     rescue Exception => e
       log_message_error(e, "Error logging in with social account")
+      redirect_or_render_with_error(redirect_url, "application.unexpected_error")
     end
   end
 
@@ -78,7 +83,7 @@ class Users::UserSessionsController < ApplicationController
     current_user_session.destroy
     reset_session
     set_info 'users.signout.messages.success'
-    flash_info and redirect_to root_path
+    flash_info and redirect_to base_url
   end
 
   protected

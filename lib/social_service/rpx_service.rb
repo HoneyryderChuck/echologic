@@ -1,6 +1,7 @@
 #
-# Ruby Helper Class for Janrain Engage
+# Ruby Helper Class for Janrain Engage RPX Service.
 #
+
 require 'uri'
 require 'net/http'
 require 'net/https'
@@ -15,7 +16,39 @@ class RpxService
     @base_url = base_url.sub(/\/*$/, '')
     @realm = realm
   end
-  
+
+
+  ####################
+  # Remote providers #
+  ####################
+
+  #
+  # Returns data about all supported remote authentication providers.
+  #
+  def signinup_provider_data
+    if @providers.nil?
+      @providers = []
+      @providers << ProviderData.new('facebook', "https://#{RPX_APP_NAME}/facebook/connect_start?ext_perm=publish_stream,email,offline_access&token_url={url}")
+      @providers << ProviderData.new('twitter', "https://#{RPX_APP_NAME}/twitter/start?token_url={url}")
+      @providers << ProviderData.new('google', "https://#{RPX_APP_NAME}/openid/start?openid_identifier=https://www.google.com/accounts/o8/id&token_url={url}")
+      @providers << ProviderData.new('yahoo', "https://#{RPX_APP_NAME}/openid/start?openid_identifier=http://me.yahoo.com&token_url={url}")
+      @providers << ProviderData.new('linkedin', "https://#{RPX_APP_NAME}/linkedin/start?token_url={url}")
+      @providers << ProviderData.new('openid', "https://#{RPX_APP_NAME}/openid/start?openid_identifier={input}&token_url={url}", true)
+#      @providers << ProviderData.new('windowslive', "https://#{RPX_APP_NAME}/liveid/start?token_url={url}")
+#      @providers << ProviderData.new('aol', "https://#{RPX_APP_NAME}/openid/start?openid_identifier=https://openid.aol.com/{input}&token_url={url}", true)
+#      @providers << ProviderData.new('wordpress', "https://#{RPX_APP_NAME}/openid/start?openid_identifier=http://{input}.wordpress.com&token_url={url}", true)
+#      @providers << ProviderData.new('blogger', "https://#{RPX_APP_NAME}/openid/start?openid_identifier={input}&token_url={url}", true)
+#      @providers << ProviderData.new('flickr', "https://#{RPX_APP_NAME}/openid/start?openid_identifier=http://me.yahoo.com&token_url={url}")
+#      @providers << ProviderData.new('myopenid', "https://#{RPX_APP_NAME}/openid/start?openid_identifier=http://myopenid.com&token_url={url}")
+    end
+    @providers
+  end
+
+
+  ##############
+  # echo Users #
+  ##############
+
   def get_profile_info(token)
     data = api_call 'auth_info', :token => token
     data['profile']
@@ -25,6 +58,11 @@ class RpxService
     data = api_call 'get_user_data', :identifier => identifier
     data['profile']
   end
+
+
+  ###########################
+  # Social account mappings #
+  ###########################
 
   def mappings(primary_key)
     data = api_call 'mappings', :primaryKey => primary_key
@@ -52,18 +90,30 @@ class RpxService
     "#{rp_url}/openid/signin?token_url=#{CGI.escape(dest)}"
   end
 
-  def activity(identifier, activity)
+
+  ##################
+  # Social Sharing #
+  ##################
+
+  def share_activity(identifier, activity)
     api_call 'activity', :identifier => identifier, :activity => activity, :truncate => true
   end
 
-  def get_provider_signup_url(provider, token_url)
+  def get_provider_auth_url(provider, token_url)
     url = CGI::escape(token_url)
     case provider
-      when "facebook" then "https://#{RPX_APP_NAME}/facebook/connect_start?token_url=#{url}&ext_perm=publish_stream,email,offline_access"
+      when "facebook" then "https://#{RPX_APP_NAME}/facebook/connect_start?ext_perm=publish_stream,email,offline_access&token_url=#{url}"
       when "twitter" then "https://#{RPX_APP_NAME}/twitter/start?token_url=#{url}"
-      when "yahoo!" then "https://#{RPX_APP_NAME}/openid/start?openid_identifier=http://me.yahoo.com/&token_url=#{url}"
-      when "linkedin" then "https://#{RPX_APP_NAME}/linkedin/start?token_url=#{url}"
       when "google" then "https://#{RPX_APP_NAME}/openid/start?openid_identifier=https://www.google.com/accounts/o8/id&token_url=#{url}"
+      when "yahoo!" then "https://#{RPX_APP_NAME}/openid/start?openid_identifier=http://me.yahoo.com&token_url=#{url}"
+      when "linkedin" then "https://#{RPX_APP_NAME}/linkedin/start?token_url=#{url}"
+#      when "openid" then "https://#{RPX_APP_NAME}/openid/start?openid_identifier={input}&token_url=#{url}"
+#      when "windowslive" then "https://#{RPX_APP_NAME}/liveid/start?token_url=#{url}"
+#      when "aol" then "https://#{RPX_APP_NAME}/openid/start?openid_identifier=https://openid.aol.com/{input}&token_url=#{url}"
+#      when "wordpress" then "https://#{RPX_APP_NAME}/openid/start?openid_identifier=http://{input}.wordpress.com&token_url=#{url}"
+#      when "blogger" then "https://#{RPX_APP_NAME}/openid/start?openid_identifier={input}&token_url=#{url}"
+#      when "flickr" then "https://#{RPX_APP_NAME}/openid/start?openid_identifier=http://me.yahoo.com&token_url=#{url}"
+#      when "myopenid" then "https://#{RPX_APP_NAME}/openid/start?openid_identifier=http://myopenid.com&token_url=#{url}"
     end
   end
 
@@ -116,5 +166,6 @@ class RpxService
   end
   class RpxServerException < StandardError
   end
+
 end
 

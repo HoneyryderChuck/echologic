@@ -35,23 +35,17 @@ module Widgets
     # (you can also call them in your views if you want)
 
     # renders the tabnav
-    def render_tabnav(name, opts={}, &proc)
+    def render_tabnav(name, opts={})
       raise ArgumentError, "Missing name parameter in tabnav call" unless name
       raise ArgumentError, "Missing block in tabnav call" unless block_given?
       @_tabnav = Tabnav.new(name, opts)
+      yield @_tabnav #instance_eval(&proc)
 
-      instance_eval(&proc)
       concat @_tabnav.render_css('tabnav') if @_tabnav.generate_css?
       concat tag('div',@_tabnav.html ,true)
       @_tabnav.sort! if opts[:sort] == true
       render_tabnav_tabs
       concat "</div>\n"
-      nil
-    end
-
-    def add_tab options = {}, &block
-      raise 'Cannot call add_tab outside of a render_tabnav block' unless @_tabnav
-      @_tabnav.tabs << Tab.new(options, &block)
       nil
     end
 
@@ -103,6 +97,7 @@ module Widgets
         else
           raise "WHAT THE HELL?"
         end
+        concat tab.dropdown unless tab.dropdown.nil?
         concat "</li>\n"
       end
       concat '</ul>'

@@ -1,11 +1,9 @@
 
-<div id="language_selector" class="rounded-box rounded-box-green-iwot" style="display:none;">
-  <ul>
-    <li><%= link_to "English", request.request_uri.split("/").fill("en",1..1).join('/') %></li>
-    <li><%= link_to "Deutsch", request.request_uri.split("/").fill("de",1..1).join('/') %></li>
-    <li><%= link_to "Español", request.request_uri.split("/").fill("es",1..1).join('/') %></li>
-    <li><%= link_to "Português", request.request_uri.split("/").fill("pt",1..1).join('/') %></li>
-    <li><%= link_to "Français", request.request_uri.split("/").fill("fr",1..1).join('/') %></li>
-    <li><%= link_to "Magyar (wip)", request.request_uri.split("/").fill("hu",1..1).join('/') %></li>
-  </ul>
-</div>
+<ul class="dropdown language_selector">
+  <li><%= link_to "English", request.request_uri.split("/").fill("en",1..1).join('/') %></li>
+  <li><%= link_to "Deutsch", request.request_uri.split("/").fill("de",1..1).join('/') %></li>
+  <li><%= link_to "Español", request.request_uri.split("/").fill("es",1..1).join('/') %></li>
+  <li><%= link_to "Português", request.request_uri.split("/").fill("pt",1..1).join('/') %></li>
+  <li><%= link_to "Français", request.request_uri.split("/").fill("fr",1..1).join('/') %></li>
+  <li class="last"><%= link_to "Magyar (wip)", request.request_uri.split("/").fill("hu",1..1).join('/') %></li>
+</ul>

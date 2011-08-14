@@ -2,7 +2,6 @@
  * @author Tiago
  */
 
-
 (function($) {
 
   $.fn.statement_search = function(current_settings) {
@@ -69,7 +68,7 @@
 					var page_count = elements_count / settings['per_page'] + 1;
           moreButton.replaceWith(loadingMoreButton);
 					$.setFragment({"page_count" : page_count, "page" : ""});
-					
+
 					// load elements that have to be updated on the page count parameter
 					var elements_to_update = search_container.find('a.statement_link, a.avatar_holder, a.add_new_button');
 					$.ajax({
@@ -93,18 +92,15 @@
 				element.attr('href',encodeURI(decodeURI(element.attr('href')).replace(/\|\d+/g, "|" + page_count)));
 			}
 
-//			function initScrollPane() {
-//				elements_list.jScrollPane({animateScroll: true});
-//			}
 
       /*
-       * Handles the Embedded Code panel
+       * Initializes the Embed echo button and panel.
        */
       function initEmbedButton() {
-        var embed_url = action_bar.find('.embed_url');
-        action_bar.find('a#embed_link').bind("click", function() {
+        var embed_code = action_bar.find('.embed_code');
+        action_bar.find('#embed_link').bind("click", function() {
           $(this).next().animate({'opacity' : 'toggle'}, settings['animation_speed']);
-          embed_url.show().select();
+          embed_code.selText();
           return false;
         });
         action_bar.find('.embed_panel').bind("mouseleave", function() {

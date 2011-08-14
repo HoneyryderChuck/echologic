@@ -18,7 +18,7 @@ module PublishableModuleHelper
   def create_question_link_for(origin=@origin)
     link_to(new_question_url(:origin => origin, :bids => origin),
                              :id => 'create_question_link',
-                             :class => 'add_new_button') do
+                             :class => 'add_new_button big_action_button') do
       link_content = ''
       link_content << content_tag(:span, '',
                                   :class => "add_new_question_icon ttLink no_border",
@@ -137,7 +137,7 @@ module PublishableModuleHelper
   def create_my_question_link_for
     link_to(new_question_url(:origin => :mi, :bids => :mi),
                        :id => 'create_question_link',
-                       :class => 'add_new_button') do
+                       :class => 'add_new_button big_action_button') do
       link_content = ''
       link_content << content_tag(:span, '',
                       :class => "add_new_question_icon ttLink no_border",

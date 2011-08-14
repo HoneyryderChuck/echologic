@@ -46,8 +46,8 @@ en:
           echo is a joint <a href="{{github_url}}" target="_blank">Open Source</a> project for
           <strong>active citizen participation</strong> - available
           <span title="{{subsidiarity_tooltip}}" class="ttLink">worldwide</span> and for all people.
-          Feelings of powerlessness and political resignation will soon belong to the past. echo brings us the necessary
-          technology to turn the vision of real democracy into lived reality in our everyday life.
+          Its comprehensive approach is designed to address a core problem of our time: the political resignation
+          and feelings of powerlessness of the individual.
           </p><p>
           "Discuss - Connect - Act!“ - The social software facilitates <strong>constructive, cross-language
           public dialogs</strong> for opinion formation and collective solution finding. It connects people
@@ -110,7 +110,7 @@ en:
 
         action: |-
           Check out prototype »<br/>
-          echo 0.16 is online
+          echo 0.17 is online
 
 
       #About

@@ -41,47 +41,58 @@
 
 		initialise();
 
-		function initialise() {
+		
 
-      loadFormEvents();
+      
+		function initialise() {
+      
+			loadFormEvents();
 			loadRTEEditor();
 
-	        if (form.hasClass('embeddable')) {
+      if (form.hasClass('embeddable')) {
 				form.embeddable();
-	        }
+      }
 
-	        // New Statement Form Helpers
-	        if (form.hasClass('new')) {
+      // New Statement Form Helpers
+      if (form.hasClass('new')) {
 				language_combo = form.find('.statement_language select');
 				statementLinked = form.find('input#statement_node_statement_id');
-				statementParentId = form.find('input#statement_node_parent_id');
-	          	loadDefaultText();
-	          	initFormCancelButton();
+				
+				
+				// Get Id that will be used on the conditions for possible linkable statements
+				var parentForLinking = form.prev();
+				if(parentForLinking.length > 0) {
+					statementParentId = getStatementId(parentForLinking.attr('id'));
+				} else {
+				  statementParentId = form.find('input#statement_node_parent_id').val();	
+				}
+				
+				
+        loadDefaultText();
+        initFormCancelButton();
 				initLinking();
 				handleContentChange();
 				unlinkStatement();
-	        }
-	
-	        // Taggable Form Helpers
-	        if (form.hasClass(settings['taggableClass'])) {
-	          form.taggable();
-	        }
-	      }
+      }
 
-
-      /*
+      // Taggable Form Helpers
+      if (form.hasClass(settings['taggableClass'])) {
+        form.taggable();
+      }
+		}
+			
+			/*
        * Inits the listening to other possible events
        */
-      function loadFormEvents() {
-				/* listen to upload image events */
+      function loadFormEvents(){
+	  	/* listen to upload image events */
 				$(document).bind("upload_started", function(){
 					form.addClass("disabled");
 				});
 				$(document).bind("upload_finished", function(){
-          form.removeClass("disabled");
-        });
+					form.removeClass("disabled");
+				});
 			}
-
 
 			/*
        * Loads the Rich Text Editor for the statement text.
@@ -148,7 +159,8 @@
           cancelButton.attr('href', $.queryString(cancelButton.attr('href').replace(/\/\d+/, path), {
             "sids": new_sids.join(","),
             "bids": bids_to_load.join(','),
-						"origin": $.fragment().origin
+						"origin": $.fragment().origin,
+						"cs" : $.fragment().sids
           }));
         }
       }
@@ -194,7 +206,6 @@
 
 				linkButton.removeAttr('linking_on').removeAttr('linking_off');
 
-
 				// initialize the autocompletion plugin
 				title.autocompletes('../../statements/auto_complete_for_statement_title', {
           minChars: 100,
@@ -202,7 +213,7 @@
           multipleSeparator: "",
           extraParams: {
             code: function(){ return chosenLanguage.val(); },
-            parent_id: function() {return statementParentId.val(); },
+            parent_id: function() {return statementParentId; },
             type: type
           }
         });
@@ -251,7 +262,7 @@
 				var path = '../../statement/' + nodeId + '/link_statement_node/' + type;
         path = $.queryString(path, {
           "code" : chosenLanguage.val(),
-					"parent_id": statementParentId.val()
+					"parent_id": statementParentId
         });
         $.getJSON(path, function(data) {
 					if (data['error']) {

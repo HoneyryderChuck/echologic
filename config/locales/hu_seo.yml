@@ -34,10 +34,8 @@ hu:
           features:        'echo social - Features'
           extensions:      'echo social - Extensions'
 
-
       application:
-        redirect_from_popup: 'Redirecting...'
-
+        redirect_from_popup: 'Átirányítás...'
 
       # users: de.seo.title.users
       users:

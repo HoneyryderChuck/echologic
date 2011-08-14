@@ -106,6 +106,7 @@
           }
 
 					if (sids.join(",") == $.fragment().sids) {
+						sids.pop();
 		        // Sids won't change, we are inside a new form, and we press the breadcrumb to go back
 						var path = $.queryString($(this).attr('href'), {"sids" : sids.join(","), "bids" : ''});
 						$.getScript(path);

@@ -1,28 +1,43 @@
 
 <% if current_user_session %>
 
-  <div id="login_container" class="logged_in">
+  <% content_tag :div, :id => 'login_container', :class => 'logged_in' do %>
     <%= link_to(image_tag(current_user.profile.avatar.url(:small),
                           :id => 'logged_in_user_pic',
                           :class => 'ttLink pointer',
                           :title => I18n.t('users.profile.to')),
                 my_profile_path) %>
-    <span id="logged_in_user">
+    <% content_tag :span, :id=> 'logged_in_user' do %>
       <%= I18n.t('users.signin.hello',
-                 :name => current_user.full_name) %><br/>
-    </span>
-  </div>
+                 :name => current_user.full_name) %>
+    <% end %>
+  <% end %>
 
 <% else %>
 
-  <div id="login_container" class="logged_out">
-    <%= link_to I18n.t('users.signup.label').capitalize(), signup_path,
-                :class => 'ajax signup' %>
-    <%= content_tag :span, I18n.t('application.general.or'),
-                    :class => 'or_label' %>
-    <%= link_to I18n.t('users.signin.label').capitalize(), signin_path,
-                :class => 'ajax signin big_button big_green_button_150' %>
-  </div>
+  <% content_tag :div, :id => 'login_container', :class => 'logged_out' do %>
+    <% unless params[:mode] == 'embed' %>
+
+      <%= link_to I18n.t('users.signup.label').capitalize(),
+                  signup_path,
+                  :class => 'ajax signup' %>
+      <%= content_tag :span, I18n.t('application.general.or'),
+                      :class => 'or_label' %>
+      <%= link_to I18n.t('users.signin.label').capitalize(),
+                  signin_path,
+                  :class => 'ajax signin big_button big_green_button_150' %>
+    <% else %>
+
+      <%= link_to I18n.t('users.signin.label').capitalize(),
+                  signin_path,
+                  :class => 'ajax signin big_button big_green_button_150' %>
+      <%= content_tag :span, I18n.t('application.general.or'),
+                      :class => 'or_label' %>
+      <%= link_to I18n.t('users.signup.label').capitalize(),
+                  signup_path,
+                  :class => 'ajax signup' %>
+    <% end %>
+  <% end %>
 
 <% end %>
 

@@ -46,9 +46,8 @@ de:
           <p>
           echo ist ein <a href="{{github_url}}" target="_blank">Open Source</a> Gemeinschaftsprojekt für
           <strong>aktive Bürgerbeteiligung</strong> - <span title="{{subsidiarity_tooltip}}" class="ttLink">weltweit</span>
-          und für alle Menschen. Gefühlte Machtlosigkeit und politische Resignation gehören langsam der Vergangenheit an.
-          echo bringt uns die notwendige Technologie, um die Vision einer echten Demokratie zur gelebten
-          Wirklichkeit in unserem Alltag zu machen.
+          und für alle Menschen. Es wurde als ganzheitlicher Lösungsansatz für ein Kernproblem unserer Zeit konzipiert:
+          die politische Resignation und die gefühlte Machtlosigkeit der Einzelnen.
           </p><p>
           „Diskutieren – Vernetzen – Handeln!“ - Die soziale Anwendung ermöglicht <strong>konstruktive,
           sprachübergreifende öffentliche Dialoge</strong> zur Meinungsbildung und gemeinsamen Lösungsfindung.
@@ -90,8 +89,8 @@ de:
             nutzerbestimmte, demokratische Verteilung seiner überschüssigen Einnahmen aus mehreren skalierbaren
             Geschäftsmodellen (<strong>“Your-Profit” Geschäftsphilosophie</strong>).
             </p><p>
-            Durch Förderung <strong>konstruktiver Zusammenarbeit von Bürgern, Staat und deren Organisationen</strong>
-            auf allen Ebenen, hilft echo destruktive Konfrontation zu vermeiden und ermöglicht uns allen,
+            Durch Förderung <strong>konstruktiver Zusammenarbeit von Bürgern, Staat und deren Organisationen</strong>,
+            hilft echo destruktive Konfrontation zu vermeiden und ermöglicht uns allen,
             für die Herausforderungen unserer Zeit gemeinsam innovative Antworten zu entwickeln.
             </p>
         text_4:
@@ -109,7 +108,7 @@ de:
 
         action: |-
           Jetzt zum Prototyp »<br/>
-          echo 0.16 ist online
+          echo 0.17 ist online
 
       # about section
       about:

@@ -12,7 +12,6 @@
 
 
 	<% if show_admin_options? %>
-	  <br/><br/><br/>
 	  <%= link_to 'Delete User', @profile.user,
                 :class => 'admin_action',
                 :title  => "User Id: #{@profile.user_id}, Profile Id: #{@profile.id}",

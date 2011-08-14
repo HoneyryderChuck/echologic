@@ -1,0 +1,25 @@
+
+<% content_tag :div,
+               :class => 'remote_signinup',
+               'data-token-url' => token_url do %>
+
+  <% content_tag :div, :class => 'remote_providers' do %>
+    <% content_tag :div, :class => 'provider_page' do %>
+      <% @providers.each do |provider| %>
+			  <%= content_tag :span, '',
+                        {:class => "#{provider[0]} provider"}.merge(provider[1]) %>
+      <% end %>
+    <% end %>
+
+  <% end %>
+
+  <% content_tag :div, :class => 'remote_input_panel', :style => 'display:none;' do %>
+    <%= content_tag :span, '', :class => 'provider_logo' %>
+    <%= tag 'input', :type => 'text', :class => 'provider_input' %>
+    <%= content_tag :span, I18n.t("users.#{mode}.label"), :class => 'signinup_button form_button_200' %>
+    <%= content_tag :span, I18n.t("application.general.back"), :class => 'back_button text_button' %>
+  <% end %>
+
+  <%= content_tag :div, '', :class => 'busy_sign', :style => 'display:none;' %>
+
+<% end %>

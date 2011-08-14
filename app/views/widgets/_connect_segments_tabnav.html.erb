@@ -1,8 +1,8 @@
 <%
 render_tabnav :connect_sorts,
-              :generate_css => false, :html => {:class => 'segments'} do
+              :generate_css => false, :html => {:class => 'segments'} do |tn|
 
-  add_tab :html => {:class => 'ajax_no_sort'} do |t|
+  tn.add_tab :html => {:class => 'ajax_no_sort'} do |t|
     t.named I18n.t('application.general.all')
     t.links_to url_for(:controller => :connect, :action => :show, :value => @value)
     t.highlights_on :sort => ''
@@ -10,7 +10,7 @@ render_tabnav :connect_sorts,
 
   User.tag_types.each do |context|
     context = TagContext[context.to_s.singularize]
-    add_tab :html => {:class => 'ajax_sort', :value => context.id} do |t|
+    tn.add_tab :html => {:class => 'ajax_sort', :value => context.id} do |t|
       t.named I18n.t("connect.segments.#{context.code}")
       t.links_to url_for(:controller => :connect, :action => :show, :value => @value, :sort => context.id)
       t.highlights_on :sort => context.id

@@ -6,6 +6,7 @@ fr:
       follow_echo: Suivez echo
     greeting: 'Cher(e) {{name}},'
     echo_community: 'echo community'
+    echo_member: echo membre
     bye: |
       Bien à vous,
 
@@ -16,7 +17,7 @@ fr:
       L'équipe echo
     signature: |
       --
-      echo - l'agora globale
+      echo - Démocratie vivante
 
       Web: http://echo.to
       Blog: http://blog.echo.to
@@ -24,7 +25,7 @@ fr:
       Facebook: http://www.facebook.com/echo.agora
       E-Mail: team@echologic.org
     signature_as_html: |-
-      <strong>echo</strong> - l'agora globale
+      <strong>echo</strong> - Démocratie vivante
       <br/><br/>
       Web: <a href="http://echo.to/fr">http://echo.to</a><br/>
       Blog: <a href="http://blog.echo.to">http://blog.echo.to</a><br/>
@@ -50,6 +51,17 @@ fr:
         Veuillez préciser l'objet et le texte de votre Newsletter. Merci.
       sent: |-
         Your newsletter mails are being delivered...
+
+
+    user_mail:
+    subject: "[echo message] {{subject}}"
+    prefix: "{{sender}} vous a envoyé un message via echo:"
+    suffix: "Vous pouvez répondre à {{sender}} directement en répondant à ce courriel ou consulter son profil sur echo en cliquant ici: {{url}}"
+
+    user_mail:
+      subject: "[echo message] {{subject}}"
+      prefix: "{{sender}} has sent you a message via echo:"
+      suffix: "You can answer {{sender}} directly by replying to this mail or see his or her profile in echo here: {{url}}"
 
     activity_tracking:
       subject: echo - Notifications d'activité
