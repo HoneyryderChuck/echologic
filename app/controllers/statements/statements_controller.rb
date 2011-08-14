@@ -155,7 +155,7 @@ class StatementsController < ApplicationController
       
       # get image, if there was one uploaded (image_id that comes is the id from the pending action)
       pending = nil
-      if attrs[:statement_image_id]
+      if !attrs[:statement_image_id].blank?
         pending = PendingAction.find(attrs[:statement_image_id])
         attrs[:statement_image_id] = JSON.parse(pending.action)['image_id']
       end

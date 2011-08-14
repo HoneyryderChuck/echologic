@@ -32,7 +32,7 @@ class StatementImagesController < ApplicationController
   #
   def create
     image = StatementImage.create(params[:statement_image])
-    PendingAction.find(params[:pending_action_id]).update_attributes(:action => {:image_id => image.id}.to_json, :user => current_user)
+    PendingAction.find(params[:pending_action_id]).update_attributes(:action => {:image_id => image.id}.to_json)
     respond_to(:html,:js)
   end
 
