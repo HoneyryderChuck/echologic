@@ -1,19 +1,14 @@
-<%# Shows the form for uploading a new statement image, ajaxifys it and shows a
-  # progress indicator.
-%>
-
 <p>
   <%= I18n.t('discuss.statements.upload_image.guide') %>
 </p>
 
-<% semantic_form_for @statement_image,:html => { 'data-image-redirect' => reload_statement_image_url(@statement_image,
-                                                                         :node_id => @statement_node,
-                                                                        :date => @statement_image.image.updated_at),
+<% semantic_form_for @statement_image, :html => { 'data-image-redirect' => load_statement_image_url(params[:type], @pending),
                                                  :multipart => true,
                                                  :id => 'upload_image_form',
                                                  :class => 'upload_form' } do |form| %>
   <% form.inputs do %>
     <%= form.input :image, :input_html => {:size => 70}  %>
+		<%= hidden_field_tag :pending_action_id, @pending.id %>
   <% end %>
 <% end %>
 

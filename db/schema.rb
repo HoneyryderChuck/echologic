@@ -135,12 +135,13 @@ ActiveRecord::Schema.define(:version => 20110814114718) do
   end
 
   create_table "pending_actions", :id => false, :force => true do |t|
-    t.string   "uuid",       :limit => 36
+    t.string   "uuid",         :limit => 36
     t.text     "action"
-    t.boolean  "status",                   :default => false, :null => false
-    t.integer  "user_id"
+    t.boolean  "status",                     :default => false, :null => false
+    t.integer  "pending_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.string   "pending_type"
   end
 
   create_table "profiles", :force => true do |t|

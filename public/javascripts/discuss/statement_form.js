@@ -27,54 +27,71 @@
     /******************************/
 
     function StatementForm(form) {
-			var title = form.find('.statement_title input');
-			var type = $.trim(form.find('input#type').val());
-			var text;
-			var language_combo;
-			var chosenLanguage = form.find('select.language_combo');
-			var statementLinked, statementParentId;
-			var publishRadios = form.find('.publish_radios');
-			var linkButton;
-      var linkingMessages;
-		  var linkedTags;
-			var linkedTitle, linkedText;
+		var title = form.find('.statement_title input');
+		var type = $.trim(form.find('input#type').val());
+		var text;
+		var language_combo;
+		var chosenLanguage = form.find('select.language_combo');
+		var statementLinked, statementParentId;
+		var publishRadios = form.find('.publish_radios');
+		var linkButton;
+      	var linkingMessages;
+		var linkedTags;
+		var linkedTitle, linkedText;
 
-			initialise();
+		initialise();
 
-			function initialise() {
+		
 
-				loadRTEEditor();
+      
+		function initialise() {
+      
+			loadFormEvents();
+			loadRTEEditor();
 
-        if (form.hasClass('embeddable')) {
-					form.embeddable();
-        }
+      if (form.hasClass('embeddable')) {
+				form.embeddable();
+      }
 
-        // New Statement Form Helpers
-        if (form.hasClass('new')) {
-					language_combo = form.find('.statement_language select');
-					statementLinked = form.find('input#statement_node_statement_id');
-					
-					
-					// Get Id that will be used on the conditions for possible linkable statements
-					var parentForLinking = form.prev();
-					if(parentForLinking.length > 0) {
-						statementParentId = getStatementId(parentForLinking.attr('id'));
-					} else {
-					  statementParentId = form.find('input#statement_node_parent_id').val();	
-					}
-					
-					
-          loadDefaultText();
-          initFormCancelButton();
-					initLinking();
-					handleContentChange();
-					unlinkStatement();
-        }
+      // New Statement Form Helpers
+      if (form.hasClass('new')) {
+				language_combo = form.find('.statement_language select');
+				statementLinked = form.find('input#statement_node_statement_id');
+				
+				
+				// Get Id that will be used on the conditions for possible linkable statements
+				var parentForLinking = form.prev();
+				if(parentForLinking.length > 0) {
+					statementParentId = getStatementId(parentForLinking.attr('id'));
+				} else {
+				  statementParentId = form.find('input#statement_node_parent_id').val();	
+				}
+				
+				
+        loadDefaultText();
+        initFormCancelButton();
+				initLinking();
+				handleContentChange();
+				unlinkStatement();
+      }
 
-        // Taggable Form Helpers
-        if (form.hasClass(settings['taggableClass'])) {
-          form.taggable();
-        }
+      // Taggable Form Helpers
+      if (form.hasClass(settings['taggableClass'])) {
+        form.taggable();
+      }
+		}
+			
+			/*
+       * Inits the listening to other possible events
+       */
+      function loadFormEvents(){
+	  	/* listen to upload image events */
+				$(document).bind("upload_started", function(){
+					form.addClass("disabled");
+				});
+				$(document).bind("upload_finished", function(){
+					form.removeClass("disabled");
+				});
 			}
 
 			/*

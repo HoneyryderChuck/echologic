@@ -320,6 +320,53 @@
       find(messageBox).slideDown().animate({opacity: 1.0}, 5000 + text.length*50).slideUp();
   }
 
+  /* loads form ajaxs */
+  function loadAjaxForms() {
+    $('form.ajax_form').livequery(function () {
+      $(this).ajaxForm({
+				dataType : 'script',
+				beforeSubmit: function() {
+					if ($(this).hasClass('disabled')) { return false; } 
+					else { return true; }
+				}
+		  });
+    });
+  }
+
+  /* TODO: Load the upload picture forms here */
+  function uploadFormSubmit(){
+  	$('#dialogContent .upload_form').livequery(function(){
+  		var element = $(this);
+  		element.submit(function(){
+  			$(this).ajaxSubmit({
+  				beforeSend: function(){
+  					$(document).trigger("upload_started");
+  					$('#uploading_progress').show();
+  				},
+  				complete: function(){
+  					$('#uploading_progress').hide();
+  				},
+  				success: function(data, status){
+  					$.ajax({
+  						type: 'get',
+  						dataType: 'script',
+  						url: element.data('image-redirect'),
+  						complete: function(data, status){
+  							$(document).trigger("upload_finished");
+  						},
+  						error: function(){
+  							$(document).trigger("upload_finished");
+  						}
+  					});
+  					$('#dialogContent').dialog('close');
+  				},
+  				error: function(){
+  					$(document).trigger("upload_finished");
+  				}
+  			});
+  		});
+  	});
+  }
 
   /**************************************/
   /* Handling specific functional units */

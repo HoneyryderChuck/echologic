@@ -10,7 +10,7 @@ class User < ActiveRecord::Base
 
   has_many :reports, :foreign_key => 'suspect_id'
 
-  has_many :pending_actions, :foreign_key => 'uuid'
+  has_many :pending_actions, :foreign_key => 'uuid', :as => :pending
 
   named_scope :no_member, :conditions => { :memberships => nil }, :order => :email
 

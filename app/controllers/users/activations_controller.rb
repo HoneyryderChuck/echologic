@@ -104,7 +104,7 @@ class Users::ActivationsController < ApplicationController
     elsif @action.status
       redirect_or_render_with_error(base_url, "users.activation.messages.already_active")
     else
-      @user = @action.user
+      @user = @action.pending
       User.transaction do
         if @user.update_attributes(JSON.parse(@action.action))
           @action.update_attribute(:status, true)

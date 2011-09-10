@@ -118,7 +118,7 @@ class Users::UsersController < ApplicationController
 
         else
           # Validate per Mail and change in a pending action
-          pending_action = PendingAction.create(:action => params[:user].to_json, :user => current_user)
+          pending_action = PendingAction.create(:action => params[:user].to_json, :pending => current_user)
           current_user.deliver_activate_email!(params[:user][:email], pending_action.uuid)
           redirect_or_render_with_info(settings_path, "users.users.messages.activate_email") do |page|
             close_panel(page)

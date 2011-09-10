@@ -106,7 +106,7 @@ class StatementsController < ApplicationController
                                                    :top_level => false)
     @statement_document ||= StatementDocument.new(:language_id => @locale_language_id)
     @action ||= StatementAction["created"]
-
+    
     #search terms as tags
     if @statement_node_type.taggable?
       @statement_node.load_root_tags if @statement_node_type.is_top_statement?
@@ -154,6 +154,13 @@ class StatementsController < ApplicationController
           attrs.merge!({:editorial_state_id => root.editorial_state_id})
         end
       end
+      
+      # get image, if there was one uploaded (image_id that comes is the id from the pending action)
+      pending = nil
+      if !attrs[:statement_image_id].blank?
+        pending = PendingAction.find(attrs[:statement_image_id])
+        attrs[:statement_image_id] = JSON.parse(pending.action)['image_id']
+      end
 
       # Prepare in memory
       @statement_node ||= @statement_node_type.new_instance(attrs)
@@ -181,6 +188,9 @@ class StatementsController < ApplicationController
         @statement_node.send("move_to_alternatives_hub",node_id) if params[:hub]
 
         if @statement_node.save
+          # mark pending action responsible for the uploading of the statement image as finished
+          pending.update_attribute(:status, true) unless pending.nil?
+          
           # add to tree
           if node_id.blank? or @statement_node.class.is_top_statement?
             @statement_node.target_statement.update_attribute(:root_id, @statement_node.target_id)
