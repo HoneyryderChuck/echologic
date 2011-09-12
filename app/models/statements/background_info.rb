@@ -7,17 +7,6 @@ class BackgroundInfo < StatementNode
   #Overwriting of nested set function (hub's make it impossible to level them right)
   def level; parent_node.level + 1; end
 
-
-  def update_node(attributes={})
-    attributes = self.class.filter_attributes(attributes)
-    external_files = attributes.delete(:external_files)
-    external_url_attrs = attributes.delete(:external_url)
-    info_type_id = attributes.delete(:info_type_id)
-    statement.external_url.update_attributes(external_url_attrs)
-    statement.update_attributes(:info_type_id => info_type_id)
-    update_attributes(attributes)
-  end
-
   class << self
 
     # Aux Function: generates new instance

@@ -22,6 +22,7 @@
 			<% else %>
 			  <!-- it's not correct to have this here, but only this way could one be assured that
 				     the element would remain aligned with the rest of the form -->
+				<%= doc.input :language_id, :as => :hidden %>
 			  <%= edit_period_hint %>
 			<% end %>
 		<% end %>

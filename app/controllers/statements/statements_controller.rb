@@ -231,12 +231,15 @@ class StatementsController < ApplicationController
   #
   def edit
     @statement_document ||= @statement_node.document_in_preferred_language(@language_preference_list)
-    @tags ||= @statement_node.topic_tags if @statement_node.taggable?
 
     if (is_current_document = (@statement_document.id == params[:current_document_id].to_i))
       has_lock = acquire_lock(@statement_document)
-      @action ||= StatementAction["updated"]
+      @statement_document = @statement_document.clone
+      @statement_document.statement_history.old_document_id = params[:current_document_id].to_i
+      @statement_document.statement_history.action = StatementAction["updated"] 
     end
+
+    
 
     if !current_user.may_edit? @statement_node
       set_statement_info 'discuss.statements.cannot_be_edited'
@@ -264,29 +267,25 @@ class StatementsController < ApplicationController
     update = false
     begin
       attrs = params[statement_node_symbol]
-      attrs_doc = attrs.delete(:statement_document)
+      attrs_doc = attrs[:statement_attributes][:statement_documents_attributes]["0"]
       locked_at = attrs_doc.delete(:locked_at) if attrs_doc
 
       # Updating tags of the statement
-      form_tags = attrs.delete(:topic_tags) || ''
+      form_tags = attrs[:statement_attributes][:topic_tags] || ''
       new_permission_tags = filter_permission_tags(form_tags.split(','), :read_write)
 
       holds_lock = true
       old_statement_document = nil
       StatementNode.transaction do
-        old_statement_document = StatementDocument.find(attrs_doc[:old_document_id])
+        old_statement_document = StatementDocument.find(attrs_doc[:statement_history_attributes][:old_document_id])
         holds_lock = holds_lock?(old_statement_document, locked_at)
         if holds_lock
-          @statement_document = @statement_node.add_statement_document(
-                                                                       attrs_doc.merge({:author_id => current_user.id,
-                                                     :current => true}))
-          @statement_document.save
-
-          @statement_node.update_node(attrs)
-          if @statement_node.taggable? and form_tags
-            @tags = @statement_node.topic_tags = form_tags
-          end
-          @statement_node.statement.save
+          # add default parameters
+          attrs_doc.merge!({:current => true})
+          attrs_doc[:statement_history_attributes].merge!({:author_id => current_user.id})
+          
+          @statement_node.update_attributes(attrs)
+          @statement_document = @statement_node.statement_documents.last
 
           if !new_permission_tags.empty?
             current_user.decision_making_tags += new_permission_tags
@@ -297,15 +296,19 @@ class StatementsController < ApplicationController
 
       if !holds_lock
         being_edited
-      elsif @statement_node.valid? and @statement_document.valid?
+      elsif @statement_node.valid?
         old_statement_document.current = false
         old_statement_document.unlock # also saves the document
         update = true
         set_statement_info(@statement_document)
         show_statement
       else
-        set_error(@statement_document) if @statement_document
-        set_error(@statement_node) unless @statement_document
+        set_error(@statement_node, :only => ["statement.statement_documents.title", 
+                                             "statement.statement_documents.text"])
+        if @statement_node.class.has_embeddable_data?
+          set_error(@statement_node.statement, :only => [:info_type_id, :external_url])
+          @statement_node.statement_datas.each{|s|set_error(s)}
+        end
         show_statement true
       end
 

@@ -35,8 +35,7 @@
 	                    :value => statement_document.locked_at %>
 		    <% doc.semantic_fields_for :statement_history, statement_document.statement_history do |hist| %>
 					<%= hist.input :old_document_id,
-		                     :as => :hidden,
-		                     :value => statement_document.id if !statement_document.new_record? %>
+		                     :as => :hidden %>
 					<%= hist.input :action_id,
 		                     :as => :hidden %>
 					<%= hist.input :incorporated_node_id,

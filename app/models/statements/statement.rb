@@ -7,7 +7,7 @@ class Statement < ActiveRecord::Base
   # statement_datas
   has_many :statement_datas # only important for certain selects 
   has_many :external_files
-  has_one :external_url
+  has_one :external_url, :autosave => true
   has_many :statement_histories, :source => :statement_histories
   
   delegate :image, :image=, :to => :statement_image
