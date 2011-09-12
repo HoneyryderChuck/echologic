@@ -13,16 +13,13 @@ class StatementDocument < ActiveRecord::Base
   validates_length_of :title, :maximum => 101
   validates_presence_of :text
   validates_presence_of :language_id
-#  validates_presence_of :statement
   validates_associated :statement_history
 
   before_validation :set_history
   
   accepts_nested_attributes_for :statement_history
   
-  delegate :action, :to => :statement_history
-#  delegate :author, :author=, :author_id=, :action, :action=, :action_id=, :old_document, :old_document=, :old_document_id=,
-#           :incorporated_node, :incorporated_node=, :incorporated_node_id=, :comment, :comment=, :to => :statement_history
+  delegate :action, :author, :incorporated_node, :to => :statement_history
 
 
   def after_initialize

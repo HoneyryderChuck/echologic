@@ -19,6 +19,10 @@ module IncorporationModule
     has_lock = acquire_lock(@statement_document)
     @action ||= StatementAction["incorporated"]
     if still_approved && has_lock
+      old_document_id = @statement_document.id
+      @statement_document = @statement_document.clone
+      @statement_document.statement_history.old_document_id = old_document_id 
+      @statement_document.statement_history.action = @action ||= StatementAction["incorporated"] 
       render_template 'statements/proposals/edit_draft'
     elsif !still_approved
       set_info('discuss.statements.not_approved_any_more')
