@@ -12,12 +12,12 @@
 	                         :only_echo_button => true } if statement_node.new_record? %>
 		
 			<% if disabled or !statement_document.new_record? %>
-			  <%= doc.input :language_id,
-			                :as => :hidden,
-			                :value => statement_document.language_id %>
-			  <%= doc.input :title,
-			                :input_html => {:disabled => disabled} if disabled %>
-		  	<% end %>
+			  <% content_tag :li, :class => "static_title" do -%>
+          <%= label_tag "statement_node_statement_statement_document_title",
+                            I18n.t("activerecord.attributes.statement_document.title") %>
+          <%= content_tag :div, sanitize(statement_document.title), :class => "static_text" %>
+        <% end %>
+		  <% end %>
 		
 			<% if !disabled %>
 			  <% if statement_node.new_record? %>
@@ -43,7 +43,7 @@
 		                     :value => @approved_node.id if !@approved_node.nil? %>
 	      <% end %>
 			<% else %>
-				<% content_tag :li do -%>
+				<% content_tag :li, :class => "static_summary" do -%>
 				  <%= label_tag "statement_node_statement_statement_document_text",
 		                        I18n.t("activerecord.attributes.statement_document.text") %>
 					<%= content_tag :div, sanitize(statement_document.text), :class => "static_text" %>

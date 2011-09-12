@@ -114,7 +114,7 @@ Given /^there is a question i have created$/ do # not in use right now
 end
 
 Given /^the question was not published yet$/ do
-  @question.editorial_state = StatementState["new"]
+  @question.statement.editorial_state = StatementState["new"]
   @question.statement.save
 end
 
@@ -124,7 +124,7 @@ Given /^the question has proposals$/ do
 end
 
 Given /^the question has "([^\"]*)" for tags$/i do |tags|
-  @question.topic_tags = tags
+  @question.statement.topic_tags = tags
   @question.statement.save
 end
 
@@ -187,22 +187,22 @@ end
 Given /^a "([^\"]*)" question in "([^\"]*)"$/ do |state, category|
   state = StatementState[state.downcase]
   @question = Question.new(:creator => @user)
-  @question.statement = Statement.new(:editorial_state => state)
-  @question.add_statement_document({:title => "Am I a new statement?",
-                                      :text => "I wonder what i really am! Maybe a statement? Or even a question?",
-                                      :author => @user,
-                                      :current => 1,
-                                      :language_id => @user.sorted_spoken_languages.first,
-                                      :action_id => StatementAction["created"].id,
-                                      :original_language_id => @user.sorted_spoken_languages.first})
-  @question.topic_tags << category
+  @question.statement = Statement.new(:editorial_state => state, :original_language_id => @user.sorted_spoken_languages.first)
+  @question.statement.statement_documents.build(
+       :title => "Am I a new statement?",
+       :text => "I wonder what i really am! Maybe a statement? Or even a question?",
+       :statement_history => StatementHistory.new(:author => @user,:action_id => StatementAction["created"].id),
+       :current => 1,
+       :language_id => @user.sorted_spoken_languages.first
+       )
+  @question.statement.topic_tags << category
   @question.save!
 end
 
 Then /^the ([^\"]*) should be ([^\"]*)$/ do |type, state|
   type = type.split(' ').join('_')
   variable = instance_variable_get("@#{type}").reload
-  assert_equal StatementState[state], variable.editorial_state
+  assert_equal state, variable.editorial_state.code
 end
 
 Then /^I should see the questions title$/ do
@@ -218,7 +218,7 @@ Given /^there is a proposal$/ do
 end
 
 Given /^the proposal was not published yet$/ do
-  @proposal.editorial_state = StatementState["new"]
+  @proposal.statement.editorial_state = StatementState["new"]
   @proposal.statement.save
 end
 

@@ -64,10 +64,8 @@ module TranslationModule
           new_attrs_doc[:statement_history_attributes].merge!({:author_id => current_user.id})
 
           @statement_node.update_attributes(attrs)
-          
-          
-          @new_statement_document = @statement_node.statement_documents.last
         end
+        @new_statement_document = StatementDocument.new(new_attrs_doc)
       end
 
       # Rendering response
@@ -81,6 +79,7 @@ module TranslationModule
       else
         set_error(@statement_node, :only => ["statement.statement_documents.title", 
                                              "statement.statement_documents.text"])
+        @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
         render_statement_with_error :template => 'statements/new_translation'
       end
     rescue Exception => e

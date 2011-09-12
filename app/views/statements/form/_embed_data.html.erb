@@ -17,7 +17,7 @@
 	            <% InfoType.all.each do |info_type| %>
 	              <% content_tag :li, :class => "info_type #{info_type.code}", :'data-value' => info_type.code do %>
 	                <noscript>
-	                  <%= radio_button_tag "#{dom_class(statement_node)}[info_type]",
+	                  <%= radio_button_tag "#{dom_class(statement_node)}[statement_attributes][info_code]",
 	                                       info_type.code,
 	                                       (!no_data and statement_node.info_type.eql?(info_type)),
 	                                       :class => "info_type #{info_type.code}" %>

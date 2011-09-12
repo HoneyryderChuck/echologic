@@ -2204,11 +2204,19 @@ form.translation .rte-panel {
 }
 
 .translation .static_text {
-	height: 250px;
 	width: 354px;
 	border: 1px solid #999999;
 	overflow: auto;
   padding: 2px;
+}
+
+.translation .static_summary .static_text {
+  height: 250px;	
+}
+
+.translation .static_title .static_text{
+	min-height: 17px;
+	padding: 2px;  
 }
 
 form.statement fieldset ol li.tags_container {

@@ -34,9 +34,9 @@ class DiscussAlternativesQuestion < FollowUpQuestion
     end
   end
   
-  def parent_id=(id)
-    return if id.blank?
-    self.hub = StatementNode.find(parent_id).hub
+  def parent_id=(p_id)
+    return if p_id.blank?
+    self.hub = StatementNode.find(p_id).hub
   end
   
   def parent_node

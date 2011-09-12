@@ -76,7 +76,7 @@ Feature: Translation permission
       And I choose the "Andere Frage?" Question
       And I follow "Please translate this statement to ENGLISH"
       And I fill in the following:
-        | question_new_statement_document_title | Another Question? |
+        | question_statement_attributes_statement_documents_attributes_0_title | Another Question? |
       And I press "Save"
     Then I should see "The field 'Summary' must not be empty."
 
@@ -89,7 +89,7 @@ Feature: Translation permission
       And I choose the "Andere Frage?" Question
       And I follow "Please translate this statement to ENGLISH"
       And I fill in the following:
-        | question_new_statement_document_text | new statement to ENGLISH |
+        | question_statement_attributes_statement_documents_attributes_0_text | new statement to ENGLISH |
       And I press "Save"
     Then I should see "The field 'Title' must not be empty."
 
@@ -102,8 +102,8 @@ Feature: Translation permission
       And I choose the "Andere Frage?" Question
       And I follow "Please translate this statement to ENGLISH"
       And I fill in the following:
-        | question_new_statement_document_title | Another Question? |
-        | question_new_statement_document_text | new statement in ENGLISH |
+        | question_statement_attributes_statement_documents_attributes_0_title | Another Question? |
+        | question_statement_attributes_statement_documents_attributes_0_text | new statement in ENGLISH |
       And I press "Save"
     Then I should see "new statement in ENGLISH"
       And I follow "Logout"
@@ -126,8 +126,8 @@ Feature: Translation permission
       And I choose the "Vorschlag auf Deutsch" Proposal
       And I follow "Please translate this statement to ENGLISH"
       And I fill in the following:
-        | proposal_new_statement_document_title | Proposal in German |
-        | proposal_new_statement_document_text | new statement to ENGLISH |
+        | proposal_statement_attributes_statement_documents_attributes_0_title | Proposal in German |
+        | proposal_statement_attributes_statement_documents_attributes_0_text | new statement to ENGLISH |
       And I press "Save"
     Then I should see "new statement to ENGLISH"
 
@@ -142,8 +142,8 @@ Feature: Translation permission
       And I choose the "Verbesserungsvorschlag auf Deutsch" Improvement
       And I follow "Please translate this statement to ENGLISH"
       And I fill in the following:
-        | improvement_new_statement_document_title | Improvement in German |
-        | improvement_new_statement_document_text | new statement to ENGLISH |
+        | improvement_statement_attributes_statement_documents_attributes_0_title | Improvement in German |
+        | improvement_statement_attributes_statement_documents_attributes_0_text | new statement to ENGLISH |
       And I press "Save"
     Then I should see "new statement to ENGLISH"
 

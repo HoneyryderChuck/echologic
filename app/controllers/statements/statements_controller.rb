@@ -157,7 +157,6 @@ class StatementsController < ApplicationController
 
       # Prepare in memory
       @statement_node ||= @statement_node_type.new(attrs)
-      
 
       @tags = []
       created = false
@@ -189,9 +188,10 @@ class StatementsController < ApplicationController
           EchoService.instance.created(@statement_node.question) if @statement_node.question_id
           created = true
         end
-        @statement_document = @statement_node.statement_documents.last
       end
-
+      
+      @statement_document = StatementDocument.new(doc_attrs)
+      
       # Rendering
       if created
         load_siblings @statement_node
@@ -209,6 +209,7 @@ class StatementsController < ApplicationController
           set_error(@statement_node.statement, :only => [:info_type_id, :external_url])
           @statement_node.statement_datas.each{|s|set_error(s)}
         end
+        
         render_statement_with_error :template => 'statements/new'
       end
 
@@ -285,13 +286,13 @@ class StatementsController < ApplicationController
           attrs_doc[:statement_history_attributes].merge!({:author_id => current_user.id})
           
           @statement_node.update_attributes(attrs)
-          @statement_document = @statement_node.statement_documents.last
 
           if !new_permission_tags.empty?
             current_user.decision_making_tags += new_permission_tags
             current_user.save
           end
         end
+        @statement_document = StatementDocument.new(attrs_doc)
       end
 
       if !holds_lock

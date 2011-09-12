@@ -49,8 +49,8 @@ Feature: Echo
       And I choose the first Question
       And I follow localized "discuss.statements.create_proposal_link"
       And I fill in the following:
-        | statement_node_statement_document_title | proposal title |
-        | statement_node_statement_document_text  | proposal text. |
+        | statement_node_statement_attributes_statement_documents_attributes_0_title | proposal title |
+        | statement_node_statement_attributes_statement_documents_attributes_0_text  | proposal text. |
       And I press "Save"
       And I have the "proposal title" proposal
     Then the proposal should have 1 visitors
@@ -148,8 +148,8 @@ Feature: Echo
       And I follow "echo_button"
       And I follow localized "discuss.statements.create_improvement_link"
       And I fill in the following:
-      | statement_node_statement_document_title           | Main Improve   |
-      | statement_node_statement_document_text            | improve, biatx |
+      | statement_node_statement_attributes_statement_documents_attributes_0_title           | Main Improve   |
+      | statement_node_statement_attributes_statement_documents_attributes_0_text            | improve, biatx |
       And I press "Save"
       And I go to the proposal
       And I choose the "Main Improve" Improvement
@@ -171,8 +171,8 @@ Feature: Echo
       And I follow "echo_button"
       And I follow localized "discuss.statements.create_improvement_link"
       And I fill in the following:
-      | statement_node_statement_document_title           | Main Improve   |
-      | statement_node_statement_document_text            | improve, biatx |
+      | statement_node_statement_attributes_statement_documents_attributes_0_title           | Main Improve   |
+      | statement_node_statement_attributes_statement_documents_attributes_0_text            | improve, biatx |
       And I press "Save"
       And I go to the proposal
       And I choose the "Main Improve" Improvement

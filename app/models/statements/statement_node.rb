@@ -69,7 +69,7 @@ class StatementNode < ActiveRecord::Base
   belongs_to :statement, :autosave => true
 
   delegate :image, :published?, :topic_tags, :filtered_topic_tags, :has_author?, :authors, 
-           :original_language, :editorial_state, :statement_image, :taggable?, :to => :statement
+           :original_language, :editorial_state, :statement_image, :taggable?, :publish, :to => :statement
 
   has_many :statement_documents, :through => :statement, :source => :statement_documents do
     def for_languages(lang_ids)
