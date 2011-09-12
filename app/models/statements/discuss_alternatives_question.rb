@@ -34,18 +34,16 @@ class DiscussAlternativesQuestion < FollowUpQuestion
     end
   end
   
+  def parent_id=(id)
+    return if id.blank?
+    self.hub = StatementNode.find(parent_id).hub
+  end
+  
   def parent_node
     hub.parent
   end
 
   class << self
-    def new_instance(attributes = nil)
-      # parent id that comes from the form is from an alternative, we have to delete it and add the new DAQ to the hub of the alternative
-      parent_id = attributes ? attributes.delete(:parent_id) : nil
-      new_daq = super
-      new_daq.hub = StatementNode.find(parent_id).hub if parent_id
-      new_daq
-    end
     
     def is_mirror_discussion?
       true

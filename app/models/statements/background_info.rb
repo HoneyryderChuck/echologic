@@ -9,22 +9,6 @@ class BackgroundInfo < StatementNode
 
   class << self
 
-    # Aux Function: generates new instance
-    # loads statement datas as well (and the info type (article, paper, video, etc...))
-    def new_instance(attributes={})
-      attributes = filter_attributes(attributes)
-      editorial_state = attributes.delete(:editorial_state)
-      external_files = attributes.delete(:external_files) || []
-      external_url = ExternalUrl.new(attributes.delete(:external_url))
-      info_type_id = attributes.delete(:info_type_id)
-      node = self.new(attributes)
-      node.set_statement(:editorial_state => editorial_state,
-                         :external_files => external_files,
-                         :external_url => external_url,
-                         :info_type_id => info_type_id) if node.statement.nil?
-      node
-    end
-
     # Aux function: rewrites the attributes hash for it to be valid on the act of creating a new background info
     def filter_attributes(attributes={})
       attributes = filter_editorial_state(attributes)

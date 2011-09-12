@@ -186,7 +186,8 @@ end
 
 Given /^a "([^\"]*)" question in "([^\"]*)"$/ do |state, category|
   state = StatementState[state.downcase]
-  @question = Question.new_instance(:editorial_state => state, :creator => @user)
+  @question = Question.new(:creator => @user)
+  @question.statement = Statement.new(:editorial_state => state)
   @question.add_statement_document({:title => "Am I a new statement?",
                                       :text => "I wonder what i really am! Maybe a statement? Or even a question?",
                                       :author => @user,

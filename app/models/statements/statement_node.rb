@@ -337,17 +337,7 @@ class StatementNode < ActiveRecord::Base
   #################
 
   class << self
-
-    # Aux Function: generates new instance
-    def new_instance(attributes = {})
-      attributes = filter_editorial_state(attributes)
-      editorial_state = attributes.delete(:editorial_state)
-      statement_image_id = attributes.delete(:statement_image_id)
-      node = self.new(attributes)
-      node.set_statement(:editorial_state => editorial_state, :statement_image_id => statement_image_id) if node.statement.nil?
-      node
-    end
-
+   
     def filter_editorial_state(attributes={})
       attributes[:editorial_state] = StatementState[attributes.delete(:editorial_state_id).to_i] if attributes[:editorial_state_id]
       attributes
