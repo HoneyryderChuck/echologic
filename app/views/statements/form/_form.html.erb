@@ -15,38 +15,40 @@
 <%= render(:partial => 'statements/approved',
            :locals => {:being_incorporated => true}) unless @approved_node.nil? %>
 
-<% if publishable -%>
-
-  <!-- Statement tags (currently only for questions) -->
-  <% form.inputs :class => 'statement_tags' do %>
-	  <%= render :partial => "statements/form/statement_tags",
-               :locals => {:form => form,
-                           :tags => tags}%>
-	<% end %>
-
-  <!-- Published state radio buttons -->
-
-  <% if statement_node.new_record? -%>
-    <% form.inputs :class => 'publish_radios' do %>
-      <%= form.input :editorial_state_id, :as => :radio,
-                     :label => I18n.t('discuss.statements.states.label'),
-                     :collection => statement_states_collection -%>
-    <% end %>
-  <% end %>
+<% form.semantic_fields_for :statement, statement_node.statement do |stat| %>
+	<% if publishable -%>
 	
-	<% if (@statement_node_type and @statement_node_type.is_top_statement?) or statement_node.is_referenced? %>
-		<% form.inputs :class => 'top_level_radios' do %>
-	    <%= form.input :top_level, :as => :radio,
-	                   :label => I18n.t('discuss.statements.top_level.label'),
-	                   :collection => top_level_collection -%>
+	  <!-- Statement tags (currently only for questions) -->
+	  <% form.inputs :class => 'statement_tags' do %>
+		  <%= render :partial => "statements/form/statement_tags",
+	               :locals => {:form => form,
+	                           :statement_node => statement_node, 
+	                           :tags => tags}%>
+		<% end %>
+	
+	  <!-- Published state radio buttons -->
+	
+	  <% if statement_node.new_record? -%>
+	    <% stat.inputs :class => 'publish_radios' do %>
+	      <%= stat.input :editorial_state_id, :as => :radio,
+	                     :label => I18n.t('discuss.statements.states.label'),
+	                     :collection => statement_states_collection -%>
+	    <% end %>
 	  <% end %>
-	<% end %>
-
-<% else -%>
-  <!-- All statement types but questions -->
-  <%= form.hidden_field :editorial_state_id %>
-<% end -%>
-
+		
+		<% if (@statement_node_type and @statement_node_type.is_top_statement?) or statement_node.is_referenced? %>
+			<% form.inputs :class => 'top_level_radios' do %>
+		    <%= form.input :top_level, :as => :radio,
+		                   :label => I18n.t('discuss.statements.top_level.label'),
+		                   :collection => top_level_collection -%>
+		  <% end %>
+		<% end %>
+	
+	<% else -%>
+	  <!-- All statement types but questions -->
+	  <%= stat.hidden_field :editorial_state_id %>
+	<% end -%>
+<% end %>
 
 <!-- Type or Radio Types -->
 <% if @statement_node_type and @statement_node_type.has_alternatives? %>
@@ -56,12 +58,14 @@
 <% end %>
 
 <!-- Hidden fields -->
-<%= form.hidden_field :statement_id %>
+<% form.semantic_fields_for :statement, statement_node.statement do |stat| %>
+  <%= stat.hidden_field :id %>
+<% end %>
 <%= form.hidden_field :parent_id %>
 
 <!-- Embed data -->
 <%= render :partial => 'statements/form/embed_data',
-           :locals => {:statement_node => statement_node} if has_embeddable_data %>
+           :locals => {:form => form, :statement_node => statement_node} if has_embeddable_data %>
 
 <!-- Submit or cancel -->
 <% form.buttons do %>

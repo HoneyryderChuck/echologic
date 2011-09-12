@@ -4,7 +4,7 @@ class DiscussAlternativesQuestion < FollowUpQuestion
 
   has_one :hub, :class_name => "CasHub", :foreign_key => "question_id"
   
-  
+  after_create :transpose_mirror_tree
   
   def transpose_mirror_tree
     # create the new twin hub and association between twin hubs

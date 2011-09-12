@@ -101,11 +101,16 @@ class StatementsController < ApplicationController
   # Response: JS
   #
   def new
-    @statement_node ||= StatementNode.new_instance(:parent_id => params[:id],
-                                                   :editorial_state => StatementState[:published],
-                                                   :top_level => false)
-    @statement_document ||= StatementDocument.new(:language_id => @locale_language_id)
-    @action ||= StatementAction["created"]
+    # load main variables with the default values
+    @statement_node ||= StatementNode.new(:parent_id => params[:id], 
+                                          :top_level => false, 
+                                          :statement_attributes => {
+                                            :editorial_state => StatementState[:published],
+                                          })
+    @statement_document ||= StatementDocument.new(:language_id => @locale_language_id,
+                                                  :statement_history_attributes => {
+                                                    :action => StatementAction["created"] 
+                                                  })
     
     #search terms as tags
     if @statement_node_type.taggable?
@@ -140,35 +145,19 @@ class StatementsController < ApplicationController
   #
   def create
     attrs = params[statement_node_symbol].merge({:creator_id => current_user.id})
-    doc_attrs = attrs.delete(:statement_document)
-    form_tags = attrs.delete(:topic_tags) || ""
+    form_tags = attrs[:statement_attributes][:topic_tags] || ""
+    doc_attrs = attrs[:statement_attributes][:statement_documents_attributes]["0"]
+    
+    # add default parameters
+    doc_attrs.merge!({:current => true})
+    doc_attrs[:statement_history_attributes].merge!({:author_id => current_user.id})
+    attrs[:statement_attributes].merge!({:original_language_id => doc_attrs[:language_id] || @locale_language_id})
 
     begin
-      node_id = attrs[:parent_id]
-      if !node_id.blank?
-        parent_node = StatementNode.find(node_id)
-        attrs.merge!({:root_id => parent_node.root_id})
-
-        if !@statement_node_type.is_top_statement?
-          root = parent_node.root
-          attrs.merge!({:editorial_state_id => root.editorial_state_id})
-        end
-      end
-      
-      # get image, if there was one uploaded (image_id that comes is the id from the pending action)
-      pending = nil
-      if !attrs[:statement_image_id].blank?
-        pending = PendingAction.find(attrs[:statement_image_id])
-        attrs[:statement_image_id] = JSON.parse(pending.action)['image_id']
-      end
 
       # Prepare in memory
-      @statement_node ||= @statement_node_type.new_instance(attrs)
-      @statement_document = !@statement_node.statement.new_record? ?
-                            @statement_node.statement.document_in_language(doc_attrs[:language_id] || @locale_language_id) :
-                            @statement_node.add_statement_document(doc_attrs.merge({:original_language_id => doc_attrs[:language_id] || @locale_language_id,
-                                                                                    :author_id => current_user.id,
-                                                                                    :current => true}))
+      @statement_node ||= @statement_node_type.new(attrs)
+      
 
       @tags = []
       created = false
@@ -176,33 +165,20 @@ class StatementsController < ApplicationController
       # Add possible secret tags to the current user profile
       new_permission_tags = filter_permission_tags(form_tags.split(","), :read_write)
 
-      # Calculating added tags to statement
-      if @statement_node.taggable?
-        @tags = @statement_node.topic_tags = form_tags
-      end
-
       # Persisting
       StatementNode.transaction do
 
         # IF ALTERNATIVE
-        @statement_node.send("move_to_alternatives_hub",node_id) if params[:hub]
+        @statement_node.move_to_alternatives_hub if params[:hub]
 
         if @statement_node.save
-          # mark pending action responsible for the uploading of the statement image as finished
-          pending.update_attribute(:status, true) unless pending.nil?
-          
-          # add to tree
-          if node_id.blank? or @statement_node.class.is_top_statement?
-            @statement_node.target_statement.update_attribute(:root_id, @statement_node.target_id)
-          end
-          
-          @statement_node.transpose_mirror_tree if @statement_node.class.is_mirror_discussion?
           
           if @statement_node.echoable?
             echo = params.delete(:echo)
             @statement_node.author_support if echo=='true'
           end
 
+          # TODO: Move To Filter
           if !new_permission_tags.empty?
             current_user.decision_making_tags += new_permission_tags
             current_user.save
@@ -213,6 +189,7 @@ class StatementsController < ApplicationController
           EchoService.instance.created(@statement_node.question) if @statement_node.question_id
           created = true
         end
+        @statement_document = @statement_node.statement_documents.last
       end
 
       # Rendering
@@ -226,7 +203,8 @@ class StatementsController < ApplicationController
           render :template => 'statements/create'
         end
       else
-        set_error(@statement_document)
+        set_error(@statement_node, :only => ["statement.statement_documents.title", 
+                                             "statement.statement_documents.text"])
         if @statement_node.class.has_embeddable_data?
           set_error(@statement_node.statement, :only => [:info_type_id, :external_url])
           @statement_node.statement_datas.each{|s|set_error(s)}
@@ -790,9 +768,10 @@ class StatementsController < ApplicationController
   # Checks if text that comes with the form is actually empty, even with the escape parameters from the iframe
   #
   def check_empty_text
-    if params[statement_node_symbol].include? :new_statement_document or params[statement_node_symbol].include? :statement_document
-      document_param = params[statement_node_symbol][:new_statement_document] ||
-      params[statement_node_symbol][:statement_document]
+    statement_attrs = params[statement_node_symbol][:statement_attributes]
+    return if statement_attrs.blank?
+    if statement_attrs.include? :statement_documents_attributes
+      document_param = statement_attrs[:statement_documents_attributes]["0"]
       text = document_param[:text]
       document_param[:text] = "" if text.eql?('<br>')
     end

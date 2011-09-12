@@ -3,25 +3,27 @@
 <% user_languages = current_user.spoken_languages_at_min_level("intermediate") %>
 <% local_language = Language[@locale_language_id] %>
 
-<% form.semantic_fields_for :statement_document, statement_document do |doc|  %>
-  <% doc.inputs :class => 'inputs left_panel statement_language' do %>
-	  <% if statement_node.new_record? %>
-	    <%= doc.input :language_id,
-	                  :collection => user_languages.empty? ? [[local_language.value,local_language.id]] : user_languages.collect{|l|[l.value,l.id]},
-	                  :include_blank => false,
-                    :label => false,
-                    :input_html => {:class => 'language_combo'} %>
-
-			<% hint = "" %>
-      <% hint << top_statement_hint if statement_node.class.is_top_statement? %>
-			<% hint << define_languages_hint if user_languages.empty? %>
-      <% hint << drafting_language_hint if statement_node.draftable? %>
-      <%= content_tag :li, hint, :class => 'hint' unless hint.blank? %>
-
-		<% else %>
-		  <!-- it's not correct to have this here, but only this way could one be assured that
-			     the element would remain aligned with the rest of the form -->
-		  <%= edit_period_hint %>
+<% form.semantic_fields_for :statement, statement_node.statement do |stat| %>
+	<% stat.semantic_fields_for :statement_documents, statement_document do |doc|  %>
+	  <% doc.inputs :class => 'inputs left_panel statement_language' do %>
+		  <% if statement_node.new_record? %>
+		    <%= doc.input :language_id,
+		                  :collection => user_languages.empty? ? [[local_language.value,local_language.id]] : user_languages.collect{|l|[l.value,l.id]},
+		                  :include_blank => false,
+	                    :label => false,
+	                    :input_html => {:class => 'language_combo'} %>
+	
+				<% hint = "" %>
+	      <% hint << top_statement_hint if statement_node.class.is_top_statement? %>
+				<% hint << define_languages_hint if user_languages.empty? %>
+	      <% hint << drafting_language_hint if statement_node.draftable? %>
+	      <%= content_tag :li, hint, :class => 'hint' unless hint.blank? %>
+	
+			<% else %>
+			  <!-- it's not correct to have this here, but only this way could one be assured that
+				     the element would remain aligned with the rest of the form -->
+			  <%= edit_period_hint %>
+			<% end %>
 		<% end %>
 	<% end %>
 <% end %>

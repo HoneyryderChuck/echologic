@@ -124,8 +124,8 @@ module ActiveRecord
             # Function called on the alternative creation process
             #
             # node_id id of the original statement for which this statement is an alternative
-            def move_to_alternatives_hub(node_id)
-              alternative = StatementNode.find(node_id)
+            def move_to_alternatives_hub
+              alternative = self.parent
               if alternative
                 hub = alternative.hub
                 if hub.nil?

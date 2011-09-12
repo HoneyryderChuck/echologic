@@ -1,34 +1,51 @@
 class Statement < ActiveRecord::Base
   acts_as_extaggable :topics
+  
   has_many :statement_nodes
   has_many :statement_documents, :dependent => :destroy
   belongs_to :statement_image
-  delegate :image, :image=, :to => :statement_image
-
   # statement_datas
   has_many :statement_datas # only important for certain selects 
   has_many :external_files
   has_one :external_url
-  validates_associated :external_files
-  validates_associated :external_url
+  has_many :statement_histories, :source => :statement_histories
+  
+  delegate :image, :image=, :to => :statement_image
+
+  accepts_nested_attributes_for :statement_documents, :limit => 1
+  accepts_nested_attributes_for :external_url
+  
   has_enumerated :info_type, :class_name => 'InfoType'
-
-
-  # editorial state
   has_enumerated :editorial_state, :class_name => 'StatementState'
+
+  attr_accessor :pending_image
+  
+  after_save :update_pending_image
 
   validates_presence_of :editorial_state_id
   validates_numericality_of :editorial_state_id
   validates_associated :statement_documents
   validates_associated :statement_image
   validates_presence_of :info_type_id, :if => :has_data? 
-
+  validates_associated :external_files
+  validates_associated :external_url
 
   def has_data?
     !external_files.empty? or !external_url.nil?
   end
+  
+  def info_code
+    info_type.code if info_type.present?
+  end
+  
+  def info_code=(val)
+    self.info_type = InfoType[val]
+  end
 
-  has_many :statement_histories, :source => :statement_histories
+  def update_pending_image
+    return if @pending_image.nil? or !@pending_image.status
+    @pending_image.update_attribute(:status, true)
+  end
 
   def after_initialize
     self.statement_image = StatementImage.new if self.statement_image.nil?
@@ -47,6 +64,13 @@ class Statement < ActiveRecord::Base
   named_scope :find_by_title, lambda {|value|
             { :include => :statement_documents,
               :conditions => ['statement_documents.title LIKE ? and statement_documents.current = 1', "%#{value}%"] } }
+
+
+  def statement_image_id=(image_id)
+    return if image_id.blank?
+    @pending_image = PendingAction.find(image_id)
+    self.statement_image = StatementImage.find(JSON.parse(@pending_image.action)['image_id'])
+  end
 
 
   #

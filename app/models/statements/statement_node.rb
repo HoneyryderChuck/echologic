@@ -14,13 +14,27 @@ class StatementNode < ActiveRecord::Base
     self.class.name.underscore
   end
 
-  # Deletion handling
   after_destroy :destroy_associated_objects
+  before_create :initialise_root_for_leaf
+  after_create  :initialise_root_for_root
 
   def destroy_associated_objects
     #destroy_statement   # It didn't work - hard to comprehend, why.
     destroy_shortcuts
     destroy_descendants
+  end
+
+  
+  # initialises the root on a leaf node, so that, when the node is saved, the position (lft, rgt) on the graph will be rightly calculated
+  def initialise_root_for_leaf
+    return if parent.nil?
+    self.root_id = parent.root_id
+    statement.editorial_state = parent.root.editorial_state if self.class.is_top_statement?
+  end
+  
+  # since the root node was created without a specific root node assigned, assign it after the creation 
+  def initialise_root_for_root
+    target_statement.update_attribute(:root_id, target_id) if parent.nil? or self.class.is_top_statement?
   end
 
   #
@@ -44,6 +58,8 @@ class StatementNode < ActiveRecord::Base
     descendants.destroy_all
   end
 
+  
+
 
   ##
   ## ASSOCIATIONS
@@ -52,10 +68,8 @@ class StatementNode < ActiveRecord::Base
   belongs_to :creator, :class_name => "User"
   belongs_to :statement
 
-  delegate :original_language, :document_in_language, :authors, :has_author?,
-           :statement_image, :statement_image=, :image, :image=, :published?, :publish,
-           :taggable?, :filtered_topic_tags, :topic_tags, :topic_tags=, :hash_topic_tags, :tags, :editorial_state_id,
-           :editorial_state_id=, :editorial_state, :editorial_state=, :to => :statement
+  delegate :image, :published?, :topic_tags, :filtered_topic_tags, :has_author?, :authors, 
+           :original_language, :editorial_state, :statement_image, :to => :statement
 
   has_many :statement_documents, :through => :statement, :source => :statement_documents do
     def for_languages(lang_ids)
@@ -67,6 +81,7 @@ class StatementNode < ActiveRecord::Base
     end
   end
 
+  accepts_nested_attributes_for :statement
 
   ##
   ## VALIDATIONS
@@ -168,7 +183,7 @@ class StatementNode < ActiveRecord::Base
   # Helper function to load the tags from the root
   #
   def load_root_tags
-    self.topic_tags = self.root.nil? ? parent.root.topic_tags : self.root.topic_tags
+    self.statement.topic_tags = self.root.nil? ? parent.root.topic_tags : self.root.topic_tags
   end
 
   ########################

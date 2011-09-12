@@ -2,53 +2,54 @@
 <% statement_node ||= @statement_node %>
 <% statement_document ||= @statement_document %>
 
-<% form.semantic_fields_for :statement_document, statement_document do |doc|  %>
-  <% doc.inputs :class => 'inputs left_panel statement_text' do %>
-
-    <%= render :partial => 'statements/action_bar',
-             :locals => {:statement_node => statement_node,
-                         :only_echo_button => true } if statement_node.new_record? %>
-
-	<% if disabled or !statement_document.new_record? %>
-	  <%= doc.input :language_id,
-	                :as => :hidden,
-	                :value => statement_document.language_id %>
-	  <%= doc.input :title,
-	                :input_html => {:disabled => disabled} if disabled %>
-  	<% end %>
-
-	<% if !disabled %>
-	  <% if statement_node.new_record? %>
-	  	<%= content_tag :div, new_statement_image(statement_node) , :class => 'statement_content' %>
-	  	<%= hidden_field_tag "statement_node[statement_image_id]", statement_node.statement.statement_image_id %>
-	  <% end %>
-      <%= doc.input :text,
-                    :label => false,
-                    :input_html => {:disabled => disabled,
-                                    :class => 'rte_doc statement_text',
-                                    'data-default' => summary_hint_text(statement_node),
-                                    'data-css-url' => 'http://' + ECHO_HOST + '/stylesheets/'} %>
-			<%= doc.input :old_document_id,
-                    :as => :hidden,
-                    :value => statement_document.id if !statement_document.new_record? %>
-			<%= doc.input :locked_at,
-                    :as => :hidden,
-                    :value => statement_document.locked_at %>
-			<%= doc.input :action_id,
-                    :as => :hidden,
-                    :value => @action.id if @action %>
-			<%= doc.input :incorporated_node_id,
-                    :as => :hidden,
-                    :value => @approved_node.id if !@approved_node.nil? %>
-
-	<% else %>
-		<% content_tag :li do -%>
-		  <%= label_tag "question_statement_document_text",
-                        I18n.t("activerecord.attributes.statement_document.text") %>
-			<%= content_tag :div, sanitize(statement_document.text),
-            	            :class => "static_text" %>
+<% form.semantic_fields_for :statement, statement_node.statement do |stat| %>
+	<% stat.semantic_fields_for :statement_documents, statement_document do |doc|  %>
+	  <% doc.input :id, :as => :hidden %>
+		<% doc.inputs :class => 'inputs left_panel statement_text' do %>
+		
+	    <%= render :partial => 'statements/action_bar',
+	             :locals => {:statement_node => statement_node,
+	                         :only_echo_button => true } if statement_node.new_record? %>
+		
+			<% if disabled or !statement_document.new_record? %>
+			  <%= doc.input :language_id,
+			                :as => :hidden,
+			                :value => statement_document.language_id %>
+			  <%= doc.input :title,
+			                :input_html => {:disabled => disabled} if disabled %>
+		  	<% end %>
+		
+			<% if !disabled %>
+			  <% if statement_node.new_record? %>
+			  	<%= content_tag :div, new_statement_image(statement_node) , :class => 'statement_content' %>
+					<%= stat.input :statement_image_id, :as => :hidden %>
+			  <% end %>
+	      <%= doc.input :text,
+	                    :label => false,
+	                    :input_html => {:disabled => disabled,
+	                                    :class => 'rte_doc statement_text',
+	                                    'data-default' => summary_hint_text(statement_node),
+	                                    'data-css-url' => 'http://' + ECHO_HOST + '/stylesheets/'} %>
+			  <%= doc.input :locked_at,
+	                    :as => :hidden,
+	                    :value => statement_document.locked_at %>
+		    <% doc.semantic_fields_for :statement_history, statement_document.statement_history do |hist| %>
+					<%= hist.input :old_document_id,
+		                     :as => :hidden,
+		                     :value => statement_document.id if !statement_document.new_record? %>
+					<%= hist.input :action_id,
+		                     :as => :hidden %>
+					<%= hist.input :incorporated_node_id,
+		                     :as => :hidden,
+		                     :value => @approved_node.id if !@approved_node.nil? %>
+	      <% end %>
+			<% else %>
+				<% content_tag :li do -%>
+				  <%= label_tag "statement_node_statement_statement_document_text",
+		                        I18n.t("activerecord.attributes.statement_document.text") %>
+					<%= content_tag :div, sanitize(statement_document.text), :class => "static_text" %>
+		    <% end %>
+		  <% end %>
 		<% end %>
-    <% end %>
-	<%= doc.hidden_field :statement_id %>
-  <% end %>
-<% end -%>
+	<% end -%>
+<% end %>

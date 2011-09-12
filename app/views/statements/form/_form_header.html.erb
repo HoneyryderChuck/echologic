@@ -11,17 +11,19 @@
 
     <%= content_tag :span, '&nbsp;', :class => 'icon' %>
 		<% form.inputs :class => 'statement_title' do %>
-			<% form.semantic_fields_for :statement_document, statement_document do |doc| %>
-	      <%= doc.input :title, :label => false,
-                      :input_html => {:class => 'focus',
-                                      'data-default' => title_hint_text(statement_node)} %>
-				<% if linking_enabled %>
-					<%= content_tag :span, I18n.t('discuss.statements.linking.disabled'),
-                          :class => "link_button off ttLink no_border",
-	                        :title => I18n.t('discuss.tooltips.link_statement'),
-							            :linking_on => I18n.t('discuss.statements.linking.enabled'),
-							            :linking_off => I18n.t('discuss.statements.linking.disabled') %>
-	      <% end %>
+		  <% form.semantic_fields_for :statement, statement_node.statement do |stat| %>
+				<% stat.semantic_fields_for :statement_documents, statement_document do |doc| %>
+		      <%= doc.input :title, :label => false,
+	                      :input_html => {:class => 'focus',
+	                                      'data-default' => title_hint_text(statement_node)} %>
+					<% if linking_enabled %>
+						<%= content_tag :span, I18n.t('discuss.statements.linking.disabled'),
+	                          :class => "link_button off ttLink no_border",
+		                        :title => I18n.t('discuss.tooltips.link_statement'),
+								            :linking_on => I18n.t('discuss.statements.linking.enabled'),
+								            :linking_off => I18n.t('discuss.statements.linking.disabled') %>
+		      <% end %>
+				<% end %>
 			<% end %>
 	  <% end %>
 

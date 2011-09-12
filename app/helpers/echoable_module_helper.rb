@@ -43,7 +43,7 @@ module EchoableModuleHelper
   # Renders echo button on new statement forms
   def new_form_echo_button(statement_node)
     echo_button :div, true, statement_node, :class => 'new_record' do |button|
-      button << hidden_field_tag('echo', true)
+      button << hidden_field_tag('echo', 'true')
     end
   end
 

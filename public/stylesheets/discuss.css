@@ -425,7 +425,7 @@ form.embeddable .entry_types .document .icon {background-position: -224px 0;}
 form.embeddable .entry_types .misc  .icon {background-position: -256px 0;}
 
 form.embeddable .entry_url_container li {
-  width: 762px;
+  width: 600px;
 }
 
 form.embeddable input.embed_url {
@@ -438,6 +438,11 @@ form.embeddable input.embed_url {
 
 form.embeddable.linked input.embed_url {
   color: #555 !important;
+}
+
+form.embeddable .entry_url_container .preview_button {
+	position: relative;
+	top: -20px;
 }
 
 .statement .embed_container {

@@ -18,24 +18,26 @@ class FollowUpQuestion < Question
     self.statement = self.question.statement = Statement.new(attrs)
   end
 
+  def initialize(attrs)
+    question_attrs = attrs.clone
+    
+    existing_statement = Statement.find(question_attrs[:statement_attributes][:id]) if question_attrs[:statement_attributes][:id].present?
+    attrs[:question] = existing_statement.nil? ? Question.new({:parent_id => "", :root_id => ""}.merge(question_attrs)) : existing_statement.statement_nodes.all(:conditions => "type = 'Question'").first
+    
+    attrs.delete(:statement_attributes)
+    attrs.delete(:creator_id)
+    attrs[:creator] = attrs[:question].creator
+    attrs[:echo] = attrs[:question].echo
+    attrs[:statement] = attrs[:question].statement
+    super
+  end
+
+
   #################################################
   # string helpers (acts_as_echoable overwriting) #
   #################################################
 
   class << self
-    
-    def new_instance(attributes = nil)
-      parent = attributes ? attributes.delete(:parent_id) : nil
-      root = attributes.delete(:root_id)
-      statement = Statement.find(attributes.delete(:statement_id)) if !attributes[:statement_id].blank?
-      question = statement.nil? ? Question.new_instance(attributes) : statement.statement_nodes.all(:conditions => "type = 'Question'").first
-      self.new({:parent_id => parent,
-                :root_id => root,
-                :question => question,
-                :creator => question.creator,
-                :echo => question.echo,
-                :statement => question.statement})
-    end
 
     # helper function to differentiate this model as a level 0 model
     def is_top_statement?
