@@ -667,10 +667,7 @@ es:
       edit_period_hint: |
         <strong>Te quedan {{minutes}} minutos</strong> para editar la propuesta.
         Transcurrido este tiempo, podrás perder tus modificationes.
-      staled_modification: |
-        Lo sentimos, pero han transcurrido los 60 minutos que tenías para editar
-        la propuesta. Otro miembro ha aprovechado su oportunidad y ha editado la
-        propuesta, por lo que no se han podido guardar tus modificaciones.
+      staled_modification: Lo sentimos, pero han transcurrido los 60 minutos que tenías para editar la propuesta. Otro miembro ha aprovechado su oportunidad y ha editado la propuesta, por lo que no se han podido guardar tus modificaciones.
       no_document_in_language: 'Este contenido no está disponible en inglés.'
       supporter_to_share: 'Tienes que apoyar este contenido para poder compartirlo.'
       published_to_share: 'Este debate está aún por publicar. Lo sentimos, pero hasta entonces, no puedes compartirlo.'

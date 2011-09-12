@@ -73,9 +73,9 @@ class StatementsController < ApplicationController
                                                                           @locale_language_id,
                                                                           @statement_document.language_id)
       @translation_permission = @statement_node.original_language == @statement_document.language &&
-      @statement_node.translatable?(current_user,
-                                    @statement_document.language,
-                                    Language[params[:locale]])
+                                @statement_node.translatable?(current_user,
+                                                              @statement_document.language,
+                                                              Language[params[:locale]])
 
 
       # Load siblings for navigation (prev/next) functionality

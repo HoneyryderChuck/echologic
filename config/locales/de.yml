@@ -670,10 +670,7 @@ de:
       edit_period_hint: |
         Sie haben {{minutes}} Minuten, um den Beitrag zu bearbeiten.
         Nach Ablauf können Ihre Änderungen eventuell nicht mehr berücksichtigt werden.
-      staled_modification: |
-        Es tut uns sehr leid, aber Ihre Bearbeitungszeit von max. 60 Minuten ist abgelaufen.
-        Mittlerweile hat ein anderer Nutzer den Beitrag bearbeitet. Ihre Änderungen mussten
-        daher leider verworfen werden.
+      staled_modification: Es tut uns sehr leid, aber Ihre Bearbeitungszeit von max. 60 Minuten ist abgelaufen. Mittlerweile hat ein anderer Nutzer den Beitrag bearbeitet. Ihre Änderungen mussten daher leider verworfen werden.
       no_document_in_language: 'Diese Aussage ist noch nicht auf Deutsch verfügbar.'
       supporter_to_share: 'You must be a supporter of this statement in order to share it!'
       published_to_share: 'Diese Diskussion ist noch nicht veröffentlicht. Sie können sie erst nach Veröffentlichung weiter verbreiten.'

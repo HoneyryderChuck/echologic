@@ -14,8 +14,14 @@ module TranslationModule
     if (is_current_document = @statement_document.id == params[:current_document_id].to_i) and
        !(already_translated = @statement_document.language_id == @locale_language_id)
       has_lock = acquire_lock(@statement_document)
-      @new_statement_document ||= @statement_node.add_statement_document({:language_id => @locale_language_id})
-      @action ||= StatementAction["translated"]
+      if @new_statement_document.nil?
+        @new_statement_document ||= @statement_document.clone
+        @new_statement_document.title = nil
+        @new_statement_document.text = nil
+        @new_statement_document.language_id = @locale_language_id
+        @new_statement_document.statement_history.old_document ||= @statement_document
+        @new_statement_document.statement_history.action ||= StatementAction["translated"]
+      end
     end
     if !is_current_document
       set_statement_info('discuss.statements.statement_updated')
@@ -42,36 +48,39 @@ module TranslationModule
     translated = false
     begin
       attrs = params[statement_node_symbol]
-      new_doc_attrs = attrs.delete(:new_statement_document).merge({:author_id => current_user.id,
-                                                                   :language_id => @locale_language_id,
-                                                                   :current => true})
-      locked_at = new_doc_attrs.delete(:locked_at)
-
+      new_attrs_doc = attrs[:statement_attributes][:statement_documents_attributes]["0"]
+      locked_at = new_attrs_doc.delete(:locked_at) if new_attrs_doc
+        
+        
       # Updating the statement
       holds_lock = true
-
+      
+      old_statement_document = StatementDocument.find(new_attrs_doc[:statement_history_attributes][:old_document_id])
       StatementNode.transaction do
-        old_statement_document = StatementDocument.find(new_doc_attrs[:old_document_id])
+        
         holds_lock = holds_lock?(old_statement_document, locked_at)
         if holds_lock
-          @new_statement_document = @statement_node.add_statement_document(new_doc_attrs)
-          @new_statement_document.save
-          @statement_node.save
-          old_statement_document.unlock
+          new_attrs_doc.merge!({:current => true, :language_id => @locale_language_id})
+          new_attrs_doc[:statement_history_attributes].merge!({:author_id => current_user.id})
+
+          @statement_node.update_attributes(attrs)
+          
+          
+          @new_statement_document = @statement_node.statement_documents.last
         end
       end
 
       # Rendering response
       if !holds_lock
         being_edited
-      elsif @new_statement_document.valid?
-        translated = true
+      elsif @statement_node.valid?
+        old_statement_document.unlock
         @statement_document = @new_statement_document
         set_statement_info(@statement_document)
         show_statement
       else
-        @statement_document = StatementDocument.find(new_doc_attrs[:old_document_id])
-        set_error(@new_statement_document)
+        set_error(@statement_node, :only => ["statement.statement_documents.title", 
+                                             "statement.statement_documents.text"])
         render_statement_with_error :template => 'statements/new_translation'
       end
     rescue Exception => e

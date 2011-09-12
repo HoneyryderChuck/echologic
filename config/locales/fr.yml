@@ -687,9 +687,7 @@ fr:
       edit_period_hint: |-
         Vous avez <strong>{{minutes}} minutes</strong> pour rédiger vos suggestions ou vos commentaires.
         Après expiration de ce délai, vos corrections ne pourront probablement plus être prises en considération.
-      staled_modification: |-
-        Désolé, mais le délai de 60 minutes maximum est terminé. Entretemps, la proposition a été traitée par un
-        autre utilisateur. Votre rajout ne peut pas être pris en compte.
+      staled_modification: Désolé, mais le délai de 60 minutes maximum est terminé. Entretemps, la proposition a été traitée par un autre utilisateur. Votre rajout ne peut pas être pris en compte.
       no_document_in_language: "Le constat n'existe pas dans votre langue."
       supporter_to_share: Vous devez approuver ce point de vue pour le partager.
       published_to_share: 'La contribution est en cours de transmission. Pendant la transmission vous ne pouvez pas la partager.'

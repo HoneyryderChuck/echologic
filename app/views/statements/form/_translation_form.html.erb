@@ -15,10 +15,6 @@
                         :new_statement_document => new_statement_document} %>
 <br/>
 
-<%= form.hidden_field :parent_id %>
-<%= form.hidden_field :state_id, :value => StatementState[:published].id %>
-
-
 <!-- Save and cancel buttons -->
 <% form.buttons do %>
   <%= form.commit_button I18n.t('application.general.save'),

@@ -1,16 +1,21 @@
-
+<% statement_node ||= @statement_node %>
 <% statement_document ||= @statement_document %>
 <% new_statement_document ||= @new_statement_document %>
 
-<% form.semantic_fields_for :new_statement_document, new_statement_document do |doc|  %>
-  <% doc.inputs :class => 'inputs right_panel' do %>
-    <%= doc.input :title, :input_html => {:class => 'focus'} %>
-    <br/>
-    <%= doc.input :text,
-                  :input_html => {:class => 'rte_tr_doc'} %>
-
-		<%= doc.input :old_document_id, :as => :hidden, :value => statement_document.id %>
-		<%= doc.input :locked_at, :as => :hidden, :value => statement_document.locked_at %>
-		<%= doc.input :action_id, :as => :hidden, :value => @action.id if @action %>
-	<% end %>
+<% form.semantic_fields_for :statement, statement_node.statement do |stat| %>
+  <% stat.semantic_fields_for :statement_documents, new_statement_document do |doc|  %>
+	  <% doc.inputs :class => 'inputs right_panel' do %>
+	    <%= doc.input :title, :input_html => {:class => 'focus'} %>
+	    <br/>
+	    <%= doc.input :text,
+	                  :input_html => {:class => 'rte_tr_doc'} %>
+	
+			
+			<%= doc.input :locked_at, :as => :hidden, :value => new_statement_document.locked_at.to_s %>
+			<% doc.semantic_fields_for :statement_history, new_statement_document.statement_history do |hist| %>
+				<%= hist.input :old_document_id, :as => :hidden %>
+				<%= hist.input :action_id, :as => :hidden %>
+			<% end %>
+		<% end %>
+	<% end -%>
 <% end -%>
