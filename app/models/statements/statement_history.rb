@@ -19,6 +19,12 @@ class StatementHistory < ActiveRecord::Base
   validates_presence_of :author_id
   validates_presence_of :action_id
   validates_associated :author
+
+  before_create :load_statement
+  
+  def load_statement
+    self.statement = statement_document.statement
+  end
   
   #named scopes
   named_scope :by_language, lambda {|id|
