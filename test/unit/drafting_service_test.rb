@@ -438,15 +438,16 @@ class DraftingServiceTest < ActiveSupport::TestCase
                                                 :user => users(:green),
                                                 :supported => true))
         @statement_2.find_or_create_echo.update_counter!
-        @statement_2.add_statement_document :title => old_doc.title,
-                                            :text => old_doc.text + @statement_1.document_in_drafting_language.text,
-                                            :statement_id => @statement_2.statement_id,
-                                            :language_id => old_doc.language.id,
-                                            :current => true,
-                                            :author_id => @statement_1.document_in_drafting_language.author.id,
-                                            :action_id => StatementAction['incorporated'].id,
-                                            :old_document_id => old_doc.id,
-                                            :incorporated_node_id => @statement_1.id
+        @statement_2.statement.statement_documents.build :title => old_doc.title,
+                                                         :text => old_doc.text + @statement_1.document_in_drafting_language.text,
+                                                         :language_id => old_doc.language.id,
+                                                         :current => true,
+                                                         :statement_history_attributes => {
+                                                           :author_id => @statement_1.document_in_drafting_language.author.id,
+                                                           :action_id => StatementAction['incorporated'].id,
+                                                           :old_document_id => old_doc.id,
+                                                           :incorporated_node_id => @statement_1.id
+                                                         }
         @statement_2.save
       }
 

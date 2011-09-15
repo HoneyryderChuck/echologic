@@ -51,7 +51,6 @@ module TranslationModule
       new_attrs_doc = attrs[:statement_attributes][:statement_documents_attributes]["0"]
       locked_at = new_attrs_doc.delete(:locked_at) if new_attrs_doc
         
-        
       # Updating the statement
       holds_lock = true
       

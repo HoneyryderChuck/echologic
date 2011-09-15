@@ -19,7 +19,7 @@ class StatementDocument < ActiveRecord::Base
   
   accepts_nested_attributes_for :statement_history
   
-  delegate :action, :author, :incorporated_node, :to => :statement_history
+  delegate :action, :author, :incorporated_node, :old_document, :to => :statement_history
 
 
   def after_initialize

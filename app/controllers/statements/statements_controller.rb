@@ -148,10 +148,15 @@ class StatementsController < ApplicationController
     form_tags = attrs[:statement_attributes][:topic_tags] || ""
     doc_attrs = attrs[:statement_attributes][:statement_documents_attributes]["0"]
     
-    # add default parameters
-    doc_attrs.merge!({:current => true})
-    doc_attrs[:statement_history_attributes].merge!({:author_id => current_user.id})
-    attrs[:statement_attributes].merge!({:original_language_id => doc_attrs[:language_id] || @locale_language_id})
+    if attrs[:statement_id].present?
+      doc_attrs.clear
+    else
+      # add default parameters
+      doc_attrs.merge!({:current => true})
+      doc_attrs[:statement_history_attributes].merge!({:author_id => current_user.id})
+      attrs[:statement_attributes].merge!({:original_language_id => doc_attrs[:language_id] || @locale_language_id})  
+    end
+    
 
     begin
 
@@ -190,7 +195,7 @@ class StatementsController < ApplicationController
         end
       end
       
-      @statement_document = StatementDocument.new(doc_attrs)
+      @statement_document = doc_attrs.empty? ? @statement_node.document_in_preferred_language(@language_preference_list) : StatementDocument.new(doc_attrs)
       
       # Rendering
       if created

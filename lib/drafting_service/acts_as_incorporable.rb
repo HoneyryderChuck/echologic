@@ -105,7 +105,7 @@ module ActiveRecord
             # Returns the current document in the drafting language.
             #
             def document_in_drafting_language
-              document_in_language(drafting_language)
+              statement.document_in_language(drafting_language)
             end
             
             def self.drafting_conditions 

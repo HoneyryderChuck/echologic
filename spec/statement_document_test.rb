@@ -12,7 +12,7 @@ describe StatementDocument do
     end
     
     it "should not save without an author" do
-     @document.author = nil
+     @document.statement_history.author = nil
      @document.should_not be_valid
     end
   
@@ -33,7 +33,7 @@ describe StatementDocument do
     end
     
     it "should have a user associated as an author" do
-      @document.author.class.name.should == 'User'
+      @document.statement_history.author.class.name.should == 'User'
     end
   end
 end

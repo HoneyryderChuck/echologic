@@ -68,20 +68,24 @@ class StatementsControllerTest < ActionController::TestCase
       I18n.locale = 'pt'
       put :create_translation,
        :id => statement_nodes('test-question').to_param,
-       :question => { :statement_document =>{
-                        :statement_id => statements('test-question-statement').to_param,
-                        :language_id => Language[:en]
-                      },
-                      :new_statement_document => {
-                        :title => "Translation in Portuguese",
-                        :text => "És cruel, meteste a tua filha num bordel",
-                        :action_id => StatementAction[:translated].id,
-                        :locked_at => document.locked_at.to_s,
-                        :old_document_id => document.to_param
-                      },
-                      :parent_id => nil,
-                      :state_id => StatementState[:published].id
-                    }
+       :question => {
+        :statement_attributes => {
+          :id => statements('test-question-statement').to_param,
+          :statement_documents_attributes => {
+            "0" => {
+              :title => "Translation in Portuguese",
+              :text => "És cruel, meteste a tua filha num bordel",
+              :locked_at => document.locked_at.to_s,
+              :statement_history_attributes => {
+                :action_id => StatementAction[:translated].id,
+                :old_document_id => document.to_param
+              }
+            }
+          },
+          :editorial_state_id => StatementState[:published].id
+        },
+        :parent_id => nil
+      }
     end
   end
 
@@ -159,12 +163,23 @@ class StatementsControllerTest < ActionController::TestCase
     assert_difference('Question.count', 1) do
       post :create, :type => "question",
       :statement_node => {
-        :statement_document => {:title => "Super Question", :statement_id=> "", :text => "I am Sam", :language_id => Language[:en].id,
-                                :action_id => StatementAction[:created].id , :locked_at => ""},
-        :editorial_state_id => StatementState[:published].id,
-        :statement_id => "",
-        :parent_id => nil,
-        :topic_tags => "" }
+        :statement_attributes  => {
+          :statement_documents_attributes => {
+            "0" => {
+              :title => "Super Question", 
+              :text => "I am Sam", 
+              :language_id => Language[:en].id,
+              :locked_at => "",
+              :statement_history_attributes => {
+                :action_id => StatementAction[:created].id
+              }
+            }
+          },
+          :editorial_state_id => StatementState[:published].id,
+          :topic_tags => ""
+        },
+        :parent_id => nil
+      }
     end
   end
   
@@ -172,13 +187,24 @@ class StatementsControllerTest < ActionController::TestCase
     assert_difference('Statement.count', 0) do
       post :create, :type => "question",
       :statement_node => {
-        :statement_document => {:title => "Super Question", :statement_id => "", 
-                                :text => "I am Sam", :language_id => Language[:en].id,
-                                :action_id => StatementAction[:created].id , :locked_at => ""},
-        :editorial_state_id => StatementState[:published].id,
         :statement_id => statements('test-question-statement').to_param,
-        :parent_id => nil,
-        :topic_tags => "" }
+        :statement_attributes => {
+          :editorial_state_id => StatementState[:published].id,
+          :statement_documents_attributes => {
+            "0" => {
+              :title => "Super Question", 
+              :text => "I am Sam", 
+              :language_id => Language[:en].id,
+              :locked_at => "",
+              :statement_history_attributes => {
+                :action_id => StatementAction[:created].id
+              }                  
+            }
+          },
+          :topic_tags => ""
+        },
+        :parent_id => nil
+      }
       assert_equal "Test Question?", assigns(:statement_document).title 
     end
   end
@@ -187,11 +213,20 @@ class StatementsControllerTest < ActionController::TestCase
     assert_difference('Proposal.count', 1) do
       post :create, :type => "proposal", :echo => true,
       :statement_node => {
-        :statement_document => {:title => "Super Proposal", :statement_id=> "", :text => "I am Sam", :language_id => Language[:en].id,
-                                :action_id => StatementAction[:created].id , :locked_at => ""},
-        :editorial_state_id => StatementState[:published].id,
-        :statement_id => "",
-        :parent_id => statement_nodes('test-question').to_param }
+        :statement_attributes => {
+          :editorial_state_id => StatementState[:published].id,
+          :statement_documents_attributes => {
+            "0" => {
+              :title => "Super Proposal", 
+              :text => "I am Sam",
+              :language_id => Language[:en].id,
+              :locked_at => "",
+              :statement_history_attributes => {:action_id => StatementAction[:created].id}
+            }
+          }
+        },
+        :parent_id => statement_nodes('test-question').to_param 
+      }
     end
   end
 
@@ -199,57 +234,102 @@ class StatementsControllerTest < ActionController::TestCase
     assert_difference('Improvement.count', 1) do
       post :create, :type => "improvement", :echo => true,
       :statement_node => {
-        :statement_document => {:title => "Super Improvement", :statement_id=> "", :text => "I am Sam", :language_id => Language[:en].id,
-                                :action_id => StatementAction[:created].id , :locked_at => ""},
-        :editorial_state_id => StatementState[:published].id,
-        :statement_id => "",
-        :parent_id => statement_nodes('first-proposal').to_param }
+        :statement_attributes => {
+          :editorial_state_id => StatementState[:published].id,
+          :statement_documents_attributes => {
+            "0" => {
+              :title => "Super Improvement", 
+              :text => "I am Sam", 
+              :language_id => Language[:en].id,
+              :locked_at => "",
+              :statement_history_attributes => { :action_id => StatementAction[:created].id }
+            }  
+          }
+        },
+        :parent_id => statement_nodes('first-proposal').to_param 
+      }
     end
   end
   test "should create pro argument" do
     assert_difference('ProArgument.count', 1) do
       post :create, :type => "pro_argument", :echo => true,
       :statement_node => {
-        :statement_document => {:title => "Super Pro Argument", :statement_id=> "", :text => "I am Sam", :language_id => Language[:en].id,
-                                :action_id => StatementAction[:created].id , :locked_at => ""},
-        :editorial_state_id => StatementState[:published].id,
-        :statement_id => "",
-        :parent_id => statement_nodes('first-proposal').to_param }
+        :statement_attributes => {
+          :editorial_state_id => StatementState[:published].id,
+          :statement_documents_attributes => {
+            "0" => {
+              :title => "Super Pro Argument",
+              :text => "I am Sam", 
+              :language_id => Language[:en].id,
+              :locked_at => "",
+              :statement_history_attributes => { :action_id => StatementAction[:created].id },
+            }
+          }
+        },
+        :parent_id => statement_nodes('first-proposal').to_param 
+      }
     end
   end
   test "should create contra argument" do
     assert_difference('ContraArgument.count', 1) do
       post :create, :type => "contra_argument", :echo => true,
       :statement_node => {
-        :statement_document => {:title => "Super Contra Argument", :statement_id=> "", :text => "I am Sam", :language_id => Language[:en].id,
-                                :action_id => StatementAction[:created].id , :locked_at => ""},
-        :editorial_state_id => StatementState[:published].id,
-        :statement_id => "",
-        :parent_id => statement_nodes('first-proposal').to_param }
+        :statement_attributes => {
+          :editorial_state_id => StatementState[:published].id,
+          :statement_documents_attributes => {
+            "0" => {
+              :title => "Super Contra Argument",
+              :text => "I am Sam", 
+              :language_id => Language[:en].id,
+              :locked_at => "",
+              :statement_history_attributes => { :action_id => StatementAction[:created].id },
+            }
+          }
+        },
+        :parent_id => statement_nodes('first-proposal').to_param 
+      }
     end
   end
   test "should create follow up question" do
     assert_difference('FollowUpQuestion.count', 1) do
       post :create, :type => "follow_up_question", :echo => true,
       :statement_node => {
-        :statement_document => {:title => "Super Follow Up Question", :statement_id=> "", :text => "I am Sam", :language_id => Language[:en].id,
-                                :action_id => StatementAction[:created].id , :locked_at => ""},
-        :editorial_state_id => StatementState[:published].id,
-        :statement_id => "",
-        :parent_id => statement_nodes('first-proposal').to_param }
+        :statement_attributes => {
+          :editorial_state_id => StatementState[:published].id,
+          :statement_documents_attributes => {
+            "0" => {
+              :title => "Super Follow Up Question", 
+              :text => "I am Sam", 
+              :language_id => Language[:en].id,
+              :locked_at => "",
+              :statement_history_attributes => { :action_id => StatementAction[:created].id }
+            }  
+          }
+        },
+        :parent_id => statement_nodes('first-proposal').to_param 
+      }
     end
   end
   test "should create background info" do
     assert_difference('BackgroundInfo.count', 1) do
       post :create, :type => "background_info", :echo => true,
       :statement_node => {
-        :statement_document => {:title => "Super Background Info", :statement_id=> "", :text => "I am Sam", :language_id => Language[:en].id,
-                                :action_id => StatementAction[:created].id , :locked_at => ""},
-        :editorial_state_id => StatementState[:published].id,
-        :statement_id => "",
-        :parent_id => statement_nodes('first-proposal').to_param,
-        :info_type => InfoType[:video].code,
-        :external_url => {:info_url => "http://thevideourl.com"}}
+        :statement_attributes => {
+          :editorial_state_id => StatementState[:published].id,
+          :info_code => InfoType[:video].code,
+          :external_url_attributes => {:info_url => "http://thevideourl.com"},
+          :statement_documents_attributes => {
+            "0" => {
+              :title => "Super Background Info", 
+              :text => "I am Sam", 
+              :language_id => Language[:en].id,
+              :locked_at => "",
+              :statement_history_attributes => {:action_id => StatementAction[:created].id , }
+            }
+          }
+        },
+        :parent_id => statement_nodes('first-proposal').to_param
+      }
     end
   end
 

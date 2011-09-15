@@ -58,9 +58,7 @@
 <% end %>
 
 <!-- Hidden fields -->
-<% form.semantic_fields_for :statement, statement_node.statement do |stat| %>
-  <%= stat.hidden_field :id %>
-<% end %>
+<%= form.hidden_field :statement_id %>
 <%= form.hidden_field :parent_id %>
 
 <!-- Embed data -->

@@ -9,13 +9,15 @@ class FollowUpQuestion < Question
            :creator_id, :creator, :author_support, :ancestors, :target_id, :target_root_id, :to => :question
 
   validates_associated :question
+  
+  before_create :load_statement
 
   def target_statement
     self.question
   end
 
   def set_statement(attrs={})
-    self.statement = self.question.statement = Statement.new(attrs)
+    self.statement = self.question.statement
   end
 
   def initialize(attrs)

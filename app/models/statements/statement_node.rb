@@ -68,7 +68,7 @@ class StatementNode < ActiveRecord::Base
   belongs_to :creator, :class_name => "User"
   belongs_to :statement, :autosave => true
 
-  delegate :image, :published?, :topic_tags, :filtered_topic_tags, :has_author?, :authors, 
+  delegate :image, :published?, :topic_tags, :filtered_topic_tags, :hash_topic_tags, :has_author?, :authors, 
            :original_language, :editorial_state, :statement_image, :taggable?, :publish, :to => :statement
 
   has_many :statement_documents, :through => :statement, :source => :statement_documents do
@@ -156,23 +156,6 @@ class StatementNode < ActiveRecord::Base
   end
 
 #  handle_asynchronously :publish_descendants
-
-
-  # Initializes this statement node's statement
-  def set_statement(attrs={})
-    self.statement = Statement.new(attrs)
-  end
-
-  # creates a new statement_document
-  def add_statement_document(attributes={ },opts={})
-    self.set_statement if self.statement.nil?
-    self.statement.original_language_id = attributes.delete(:original_language_id).to_i if attributes[:original_language_id]
-    doc = StatementDocument.new
-    doc.statement = self.statement
-    attributes.each {|k,v|doc.send("#{k.to_s}=", v)}
-    self.statement.statement_documents << doc
-    doc
-  end
 
   #
   # Helper function to load the tags from the root

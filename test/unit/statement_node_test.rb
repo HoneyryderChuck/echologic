@@ -39,17 +39,17 @@ class StatementNodeTest < ActiveSupport::TestCase
 
     context "being saved" do
       setup do
-        @statement_node = Question.new
-        doc = @statement_node.add_statement_document({:title => 'A new Document',
-                                                :text => 'with a very short body, dude!',
-                                                :language_id => Language.first.id,
-                                                :author => User.first,
-                                                :current => 1,
-                                                :action_id => StatementAction[:created].id,
-                                                :original_language_id => Language.first.id})
-        @statement_node.topic_tags = "bebe"       #FIXME: Somehow, this doesn't work here: TagContext.all returns [](????)
-        @statement_node.creator = User.first
-        @statement_node.publish
+        @statement_node = Question.new(:creator => User.first)
+        @statement_node.build_statement(:original_language_id => Language.first.id, :topic_tags => "bebe")
+        doc = @statement_node.statement.statement_documents.build(:title => 'A new Document',
+                                                                  :text => 'with a very short body, dude!',
+                                                                  :language_id => Language.first.id,
+                                                                  :current => 1,
+                                                                  :statement_history_attributes => {
+                                                                   :author => User.first,
+                                                                   :action_id => StatementAction[:created].id,
+                                                                 })
+        @statement_node.statement.publish
         @statement_node.save!
       end
 
