@@ -42,8 +42,9 @@ module EchoableModuleHelper
 
   # Renders echo button on new statement forms
   def new_form_echo_button(statement_node)
-    echo_button :div, true, statement_node, :class => 'new_record' do |button|
-      button << hidden_field_tag('echo', 'true')
+    opts = @messages || {}
+    echo_button :div, true, statement_node, opts.merge({:class => 'new_record'}) do |button|
+      button << hidden_field_tag('statement_node[author_support]', 1)
     end
   end
 

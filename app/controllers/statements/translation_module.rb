@@ -72,7 +72,7 @@ module TranslationModule
         being_edited
       elsif @statement_node.valid?
         old_statement_document.unlock
-        @statement_document = @new_statement_document
+        @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
         set_statement_info(@statement_document)
         show_statement
       else

@@ -60,6 +60,15 @@
 			}
 
 
+      function initEchoMessages() {
+        var messages = {
+          'supported'     : echo_button.attr('data-supported'),
+          'not_supported' : echo_button.attr('data-not-supported')
+        };
+        echo_button.data('messages', messages);
+        echo_button.removeAttr('data-supported').removeAttr('data-not-supported');
+      }
+
       /****************************/
       /* Forms for new statements */
       /****************************/
@@ -67,6 +76,7 @@
 			// Auxiliary Functions
       function initNewStatementEchoButton() {
         initLabelMessages();
+				initEchoMessages();
 				echo_button.bind('click', function(){
 					var button = $(this).find('.echo_button_icon');
 					var label = $(this).find('.label');
@@ -87,7 +97,7 @@
 				var form = echo_button.parents('form.statement');
 				updateEchoButton('supported', 'not_supported');
 				info(echo_button.data('messages')['supported']);
-        echoable.find('#echo').val(true);
+        echoable.find('#statement_node_author_support').val(1);
         updateSupportersNumber(form,'1');
         updateSupportersBar(form, 'echo_indicator', 'no_echo_indicator', '10');
       }
@@ -99,7 +109,7 @@
 				var form = echo_button.parents('form.statement');
 				updateEchoButton('not_supported', 'supported');
 				info(echo_button.data('messages')['not_supported']);
-        echoable.find('#echo').val(false);
+        echoable.find('#statement_node_author_support').val('');
         updateSupportersNumber(form,'0');
         updateSupportersBar(form, 'no_echo_indicator', 'echo_indicator', '0');
       }

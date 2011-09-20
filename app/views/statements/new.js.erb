@@ -5,6 +5,3 @@ var element = $("<%= escape_javascript(render :partial => 'statements/new') %>")
    $('#breadcrumbs').data('breadcrumbApi').addBreadcrumbs(<%= [@breadcrumb].to_json %>);
 <% end %>
 
-<% if @statement_node.echoable? %>
-  element.data('echoableApi').loadEchoInfoMessages(<%= @messages %>);
-<% end %>

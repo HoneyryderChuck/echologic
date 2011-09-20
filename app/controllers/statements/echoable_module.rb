@@ -165,8 +165,8 @@ module EchoableModule
   #
   def load_echo_info_messages
     type = I18n.t("discuss.statements.types.#{@statement_node_type.name.underscore}")
-    @messages = {:supported => I18n.t('discuss.statements.statement_supported', :type => type),
-                 :not_supported => I18n.t('discuss.statements.statement_unsupported', :type => type)}.to_json
+    @messages = {:'data-supported' => I18n.t('discuss.statements.statement_supported', :type => type),
+                 :'data-not-supported' => I18n.t('discuss.statements.statement_unsupported', :type => type)}
   end
 
 

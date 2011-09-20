@@ -29,8 +29,14 @@ module ActiveRecord
             named_scope :by_ratio, :include => :echo, :order => '(echos.supporter_count/echos.visitor_count) DESC'
             named_scope :by_supporters, :include => :echo, :order => 'echos.supporter_count DESC'
 
-            def after_initialize
-              self.echo = Echo.new if self.echo.nil?
+            attr_accessor :author_support
+            
+            after_create :author_support
+            
+
+            def initialize(*attrs)
+              @author_support = false
+              super
             end
 
           end
@@ -140,9 +146,15 @@ module ActiveRecord
             def ratio(parent_statement = parent, type = self.class.name)
               support_relative_to_sibblings(parent_statement, type)
             end
+            
+            # endpoint of the author support attribute that comes from the form
+            def author_support=(val)
+              @author_support = true if [true, 1, '1', 'true'].include? val
+            end
 
             # Records the creator's support for the statement.
             def author_support
+              return if @author_support.eql? false
               if (!self.incorporable? or self.parent_node.supported?(self.creator)) # and self.echoable? SHOULD I????
                 self.supported!(self.creator)
               end

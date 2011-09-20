@@ -148,7 +148,7 @@ class StatementsController < ApplicationController
     form_tags = attrs[:statement_attributes][:topic_tags] || ""
     doc_attrs = attrs[:statement_attributes][:statement_documents_attributes]["0"]
     
-    if attrs[:statement_id].present?
+    if attrs[:statement_id].present? # linked statement
       doc_attrs.clear
     else
       # add default parameters
@@ -177,11 +177,6 @@ class StatementsController < ApplicationController
 
         if @statement_node.save
           
-          if @statement_node.echoable?
-            echo = params.delete(:echo)
-            @statement_node.author_support if echo=='true'
-          end
-
           # TODO: Move To Filter
           if !new_permission_tags.empty?
             current_user.decision_making_tags += new_permission_tags
@@ -195,10 +190,9 @@ class StatementsController < ApplicationController
         end
       end
       
-      @statement_document = doc_attrs.empty? ? @statement_node.document_in_preferred_language(@language_preference_list) : StatementDocument.new(doc_attrs)
-      
       # Rendering
       if created
+        @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
         load_siblings @statement_node
         load_discuss_alternatives_question(@statement_node)
         load_all_children
@@ -208,6 +202,7 @@ class StatementsController < ApplicationController
           render :template => 'statements/create'
         end
       else
+        @statement_document = doc_attrs.empty? ? @statement_node.document_in_preferred_language(@language_preference_list) : StatementDocument.new(doc_attrs)
         set_error(@statement_node, :only => ["statement.statement_documents.title", 
                                              "statement.statement_documents.text"])
         if @statement_node.class.has_embeddable_data?
@@ -303,12 +298,14 @@ class StatementsController < ApplicationController
       if !holds_lock
         being_edited
       elsif @statement_node.valid?
+        @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
         old_statement_document.current = false
         old_statement_document.unlock # also saves the document
         update = true
         set_statement_info(@statement_document)
         show_statement
       else
+        @statement_document = StatementDocument.new(attrs_doc)
         set_error(@statement_node, :only => ["statement.statement_documents.title", 
                                              "statement.statement_documents.text"])
         if @statement_node.class.has_embeddable_data?
