@@ -163,7 +163,6 @@ class StatementsController < ApplicationController
       # Prepare in memory
       @statement_node ||= @statement_node_type.new(attrs)
 
-      @tags = []
       created = false
 
       # Add possible secret tags to the current user profile
@@ -275,12 +274,11 @@ class StatementsController < ApplicationController
       form_tags = attrs[:statement_attributes][:topic_tags] || ''
       new_permission_tags = filter_permission_tags(form_tags.split(','), :read_write)
 
-      holds_lock = true
-      old_statement_document = nil
-      StatementNode.transaction do
-        old_statement_document = StatementDocument.find(attrs_doc[:statement_history_attributes][:old_document_id])
-        holds_lock = holds_lock?(old_statement_document, locked_at)
-        if holds_lock
+      old_statement_document = StatementDocument.find(attrs_doc[:statement_history_attributes][:old_document_id])
+      holds_lock = holds_lock?(old_statement_document, locked_at)
+      
+      if holds_lock
+        StatementNode.transaction do
           # add default parameters
           attrs_doc.merge!({:current => true})
           attrs_doc[:statement_history_attributes].merge!({:author_id => current_user.id})
@@ -292,7 +290,6 @@ class StatementsController < ApplicationController
             current_user.save
           end
         end
-        @statement_document = StatementDocument.new(attrs_doc)
       end
 
       if !holds_lock
@@ -328,9 +325,7 @@ class StatementsController < ApplicationController
   def cancel
     locked_at = params[:locked_at]
     @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
-    if holds_lock?(@statement_document, locked_at)
-      @statement_document.unlock
-    end
+    @statement_document.unlock if holds_lock?(@statement_document, locked_at)
     show_statement
   end
 

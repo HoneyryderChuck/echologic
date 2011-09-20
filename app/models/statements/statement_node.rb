@@ -321,11 +321,6 @@ class StatementNode < ActiveRecord::Base
 
   class << self
    
-    def filter_editorial_state(attributes={})
-      attributes[:editorial_state] = StatementState[attributes.delete(:editorial_state_id).to_i] if attributes[:editorial_state_id]
-      attributes
-    end
-
     # Aux Function: Checks if node has more data to show or load
     def has_embeddable_data?
       false

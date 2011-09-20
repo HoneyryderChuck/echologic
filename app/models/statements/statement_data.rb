@@ -9,12 +9,4 @@ class StatementData < ActiveRecord::Base
 #  def image?
 #    !(data_content_type =~ /^image.*/).nil?
 #  end
-  
-  def is_youtube_url?
-    info_url.match(/.*http:\/\/(\w+\.)?youtube.com\/watch\?v=(\w+).*/)
-  end
-  
-  def youtube_id
-    info_url.match("[\?&]v=([^&#]*)")[1]
-  end
 end

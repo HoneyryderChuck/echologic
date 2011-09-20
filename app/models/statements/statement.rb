@@ -14,6 +14,7 @@ class Statement < ActiveRecord::Base
 
   accepts_nested_attributes_for :statement_documents, :limit => 1
   accepts_nested_attributes_for :external_url
+  accepts_nested_attributes_for :statement_image
   
   has_enumerated :info_type, :class_name => 'InfoType'
   has_enumerated :editorial_state, :class_name => 'StatementState'
@@ -30,6 +31,11 @@ class Statement < ActiveRecord::Base
   validates_associated :external_files
   validates_associated :external_url
 
+  def initialize(*attrs)
+    self.statement_image = StatementImage.new
+    super
+  end
+
   def has_data?
     !external_files.empty? or !external_url.nil?
   end
@@ -45,10 +51,6 @@ class Statement < ActiveRecord::Base
   def update_pending_image
     return if @pending_image.nil? or !@pending_image.status
     @pending_image.update_attribute(:status, true)
-  end
-
-  def after_initialize
-    self.statement_image = StatementImage.new if self.statement_image.nil?
   end
 
   def authors
