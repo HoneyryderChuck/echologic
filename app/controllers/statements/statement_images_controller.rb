@@ -82,7 +82,7 @@ class StatementImagesController < ApplicationController
         format.js {
           render_with_info do |page|
             page << "$('#statements form.#{params[:type]} .image_container .image').replaceWith('#{render :partial => 'statement_images/image'}');"
-            page << "$('#statements form.#{params[:type]} #statement_node_statement_image_id').val('#{@pending.id}');"            
+            page << "$('#statement_node_statement_attributes_statement_image_id').val('#{@pending.id}');"            
           end
         }
       else
