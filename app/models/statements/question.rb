@@ -17,6 +17,10 @@ class Question < StatementNode
   # since the root node was created without a specific root node assigned, assign it after the creation 
   def create(*attrs)
     super
+    init_self_as_root
+  end
+  
+  def init_self_as_root
     self.update_attribute(:root_id, target_id) if !self.class.is_top_statement?
   end
 

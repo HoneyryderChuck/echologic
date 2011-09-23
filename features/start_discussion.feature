@@ -112,23 +112,23 @@ Feature: Start a question
       And I choose the "Unpublished Question" Question
     Then the question should be new
       And the question should have no events
-#      And I go to the question
-#      And I follow localized "discuss.statements.create_proposal_link"
-#      And I fill in the following:
-#        | statement_node_statement_attributes_statement_documents_attributes_0_title | Unpublished Proposal  |
-#        | statement_node_statement_attributes_statement_documents_attributes_0_text  | Scooby Doo, I see you |
-#      And I press "Save"
-#    Then I should see "Unpublished Proposal"
-#      And I go to the question
-#      And I choose the "Unpublished Proposal" Proposal
-#    Then the proposal should be new
-#      And the proposal should have no events
-#      And I go to the question
-#      And I follow "Release"
-#    Then the question should be published
-#      And the question should have a "created" event
-#      And the proposal should be published
-#      And the proposal should have a "created" event
+      And I go to the question
+      And I follow localized "discuss.statements.create_proposal_link"
+      And I fill in the following:
+        | statement_node_statement_attributes_statement_documents_attributes_0_title | Unpublished Proposal  |
+        | statement_node_statement_attributes_statement_documents_attributes_0_text  | Scooby Doo, I see you |
+      And I press "Save"
+    Then I should see "Unpublished Proposal"
+      And I go to the question
+      And I choose the "Unpublished Proposal" Proposal
+    Then the proposal should be new
+      And the proposal should have no events
+      And I go to the question
+      And I follow "Release"
+    Then the question should be published
+      And the question should have a "created" event
+      And the proposal should be published
+      And the proposal should have a "created" event
 
    ######################
    # CLOSED DISCUSSIONS #

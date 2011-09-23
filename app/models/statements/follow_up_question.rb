@@ -10,15 +10,9 @@ class FollowUpQuestion < Question
   
   validates_associated :question
   
-#  before_create :load_statement
-  
   def target_statement
     self.question
   end
-  
-#  def set_statement(attrs={})
-#    self.statement = self.question.statement
-#  end
   
   def initialize(attrs)
     question_attrs = attrs.clone

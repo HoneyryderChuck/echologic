@@ -28,7 +28,7 @@ class StatementNode < ActiveRecord::Base
   def initialise_root_for_leaf
     return if parent.nil?
     self.root_id = parent.root_id
-    statement.editorial_state = parent.root.editorial_state if self.class.is_top_statement?
+    statement.editorial_state = parent.root.editorial_state
   end
 
   #
