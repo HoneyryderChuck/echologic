@@ -12,6 +12,14 @@ class Question < StatementNode
   has_children_of_types [:Proposal,true],[:BackgroundInfo,true]
   has_linkable_types
 
+
+
+  # since the root node was created without a specific root node assigned, assign it after the creation 
+  def create(*attrs)
+    super
+    self.update_attribute(:root_id, target_id) if !self.class.is_top_statement?
+  end
+
   # methods / settings to overwrite default statement_node behaviour
 
   # the default scope defines basic rules for the sql query sent on this model

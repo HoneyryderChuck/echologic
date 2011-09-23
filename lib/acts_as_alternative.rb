@@ -40,9 +40,15 @@ module ActiveRecord
                                   's.id != #{id} AND ' +
                                   's.type IN (#{self.class.alternative_types.map{|s|"\"#{s.to_s}\""}})'
 
-          after_create :create_mirror_alternative 
+#          after_create :create_mirror_alternative 
           
           class_eval do
+            
+            def create(*attrs)
+              super
+              create_mirror_alternative
+            end
+            
             class << self
 
               def has_alternatives(klasses)

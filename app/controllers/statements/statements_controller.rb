@@ -295,10 +295,10 @@ class StatementsController < ApplicationController
       if !holds_lock
         being_edited
       elsif @statement_node.valid?
-        @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
         old_statement_document.current = false
         old_statement_document.unlock # also saves the document
         update = true
+        @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
         set_statement_info(@statement_document)
         show_statement
       else

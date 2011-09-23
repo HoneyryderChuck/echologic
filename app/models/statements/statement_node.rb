@@ -16,7 +16,6 @@ class StatementNode < ActiveRecord::Base
 
   after_destroy :destroy_associated_objects
   before_create :initialise_root_for_leaf
-  after_create  :initialise_root_for_root
 
   def destroy_associated_objects
     #destroy_statement   # It didn't work - hard to comprehend, why.
@@ -30,11 +29,6 @@ class StatementNode < ActiveRecord::Base
     return if parent.nil?
     self.root_id = parent.root_id
     statement.editorial_state = parent.root.editorial_state if self.class.is_top_statement?
-  end
-  
-  # since the root node was created without a specific root node assigned, assign it after the creation 
-  def initialise_root_for_root
-    target_statement.update_attribute(:root_id, target_id) if parent.nil? or self.class.is_top_statement?
   end
 
   #
