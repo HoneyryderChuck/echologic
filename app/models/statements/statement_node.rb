@@ -5,6 +5,8 @@ class StatementNode < ActiveRecord::Base
 
   alias_attribute :target_id, :id
   alias_attribute :target_root_id, :root_id
+  
+  attr_accessor :new_permission_tags
 
   def target_statement
     self
@@ -16,11 +18,25 @@ class StatementNode < ActiveRecord::Base
 
   after_destroy :destroy_associated_objects
   before_create :initialise_root_for_leaf
+  after_save    :assign_permission_tags_to_creator
 
   def destroy_associated_objects
     #destroy_statement   # It didn't work - hard to comprehend, why.
     destroy_shortcuts
     destroy_descendants
+  end
+  
+  
+  
+  def new_permission_tags=(tags)
+    @new_permission_tags = tags
+  end 
+  
+  # assigns the previously stored permission tags to the creator as decision tags
+  def assign_permission_tags_to_creator
+    return if @new_permission_tags.blank?
+    self.creator.decision_making_tags += @new_permission_tags
+    self.creator.save
   end
 
   

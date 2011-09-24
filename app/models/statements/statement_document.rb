@@ -19,11 +19,10 @@ class StatementDocument < ActiveRecord::Base
   
   accepts_nested_attributes_for :statement_history
   
-  delegate :action, :author, :incorporated_node, :old_document, :to => :statement_history
-
+  delegate :action, :author, :incorporated_node, :old_document, :to => :statement_history, :allow_nil => true
 
   def after_initialize
-    self.statement_history = StatementHistory.new if self.statement_history.nil?
+    self.build_statement_history if self.statement_history.nil?
   end
 
   def set_history

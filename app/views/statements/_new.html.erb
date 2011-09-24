@@ -17,6 +17,7 @@
 	<%= hidden_field_tag :sids, params[:sids] if params[:sids] %>
 	<%= hidden_field_tag :al, params[:al] if params[:al] %>
   <%= hidden_field_tag :hub, params[:hub] if params[:hub] %>
+  <%= hidden_field_tag "statement_node[init_alternative]", 1 if params[:hub] %>
 
 
 	<%= render :partial => 'statements/form/form_header', :locals => {:form => form, :statement_node => statement_node} %>

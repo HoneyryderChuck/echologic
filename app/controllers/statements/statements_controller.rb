@@ -144,9 +144,13 @@ class StatementsController < ApplicationController
   # Response: HTTP or JS
   #
   def create
+    created = false
     attrs = params[statement_node_symbol].merge({:creator_id => current_user.id})
-    form_tags = attrs[:statement_attributes][:topic_tags] || ""
     doc_attrs = attrs[:statement_attributes][:statement_documents_attributes]["0"]
+
+    # send new permission tags to statement node to be handled on filter
+    form_tags = attrs[:statement_attributes][:topic_tags] || ""
+    attrs[:new_permission_tags] = filter_permission_tags(form_tags.split(","), :read_write)
     
     if attrs[:statement_id].present? # linked statement
       doc_attrs.clear
@@ -159,59 +163,31 @@ class StatementsController < ApplicationController
     
 
     begin
-
-      # Prepare in memory
-      @statement_node ||= @statement_node_type.new(attrs)
-
-      created = false
-
-      # Add possible secret tags to the current user profile
-      new_permission_tags = filter_permission_tags(form_tags.split(","), :read_write)
-
-      # Persisting
       StatementNode.transaction do
-
-        # IF ALTERNATIVE
-        @statement_node.move_to_alternatives_hub if params[:hub]
-
+        # Prepare in memory
+        @statement_node ||= @statement_node_type.new(attrs)
+  
+        # Rendering
         if @statement_node.save
-          
-          # TODO: Move To Filter
-          if !new_permission_tags.empty?
-            current_user.decision_making_tags += new_permission_tags
-            current_user.save
-          end
-
-          # Propagating the creation event
+          created = true
           EchoService.instance.created(@statement_node)
           EchoService.instance.created(@statement_node.question) if @statement_node.question_id
-          created = true
+          
+          @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
+          load_siblings @statement_node
+          load_discuss_alternatives_question(@statement_node)
+          load_all_children
+  
+          set_statement_info @statement_document
+          show_statement do
+            render :template => 'statements/create'
+          end
+        else
+          @statement_document = doc_attrs.empty? ? @statement_node.document_in_preferred_language(@language_preference_list) : StatementDocument.new(doc_attrs)
+          load_statement_node_errors
+          render_statement_with_error :template => 'statements/new'
         end
       end
-      
-      # Rendering
-      if created
-        @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
-        load_siblings @statement_node
-        load_discuss_alternatives_question(@statement_node)
-        load_all_children
-
-        set_statement_info @statement_document
-        show_statement do
-          render :template => 'statements/create'
-        end
-      else
-        @statement_document = doc_attrs.empty? ? @statement_node.document_in_preferred_language(@language_preference_list) : StatementDocument.new(doc_attrs)
-        set_error(@statement_node, :only => ["statement.statement_documents.title", 
-                                             "statement.statement_documents.text"])
-        if @statement_node.class.has_embeddable_data?
-          set_error(@statement_node.statement, :only => [:info_type_id, :external_url])
-          @statement_node.statement_datas.each{|s|set_error(s)}
-        end
-        
-        render_statement_with_error :template => 'statements/new'
-      end
-
     rescue Exception => e
       log_message_error(e, "Error creating statement node.") do
         load_ancestors and flash_error and render :template => 'statements/new'
@@ -269,10 +245,10 @@ class StatementsController < ApplicationController
       attrs = params[statement_node_symbol]
       attrs_doc = attrs[:statement_attributes][:statement_documents_attributes]["0"]
       locked_at = attrs_doc.delete(:locked_at) if attrs_doc
-
-      # Updating tags of the statement
+        
+      # send new permission tags to statement node to be handled on filter
       form_tags = attrs[:statement_attributes][:topic_tags] || ''
-      new_permission_tags = filter_permission_tags(form_tags.split(','), :read_write)
+      attrs[:new_permission_tags] = filter_permission_tags(form_tags.split(","), :read_write)
 
       old_statement_document = StatementDocument.find(attrs_doc[:statement_history_attributes][:old_document_id])
       holds_lock = holds_lock?(old_statement_document, locked_at)
@@ -283,33 +259,21 @@ class StatementsController < ApplicationController
           attrs_doc.merge!({:current => true})
           attrs_doc[:statement_history_attributes].merge!({:author_id => current_user.id})
           
-          @statement_node.update_attributes(attrs)
-
-          if !new_permission_tags.empty?
-            current_user.decision_making_tags += new_permission_tags
-            current_user.save
+          if @statement_node.update_attributes(attrs)
+            old_statement_document.current = false
+            old_statement_document.unlock # also saves the document
+            update = true
+            @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
+            set_statement_info(@statement_document)
+            show_statement
+          else
+            @statement_document = StatementDocument.new(attrs_doc)
+            load_statement_node_errors
+            show_statement true
           end
         end
-      end
-
-      if !holds_lock
-        being_edited
-      elsif @statement_node.valid?
-        old_statement_document.current = false
-        old_statement_document.unlock # also saves the document
-        update = true
-        @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
-        set_statement_info(@statement_document)
-        show_statement
       else
-        @statement_document = StatementDocument.new(attrs_doc)
-        set_error(@statement_node, :only => ["statement.statement_documents.title", 
-                                             "statement.statement_documents.text"])
-        if @statement_node.class.has_embeddable_data?
-          set_error(@statement_node.statement, :only => [:info_type_id, :external_url])
-          @statement_node.statement_datas.each{|s|set_error(s)}
-        end
-        show_statement true
+        being_edited
       end
 
     rescue Exception => e
@@ -1346,6 +1310,15 @@ class StatementsController < ApplicationController
         load_statement_level(teaser)
         render :template => template
       }
+    end
+  end
+  
+  def load_statement_node_errors
+    set_error(@statement_node, :only => ["statement.statement_documents.title", 
+                                         "statement.statement_documents.text"])
+    if @statement_node.class.has_embeddable_data?
+      set_error(@statement_node.statement, :only => [:info_type_id, :external_url])
+      @statement_node.statement_datas.each{|s|set_error(s)}
     end
   end
 

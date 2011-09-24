@@ -73,7 +73,7 @@ module ActiveRecord
             ####################################
 
             def after_initialize
-              self.drafting_info = DraftingInfo.new(:state_since => Time.now) if self.drafting_info.nil?
+              self.build_drafting_info(:state_since => Time.now) if self.drafting_info.nil?
             end
 
             def incorporable?

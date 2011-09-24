@@ -31,9 +31,8 @@ class Statement < ActiveRecord::Base
   validates_associated :external_files
   validates_associated :external_url
 
-  def initialize(*attrs)
-    self.statement_image = StatementImage.new
-    super
+  def after_initialize
+    self.build_statement_image if self.statement_image.nil?
   end
 
   def has_data?
