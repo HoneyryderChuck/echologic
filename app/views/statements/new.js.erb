@@ -2,6 +2,6 @@ var element = $("<%= escape_javascript(render :partial => 'statements/new') %>")
 
 /* Breadcrumb's stack (if follow-up question */
 <% if @breadcrumb %>
-   $('#breadcrumbs').data('breadcrumbApi').addBreadcrumbs(<%= [@breadcrumb].to_json %>);
+   $('#breadcrumbs').data('breadcrumbApi').addBreadcrumbs(<%= [@breadcrumb].map(&:to_hash).to_json %>);
 <% end %>
 

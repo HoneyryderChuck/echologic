@@ -82,6 +82,17 @@ class Statement < ActiveRecord::Base
     self.statement_documents.find(:first,
                                   :conditions => ["language_id = ? and current = 1", l_id])
   end
+  
+  def documents_by_language(ids=[])
+    lang_ids = (ids + [self.original_language_id]).uniq
+    documents = self.statement_documents.all(:conditions =>["current = 1 and (language_id IN (?) OR language_id = ?)", lang_ids, self.original_language_id])
+    documents.sort! {|a, b|
+      a_index = lang_ids.index(a.language_id)
+      b_index = lang_ids.index(b.language_id)
+       (a_index and b_index) ? a_index <=> b_index : 0
+    }
+    documents
+  end
 
 
   ###################

@@ -486,7 +486,7 @@ class StatementsController < ApplicationController
     @bids = []
     statement_nodes.each_with_index do |s, index|
       break if index > statement_nodes.length - 2
-      @bids << "#{Breadcrumb.instance.generate_key(statement_nodes[index+1].u_class_name)}#{s.id}"
+      @bids << "#{Breadcrumb.generate_key(statement_nodes[index+1].u_class_name)}#{s.id}"
     end
     respond_to do |format|
       format.json{render :json => {:sids => @statement_ids, :bids => @bids}}
@@ -766,23 +766,19 @@ class StatementsController < ApplicationController
   # Sets the breadcrumb of the current statement node's parent. Used only for new action.
   #
   # Loads instance variables:
-  # @breadcrumb(Array[]) (check build_breadcrumb documentation)
+  # @breadcrumb(Breadcrumb) (check build_breadcrumb documentation)
   # @bids(String) : breadcrumb keycodes separated by comma
   #
   def set_parent_breadcrumb
     return if @statement_node.parent_node.nil?
     parent_node = @statement_node.parent_node
-    statement_document = search_statement_documents(:statement_ids => [parent_node.statement_id])[parent_node.statement_id] ||
-    parent_node.document_in_original_language
-    key = params[:hub] ? params[:hub][0,2] : Breadcrumb.instance.generate_key(@statement_node_type.name.underscore)
-    #[id, classes, url, title, label, over]
-    @breadcrumb = {:key => params[:hub] || "#{key}#{parent_node.id}",
-                   :css => "statement statement_link #{parent_node.u_class_name}_link",
-                   :url => statement_node_url(parent_node, :bids => params[:bids], :origin => params[:origin]),
-                   :title => Breadcrumb.instance.decode_terms(statement_document.title),
-                   :label => I18n.t("discuss.statements.breadcrumbs.labels.#{key}"),
-                   :over => I18n.t("discuss.statements.breadcrumbs.labels.over.#{key}")}
-    @breadcrumb[:css] << " #{parent_node.info_type.code}_link" if parent_node.class.has_embeddable_data?
+    key = params[:hub] ? params[:hub][0,2] : Breadcrumb.generate_key(@statement_node_type.name.underscore)
+    
+    @breadcrumb = Breadcrumb.new(key, parent_node, :language_ids => @language_preference_list, 
+                                                   :origin => params[:origin], 
+                                                   :bids =>params[:bids], 
+                                                   :final_key => params[:hub])
+    
     @bids = params[:bids] || ''
     @bids = @bids.split(",")
     @bids << @breadcrumb[:key]
@@ -793,7 +789,7 @@ class StatementsController < ApplicationController
   # Sets the breadcrumbs for the current statement node view previous path.
   #
   # Loads instance variables:
-  # @breadcrumbs(Array[Array[]]) (check build_breadcrumb documentation)
+  # @breadcrumbs(Array[Breadcrumb]) (check build_breadcrumb documentation)
   #
   def load_breadcrumbs
 
@@ -806,46 +802,22 @@ class StatementsController < ApplicationController
         b_type = ancestor == @ancestors.last ?
                  @statement_node.u_class_name :
                  @ancestors[index+1].u_class_name
-        bids << "#{Breadcrumb.instance.generate_key(b_type)}#{ancestor.id}"
+        bids << "#{Breadcrumb.generate_key(b_type)}#{ancestor.id}"
       end if @ancestors
     end
 
     @breadcrumbs = []
 
-    bids.each_with_index do |bid, index| #[id, classes, url, title, label, over]
+    origin_bids = bids.select{|b|Breadcrumb.origin_keys.include?(b[0,2])}
+
+    bids.each_with_index do |bid, index|
       key = bid[0,2]
       value = CGI.unescape(bid[2..-1])
-      breadcrumb = {}
-      #default values
-      breadcrumb[:key] = key
-      breadcrumb[:css] = "search_link statement_link"
-      case key
-        when "ds" then breadcrumb[:page_count] = value.blank? ? 1 : value[1..-1] # ds|:page_count
-        breadcrumb[:url] = discuss_search_url(:page_count => breadcrumb[:page_count])
-        breadcrumb[:title] = I18n.t("discuss.statements.breadcrumbs.discuss_search")
-        when "sr" then value = value.split('|')
-        breadcrumb[:page_count] = value.length > 1 ? value[1] : 1 # sr:search_term|:page_count
-        search_terms = Breadcrumb.instance.decode_terms(value[0])
-        breadcrumb[:url] = discuss_search_url(:page_count => breadcrumb[:page_count], :search_terms => search_terms)
-        breadcrumb[:title] = value[0]
-        when "mi" then breadcrumb[:css] = "my_discussions_link statement_link"
-        breadcrumb[:url] = my_questions_url
-        breadcrumb[:title] = I18n.t("discuss.statements.breadcrumbs.my_questions")
-        when "pr", "im", "ar", "bi", "fq", "jp", "al", "dq"
-        then statement_node = StatementNode.find(bid[2..-1])
-        statement_document = search_statement_documents(:statement_ids => [statement_node.statement_id])[statement_node.statement_id] ||
-        statement_node.document_in_original_language
-        origin = index > 0 ? bids.select{|b|Breadcrumb.instance.origin_keys.include?(b[0,2])}[index-1] : ''
-        breadcrumb[:key] = "#{key}#{value}"
-        breadcrumb[:css] = "statement statement_link #{statement_node.u_class_name}_link"
-        breadcrumb[:css] << " #{statement_node.info_type.code}_link" if statement_node.class.has_embeddable_data?
-        breadcrumb[:url] = statement_node_url(statement_node,
-                                              :bids => bids[0, bids.index(bid)].join(","),
-                                              :origin => origin)
-        breadcrumb[:title] = statement_document.title
-      end
-      breadcrumb[:label] = I18n.t("discuss.statements.breadcrumbs.labels.#{key}")
-      breadcrumb[:over] = I18n.t("discuss.statements.breadcrumbs.labels.over.#{key}")
+      origin = index > 0 ? origin_bids[index-1] : ''
+      
+      breadcrumb = Breadcrumb.new(key, value, :language_ids => @language_preference_list, 
+                                              :origin => origin, 
+                                              :bids => bids[0, bids.index(bid)].join(","))
       @breadcrumbs << breadcrumb
     end
   end
@@ -1202,7 +1174,7 @@ class StatementsController < ApplicationController
         # discuss search with search results
         when 'sr'then
           value = value.split('|')
-          term = Breadcrumb.instance.decode_terms(value[0])
+          term = Breadcrumb.decode_terms(value[0])
           per_page = value.length > 1 ? value[1].to_i * QUESTIONS_PER_PAGE : QUESTIONS_PER_PAGE
           sn = search_statement_nodes(:search_term => term,
                                       :param => opts[:for_session] ? 'root_id' : nil,
@@ -1341,7 +1313,7 @@ class StatementsController < ApplicationController
   def load_search_terms_as_tags(origin)
     return if !origin[0,2].eql?('sr')
     origin = CGI.unescape(origin).split('|')[0]
-    default_tags = Breadcrumb.instance.decode_terms(origin[2..-1])
+    default_tags = Breadcrumb.decode_terms(origin[2..-1])
     default_tags[/[\s]+/] = ',' if default_tags[/[\s]+/]
     default_tags = default_tags.split(',').compact
     default_tags.each{|t| @statement_node.topic_tags << t }

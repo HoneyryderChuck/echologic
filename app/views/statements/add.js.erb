@@ -25,7 +25,7 @@
 /* breadcrumb */
 $('#breadcrumbs').data('breadcrumbApi').deleteBreadcrumbs();
 <% if @breadcrumbs %>
-  $('#breadcrumbs').data('breadcrumbApi').addBreadcrumbs(<%= @breadcrumbs.to_json %>);
+  $('#breadcrumbs').data('breadcrumbApi').addBreadcrumbs(<%= @breadcrumbs.map(&:to_hash).to_json %>);
 <% else %>
   $('#breadcrumbs').data('breadcrumbApi').hideContainer();
 <% end %>
