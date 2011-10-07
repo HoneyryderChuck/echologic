@@ -10,12 +10,12 @@
                                #{@statement_node_type.has_embeddable_data? ? 'embeddable no_type' : ''}",
                                'dom-parent' => statement_node.parent_node ?
                                "#{dom_class(statement_node.parent_node)}_#{statement_node.parent_node.target_id}" :
-                               params[:origin] } do |form| -%>
+                               @node_environment.origin.to_s } do |form| -%>
 
-	<%= hidden_field_tag :origin, @previous_node ? "#{@previous_type}#{@previous_node.id}" : (params[:origin]||"") %>
-  <%= hidden_field_tag :bids, @bids || params[:bids] || '' %>
+	<%= hidden_field_tag :origin, @previous_node ? "#{@previous_type}#{@previous_node.id}" : (@node_environment.origin.to_s||"") %>
+  <%= hidden_field_tag :bids, (!@bids.blank? ? @bids.join(",") : @node_environment.bids.to_s) %>
 	<%= hidden_field_tag :sids, params[:sids] if params[:sids] %>
-	<%= hidden_field_tag :al, params[:al] if params[:al] %>
+	<%= hidden_field_tag :al, @node_environment.alternative_modes.to_s %>
   <%= hidden_field_tag :hub, params[:hub] if params[:hub] %>
   <%= hidden_field_tag "statement_node[init_alternative]", 1 if params[:hub] %>
 

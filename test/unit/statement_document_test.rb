@@ -23,17 +23,15 @@ class StatementDocumentTest < ActiveSupport::TestCase
    
     context "with translations" do
       setup do  
-        statement = Statement.new(:original_language => Language["en"])
-        @statement_document.update_attributes(:title => 'A document', :text => 'the documents body', :statement => statement)
+        @statement = Statement.new(:original_language => Language["en"])
+        @statement_document.update_attributes(:title => 'A document', :text => 'the documents body', :statement => @statement, :current => 1)
         @statement_document.language = Language.first
         @statement_document.build_statement_history
         @statement_document.statement_history.author = User.first
         @statement_document.statement_history.action = StatementAction["created"]
         @statement_document.save!
         @translated_statement_document = StatementDocument.new
-        @translated_statement_document.update_attributes(:title => 'Ein dokument', :text => 'the documents body', 
-                                                                  :language => Language.last, 
-                                                                  :statement => statement)
+        @translated_statement_document.update_attributes(:title => 'Ein dokument', :text => 'the documents body', :statement => @statement, :language => Language.last, :current => 1)
         @translated_statement_document.build_statement_history
         @translated_statement_document.statement_history.author = User.first
         @translated_statement_document.statement_history.action = StatementAction["translated"]
@@ -46,7 +44,7 @@ class StatementDocumentTest < ActiveSupport::TestCase
       end
 
       should "be able to have translations" do
-        assert_equal @statement_document.translations, [@translated_statement_document]
+        assert_equal @statement_document.reload.translations, [@translated_statement_document]
       end
 
       should "tell if it is the original document" do

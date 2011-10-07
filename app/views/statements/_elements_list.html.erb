@@ -5,6 +5,6 @@
 <ul class="children_list children_pagination">
   <%= render :partial => 'statements/child', :collection => children, :locals => {:new_level => new_level, :child_type => child_type, :label_type => label_type} %>
   <% if children.blank? or children.current_page == children.total_pages %>
-	  <%= add_create_new_statement_button(@statement_node, child_type, :label_type => label_type, :hub => hub, :nl => new_level, :bids => params[:bids], :origin => params[:origin], :css => "new_statement" ) %>
+	  <%= add_create_new_statement_button(@statement_node, child_type, :label_type => label_type, :hub => hub, :nl => new_level, :bids => @node_environment.bids.to_s, :origin => @node_environment.origin.to_s, :css => "new_statement" ) %>
   <%end%>
 </ul>

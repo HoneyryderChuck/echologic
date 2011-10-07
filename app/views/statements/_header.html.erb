@@ -12,7 +12,7 @@
 	
 	<% content_tag :div, :class => "main_header" do %>
 		<% content_tag :div, :class => 'header_buttons' do %>
-		 <%= navigation_buttons statement_node, node_type(statement_node), :origin => params[:origin] %>
+		 <%= navigation_buttons statement_node, node_type(statement_node) %>
 	
 		 <%= render :partial => "statements/descendants",
 	              :locals => {:child_type => node_type(statement_node), :display => true,
@@ -22,7 +22,7 @@
 			<% statement_node_context_link(statement_node,
 	                                   statement_document.title,
 	                                  (!only_header ? 'current' : 'back_to'),
-	                                  :hub => (alternative_mode?(statement_node) ? @alternative_modes.join(',') : nil),
+	                                  :hub => (alternative_mode?(statement_node) ? @node_environment.alternative_modes.to_s : nil),
 	                                  :css => 'ajax') %>
 			<% if statement_node.echoable? %>
 				<%= supporter_ratio_bar(statement_node,

@@ -32,8 +32,8 @@ class Breadcrumb < Struct.new(:code, :key, :css, :url, :title, :page_count, :lab
         self.css = "statement statement_link #{node.u_class_name}_link"
         self.css << " #{node.info_type.code}_link" if node.class.has_embeddable_data?
         self.url = statement_node_path(node,
-                                      :bids => opts[:bids],
-                                      :origin => opts[:origin])
+                                      :bids => opts[:bids].to_s,
+                                      :origin => opts[:origin].to_s)
         self.title = statement_document.title 
     end    
     self.title = self.class.decode_terms(self.title)

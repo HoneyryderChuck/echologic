@@ -56,8 +56,8 @@ module PublishableModuleHelper
   #
   # Creates a button link to create a new question (SIDEBAR).
   #
-  def add_new_question_button(origin = nil)
-    content_tag(:a, :href => new_question_url(:origin => origin, :bids => origin),
+  def add_new_question_button
+    content_tag(:a, :href => new_question_url(:origin => @node_environment.origin.to_s, :bids => @node_environment.origin.to_s),
                 :class => "create_question_button_32 resource_link ajax ttLink no_border",
                 :title => I18n.t("discuss.tooltips.create_question")) do
       statement_icon_title(I18n.t("discuss.statements.types.question"))

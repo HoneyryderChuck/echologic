@@ -88,7 +88,7 @@ module EchoableModuleHelper
     content_tag(:div, :class => 'social_echo_container') do
       content = ''
       content << content_tag(:span, '', :class => 'social_echo_button expandable',
-                  :href => social_widget_statement_node_url(statement_node, :bids => params[:bids], :origin => params[:origin]),
+                  :href => social_widget_statement_node_url(statement_node, :bids => @node_environment.bids.to_s, :origin =>@node_environment.origin.to_s),
                   :style => "#{echoed ? '' : 'display:none'}")
       content
     end
@@ -107,11 +107,11 @@ module EchoableModuleHelper
       content = ''
       token_url = redirect_from_popup_to(add_remote_url,
                                          :redirect_url => statement_node_url(statement_node,
-                                                                         :bids => params[:bids],
-                                                                         :origin => params[:origin]),
+                                                                             :bids => @node_environment.bids.to_s,
+                                                                             :origin => @node_environment.origin.to_s),
                                          :later_call => social_widget_statement_node_url(statement_node,
-                                                                                         :bids => params[:bids],
-                                                                                         :origin => params[:origin]))
+                                                                                         :bids => @node_environment.bids.to_s,
+                                                                                         :origin => @node_environment.origin.to_s))
       %w(facebook twitter yahoo! linkedin).each do |provider|
         connected = current_user.has_provider? provider
         css_provider = provider.eql?('yahoo!') ? 'yahoo' : provider

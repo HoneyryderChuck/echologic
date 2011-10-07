@@ -3,7 +3,7 @@
 <% only_header ||= false %>
 <% hide_content ||= false %>
 <% type = [statement_node.class.name_for_siblings, node_type(statement_node)].uniq.join(' ') %>
-<% dom_parent = alternative_mode?(statement_node) ? "alternative_#{statement_node.target_id}" : statement_node.parent_node ? dom_id(statement_node.parent_node) : params[:origin] %>
+<% dom_parent = alternative_mode?(statement_node) ? "alternative_#{statement_node.target_id}" : statement_node.parent_node ? dom_id(statement_node.parent_node) : @node_environment.origin.to_s %>
 
 <% content_tag :div, :id => dom_id(statement_node), 
                :class => "statement #{type} #{statement_node.echoable? ? 'echoable' : ''} #{'alternative' if alternative_mode?(statement_node)}",

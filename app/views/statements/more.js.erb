@@ -11,7 +11,7 @@ var more_element = container.find('.more_pagination');
 
 var elements_list = "<%= escape_javascript(render :partial => 'statements/child',
                                                   :locals => {:child_type => @type.to_s.underscore,
-                                                              :new_level => params[:nl],
+                                                              :new_level => (true if @node_environment.new_level?),
                                                               :hub => params[:hub]},
                                                   :collection => @children[@type][@offset, @per_page]) %>";
 var pagination_buttons = "<%= escape_javascript(will_paginate(@children[@type],
@@ -32,8 +32,8 @@ children_list.append(elements_list);
                                                             :label_type => @type.to_s.underscore,
                                                             :nl => true,
                                                             :hub => params[:hub],
-                                                            :bids => params[:bids],
-                                                            :origin => params[:origin],
+                                                            :bids => @node_environment.bids.to_s,
+                                                            :origin => @node_environment.origin.to_s,
                                                             :css => "ajax" ) %>');
 <% end %>
 
@@ -50,4 +50,4 @@ if(pagination_buttons.length > 0) {
 <% end %>
 container.find('.more_pagination a').addClass('ajax');
 
-statement.data('api').reinitialiseContainerBlock(".<%=type_plural%>", <%= params[:nl] ? true : false %>);
+statement.data('api').reinitialiseContainerBlock(".<%=type_plural%>", <%= @node_environment.new_level? %>);

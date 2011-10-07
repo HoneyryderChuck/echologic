@@ -26,8 +26,6 @@ class StatementNode < ActiveRecord::Base
     destroy_descendants
   end
   
-  
-  
   def new_permission_tags=(tags)
     @new_permission_tags = tags
   end 

@@ -15,7 +15,7 @@ var double_list = statement.find('.children .<%= type_plural %> .doubles_list');
 	var elements_list =
       "<%= escape_javascript(render :partial => 'statements/child',
                                     :locals => {:child_type => type,
-                                                :new_level => params[:nl]},
+                                                :new_level => (true if @node_environment.new_level?)},
                                     :collection => children_group[@offset, @per_page]) %>";
 
   var scrollpane;
@@ -56,4 +56,4 @@ if(pagination_buttons.length > 0) {
 <% end %>
 statement.find('.children .<%= type_plural %> .more_pagination a').addClass('ajax');
 
-statement.data('api').reinitialiseContainerBlock(".<%=type_plural%>", <%= params[:nl] ? true : false %>);
+statement.data('api').reinitialiseContainerBlock(".<%=type_plural%>", <%= @node_environment.new_level? %>);
