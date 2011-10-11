@@ -8,7 +8,7 @@
                                          #{statement_node.class.has_embeddable_data? ? ('embeddable ' + statement_node.info_type.code) : ''}",
                             'data-siblings' => @siblings ? @siblings[dom_id(statement_node)].to_json : ''} do |form| -%>
 														
-  <%= hidden_field_tag :cs, params[:cs] if params[:cs] %>
+  <%= hidden_field_tag :cs, @node_environment.current_stack.to_s if @node_environment.current_stack? %>
 	
 	<%= render :partial => 'statements/form/form_header', :locals => {:form => form, :statement_node => statement_node} %>
   <%= render :partial => 'statements/form/form_content',

@@ -7,7 +7,7 @@
 
 /* history handling */
 <% if !params[:sids].blank? and @ancestors %>
-  <% inc = @level - @ancestors.length %>
+  <% inc = @node_environment.level - @ancestors.length %>
   var stack = "<%= params[:sids] %>".split(",");
   <% @ancestors.each_with_index do |ancestor, index| %>
     var ancestor = stack[<%= index %>];
@@ -31,4 +31,4 @@ $('#breadcrumbs').data('breadcrumbApi').deleteBreadcrumbs();
 <% end %>
 
 var add_teaser = $("<%= escape_javascript(render :partial => 'statements/add',
-                                                 :locals => {:hide_content => true}) %>").statement({'level' : <%= @level %>});
+                                                 :locals => {:hide_content => true}) %>").statement({'level' : <%= @node_environment.level %>});

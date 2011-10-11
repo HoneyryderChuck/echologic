@@ -327,7 +327,7 @@ module StatementsHelper
     content = ''
     statement_node.class.sub_types.map.each do |sub_type|
       sub_type = sub_type.to_s.underscore
-      content << content_tag(:a, :href => new_statement_node_url(@parent_node || statement_node.parent_node, sub_type),
+      content << content_tag(:a, :href => new_statement_node_url(@node_environment.previous_statement_node(statement_node) || statement_node.parent_node, sub_type),
                              :class => "create_#{sub_type}_button_32 resource_link new_statement ttLink no_border",
                              :title => I18n.t("discuss.tooltips.create_#{sub_type}")) do
         statement_icon_title(I18n.t("discuss.statements.types.#{sub_type}"))
@@ -393,7 +393,7 @@ module StatementsHelper
       link_to(I18n.t('application.general.edit'),
               edit_statement_node_url(statement_node,
                                       :current_document_id => statement_document.id,
-                                      :cs => params[:cs]),
+                                      :cs => @node_environment.current_stack.to_s),
               :class => 'ajax header_button text_button edit_text_button')
     else
       ''
@@ -495,7 +495,7 @@ module StatementsHelper
     link_to I18n.t('application.general.cancel'),
             cancel_statement_node_url(statement_node,
                                       :locked_at => locked_at.to_s,
-                                      :cs => params[:cs]),
+                                      :cs => @node_environment.current_stack.to_s),
            :class => "text_button cancel_text_button ajax"
   end
 
@@ -622,7 +622,7 @@ module StatementsHelper
       if statement_node.nil?
         question_descendants_url(:origin => @node_environment.origin.to_s)
       else
-        parent = sib || (@current_stack ? @current_stack[@current_stack.length - 2] : statement_node)
+        parent = sib || (@node_environment.current_stack? ? @node_environment.get_previous_id(sib) : statement_node) # TODO: CHECK IF THIS WILL NOT FAIL BIG TIME
         descendants_statement_node_url(parent, name, :alternative_type => alternative_type)
       end
     else  # STATEMENT NODES
@@ -631,8 +631,8 @@ module StatementsHelper
         question_descendants_url(:origin => @node_environment.origin.to_s, :current_node => statement_node)
       else
         prev = sib ||
-               (@current_stack ?
-               StatementNode.find(@current_stack[@current_stack.index(statement_node.id)-1], :select => "id, lft, rgt, question_id") :
+               (@node_environment.current_stack? ?
+               @node_environment.get_previous_statement_node(statement_node) :
                statement_node.parent_node)
 
         descendants_statement_node_url(prev,
@@ -728,7 +728,7 @@ module StatementsHelper
     end
 
     # AL
-    level = @current_stack.nil? ? statement_node.level : @current_stack.index(statement_node.id)
+    level = @node_environment.stack_level(statement_node)
     al = @node_environment.add_alternative_mode(level).to_s if opts[:alternative_link]
 
     content = link_to(statement_icon_title(title),
@@ -860,7 +860,7 @@ module StatementsHelper
     link_to '', statement_node_url(statement_node, 
                                     :bids => @node_environment.pop_bid.to_s, 
                                     :origin => @node_environment.origin.to_s, 
-                                    :al => @node_environment.remove_alternative_mode(@level).to_s),
+                                    :al => @node_environment.remove_alternative_mode(@node_environment.level).to_s),
             :class => "alternative_close ttLink no_border",
             :title => I18n.t("discuss.tooltips.close_alternative_mode")
   end
@@ -879,8 +879,7 @@ module StatementsHelper
   def alternative_mode?(statement_node_or_level)
     return true if @node_environment.hub?
     return false if statement_node_or_level.nil?
-    index = statement_node_or_level.kind_of?(Integer) ? statement_node_or_level : 
-            (@current_stack ? @current_stack.index(statement_node_or_level.id) : statement_node_or_level.level)
+    index = @node_environment.stack_level(statement_node_or_level)
     @node_environment.alternative_modes and 
     @node_environment.alternative_modes.include?(index)
   end

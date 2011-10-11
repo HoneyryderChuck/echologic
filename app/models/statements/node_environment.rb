@@ -1,4 +1,15 @@
-class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_modes, :hub)
+#   class: NodeEnvironment
+#  
+#   Encapsulates all the external values to the statement node itself that play a part in the various workflows
+#   
+#    new_level:         Boolean:            tells if the current action will result in the renderization of the statement node on a level below (TODO: later this will store the animation type)
+#    bids:              Container(Pair):    stores the breadcrumb identifiers of the current action
+#    origin:            Pair:               stores the identifier of the origin of the root node of the current tree (or subtree)
+#    alternative_modes: Container(Integer): stores the level of the statement nodes currently displayed on alternative mode
+#    hub:               Pair:               stores the identifier of the "hub" sibling statement node (used on the creation of alternatives)
+#    current_stack:     Container(Integer): stores the statement node identifiers of the currently display statement stack
+#    level:             Integer:            level at which the current statement (or teaser) will be displayed
+class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_modes, :hub, :current_stack, :level)
   
   include ActionController::UrlWriter
   
@@ -10,6 +21,13 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
   #   defines the container type that stores the bids (nothing more than an array containing the bids)
   #   
   class Container < Array
+    
+    def initialize(o)
+      if o.kind_of? String
+        o = o.split(",").map(&:to_i)         
+      end
+      self.concat(o)
+    end
     
     def to_s
       self.map(&:to_s).join(",")
@@ -46,33 +64,32 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
   
   
   
-  def initialize(new_level, bids, origin, alternative_modes, hub)
+  def initialize(statement_node, node_type, new_level, bids, origin, alternative_modes, hub, current_stack)
     # new level
     self.new_level = true if !new_level.blank?
     
     # breadcrumb ids
-    if bids.blank?
-      self.bids = []
-    else
-      cont = Container.new
-      bids.split(",").each{|bid| cont << Pair.new(bid[0,2], CGI.unescape(bid[2..-1]))}
-      self.bids = cont
-    end
+    self.bids = bids.blank? ? [] : Container.new(bids.split(",").map{|bid| Pair.new(bid[0,2], CGI.unescape(bid[2..-1]))})
     
     # origin
     self.origin = origin.blank? ? nil : Pair.new(origin[0,2], CGI.unescape(origin[2..-1]))
     
     # alternative_levels
-    if alternative_modes.blank?
-      self.alternative_modes =  []
-    else
-      cont = Container.new
-      alternative_modes.split(",").map(&:to_i).each{|al| cont << al }
-      self.alternative_modes = cont
-    end
+    self.alternative_modes =  alternative_modes.blank? ? [] : Container.new(alternative_modes)
     
     # hub (important for the creation of alternatives)
     self.hub = Pair.new(hub[0,2], hub[2..-1]) if !hub.blank?
+    
+    # current stack (visible statements)
+    self.current_stack = current_stack.blank? ? [] : current_stack.split(",").map(&:to_id)
+    
+    # level
+    if statement_node.present? and statement_node.new_record?
+      inc = self.hub? ? 0 : 1
+      self.level = (statement_node.parent_node.nil? or node_type.is_top_statement?) ? 0 : statement_node.parent_node.level + inc
+    else
+      self.level = self.current_stack? ? self.current_stack.length - 1 : nil
+    end
   end
   
   def add_bid(bid)
@@ -115,6 +132,25 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
   
   def hub?
     self.hub.present?
+  end
+  
+  def current_stack?
+    !self.current_stack.blank?
+  end
+  
+  def previous_statement_node(statement_node)
+    return nil if self.current_stack.blank? or statement_node.nil? or statement_node.level.eql?(0)
+    StatementNode.find(previous_id(statement_node), :select => "id, lft, rgt, question_id") 
+  end
+  
+  def previous_id(statement_node)
+    index = self.current_stack.index(statement_node.id)
+    self.current_stack[index-1]
+  end
+  
+  def stack_level(statement_node)
+    return statement_node if statement_node.kind_of? Integer
+    self.current_stack? ? self.index(statement_node.id) : statement_node.level
   end
   
 end

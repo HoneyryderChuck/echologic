@@ -4,7 +4,7 @@
 
 <% content_tag :div,
                :id => "add_#{@type}",
-               :class => "statement #{type} add_teaser echoable #{'alternative' if alternative_mode?(@level)}",
+               :class => "statement #{type} add_teaser echoable #{'alternative' if alternative_mode?(@node_environment.level)}",
                'data-siblings' => (@siblings ? @siblings["add_#{@type}"].to_json : '') do %>
   <%= render :partial => 'statements/add_header' %>
   <%= render :partial => 'statements/add_content', :locals => {:hide_content => hide_content} %>

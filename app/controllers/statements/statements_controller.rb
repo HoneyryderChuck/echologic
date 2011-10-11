@@ -25,7 +25,6 @@ class StatementsController < ApplicationController
   before_filter :check_write_permission, :only => [:echo, :unecho, :new, :new_translation]
   before_filter :check_empty_text, :only => [:create, :update, :create_translation]
 
-  before_filter :fetch_current_stack, :only => [:show, :add, :new, :cancel, :update]
 
   include PublishableModule
   before_filter :is_publishable?, :only => [:publish]
@@ -117,9 +116,6 @@ class StatementsController < ApplicationController
       @statement_node.load_root_tags if @statement_node_type.is_top_statement?
       load_search_terms_as_tags(@node_environment.origin) if @node_environment.origin and @node_environment.origin.key.eql?('sr')
     end
-
-    inc = @node_environment.hub? ? 0 : 1
-    @level = (@statement_node.parent_node.nil? or @statement_node_type.is_top_statement?) ? 0 : @statement_node.parent_node.level + inc
 
     if @node_environment.new_level?
       set_parent_breadcrumb
@@ -410,7 +406,7 @@ class StatementsController < ApplicationController
   #
   def add
     @type = params[:type].to_s
-    load_discuss_alternatives_question(@statement_node) if alternative_mode?(@level)
+    load_discuss_alternatives_question(@statement_node) if alternative_mode?(@node_environment.level)
     begin
       if @node_environment.new_level?
         if @statement_node # this is the teaser's parent (e.g.: 1212345/add/proposal)
@@ -654,29 +650,16 @@ class StatementsController < ApplicationController
     @statement_node_type = params[:type] ? params[:type].to_s.classify.constantize : nil
   end
 
-  #
-  # Gets the current stack state.
-  #
-  # Loads instance variables:
-  # @current_stack(Array[Integer]) : current stack state that will be visible once this request reaches its end
-  # @level(Integer) : level at which the new statement will be rendered
-  #
-  def fetch_current_stack
-    @current_stack = params[:cs] ? params[:cs].split(",").map(&:to_i) : nil
-    @level = @current_stack ? @current_stack.length - 1 : nil
-    @parent_node = (@current_stack and @statement_node and !@statement_node.level.eql?(0)) ?
-                   StatementNode.find(@current_stack[@current_stack.index(@statement_node.id)-1],
-                                      :select => "id, type") : nil
-  end
-  
-
   def load_node_environment
-    @node_environment = NodeEnvironment.new(
+    @node_environment = NodeEnvironment.new( 
+      @statement_node,
+      @statement_node_type,
       params[:nl],
       params[:bids],
       params[:origin],
       params[:al],
-      params[:hub]
+      params[:hub],
+      params[:cs]
     )  
   end
 
@@ -778,7 +761,7 @@ class StatementsController < ApplicationController
     @breadcrumb = Breadcrumb.new(key, parent_node, :language_ids => @language_preference_list, 
                                                    :origin => @node_environment.origin, 
                                                    :bids => @node_environment.bids, 
-                                                   :final_key => @node_environment.hub.to_s)
+                                                   :final_key => @node_environment.hub)
     
     @bids = @node_environment.add_bid(@breadcrumb.key)
   end
@@ -964,7 +947,7 @@ class StatementsController < ApplicationController
   def alternative_mode?(statement_node_or_level)
     return true if @node_environment.hub
     statement_node_or_level = 0 if statement_node_or_level.nil?
-    stack_ids = @current_stack || (@ancestors ? (@ancestors + [@statement_node]).map(&:id) : nil)
+    stack_ids = @node_environment.current_stack? || (@ancestors ? (@ancestors + [@statement_node]).map(&:id) : nil)
     @node_environment.alternative_modes? and stack_ids and @node_environment.alternative_modes.include?(statement_node_or_level.kind_of?(Integer) ? statement_node_or_level : stack_ids.index(statement_node_or_level.id))
   end
 
@@ -1044,7 +1027,7 @@ class StatementsController < ApplicationController
 
         # if teaser: @statement_node is the teaser's parent, therefore, an ancestor
         # if stack ids exists, that means the @statement node is already in ancestors
-        @ancestors << @statement_node if !alternative_mode?(@level) and !@ancestors.map(&:id).include?(@statement_node.id)
+        @ancestors << @statement_node if !alternative_mode?(@node_environment.level) and !@ancestors.map(&:id).include?(@statement_node.id)
         load_children_for_parent(@statement_node, @type)
       end
 
@@ -1096,10 +1079,10 @@ class StatementsController < ApplicationController
 
     # if has parent then load siblings
     if statement_node.parent_id
-      prev = @current_stack ? # if there's a current stack, load the results from the stack
+      prev = @node_environment.current_stack? ? # if there's a current stack, load the results from the stack
                (alternative_mode?(statement_node) ? # if statement is currently rendered as an alternative
                statement_node.hub : # then prev must be the hub
-               StatementNode.find(@current_stack[@current_stack.index(statement_node.id)-1], :select => "id, lft, rgt, question_id")) : # if not, it's the previous statement in the current stack
+               @node_environment.previous_statement_node(statement_node)) :
              statement_node.parent_node # no current stack, so just load the damn parent
       hub = statement_node.id if alternative_mode?(statement_node)
       siblings = statement_node.siblings_to_session :language_ids => @language_preference_list,
@@ -1222,10 +1205,10 @@ class StatementsController < ApplicationController
   #
   def load_statement_level(teaser = false)
     # if it is a teaser, calculate the level of the current parent and add 1 (unless it's a question or follow up teaser)
-    @level ||= teaser ?
-               ((@statement_node.nil? or @type.classify.constantize.is_top_statement?) ?
-                 0 : @statement_node.level + 1) :
-               @statement_node.level
+    @statement_node.level ||= teaser ?
+                             ((@statement_node.nil? or @type.classify.constantize.is_top_statement?) ?
+                               0 : @statement_node.level + 1) :
+                             @statement_node.level
   end
 
   ####################

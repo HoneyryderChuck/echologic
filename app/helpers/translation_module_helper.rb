@@ -7,7 +7,7 @@ module TranslationModuleHelper
     link << content_tag(:span, statement_document.language.value.upcase, :class => "language_label from_language")
     link << link_to(I18n.t('discuss.translation_request'),
              new_translation_statement_node_url(statement_node, :current_document_id => statement_document.id,
-                                                                :cs => params[:cs]),
+                                                                :cs => @node_environment.current_stack.to_s),
              :class => "ajax translation_link #{css_class}")
     link
   end
