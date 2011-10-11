@@ -2,7 +2,7 @@
 var siblings_panel = $("<%= escape_javascript(render :partial => "statements/descendants",
                                                       :locals => {:child_type => type_dom_class,
                                                                   :children => @children[@type],
-                                                                  :hub => params[:hub]})%>");
+                                                                  :hub => @node_environment.hub.to_s})%>");
 var statement = $('#statements div.<%= type_dom_class %>');
 var siblings_button = statement.find('.show_siblings_button');
 

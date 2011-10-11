@@ -4,7 +4,7 @@
 <% semantic_form_for statement_node,
           :html => {:class => "ajax_form new wide_form statement
                                #{node_type(statement_node)}
-						                   #{'alternative' if params[:hub]}
+						                   #{'alternative' if @node_environment.hub?}
 						                   #{@statement_node_type.taggable? ? 'taggable' : ''}
 						                   #{@statement_node_type.echoable? ? 'echoable' : ''}
                                #{@statement_node_type.has_embeddable_data? ? 'embeddable no_type' : ''}",
@@ -16,8 +16,8 @@
   <%= hidden_field_tag :bids, (!@bids.blank? ? @bids.join(",") : @node_environment.bids.to_s) %>
 	<%= hidden_field_tag :sids, params[:sids] if params[:sids] %>
 	<%= hidden_field_tag :al, @node_environment.alternative_modes.to_s %>
-  <%= hidden_field_tag :hub, params[:hub] if params[:hub] %>
-  <%= hidden_field_tag "statement_node[init_alternative]", 1 if params[:hub] %>
+  <%= hidden_field_tag :hub, @node_environment.hub.to_s if @node_environment.hub? %>
+  <%= hidden_field_tag "statement_node[init_alternative]", 1 if @node_environment.hub? %>
 
 
 	<%= render :partial => 'statements/form/form_header', :locals => {:form => form, :statement_node => statement_node} %>

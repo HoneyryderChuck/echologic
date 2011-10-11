@@ -118,7 +118,7 @@ class StatementsController < ApplicationController
       load_search_terms_as_tags(@node_environment.origin) if @node_environment.origin and @node_environment.origin.key.eql?('sr')
     end
 
-    inc = params[:hub].blank? ? 1 : 0
+    inc = @node_environment.hub? ? 0 : 1
     @level = (@statement_node.parent_node.nil? or @statement_node_type.is_top_statement?) ? 0 : @statement_node.parent_node.level + inc
 
     if @node_environment.new_level?
@@ -675,7 +675,8 @@ class StatementsController < ApplicationController
       params[:nl],
       params[:bids],
       params[:origin],
-      params[:al]
+      params[:al],
+      params[:hub]
     )  
   end
 
@@ -772,12 +773,12 @@ class StatementsController < ApplicationController
   def set_parent_breadcrumb
     return if @statement_node.parent_node.nil?
     parent_node = @statement_node.parent_node
-    key = params[:hub] ? params[:hub][0,2] : Breadcrumb.generate_key(@statement_node_type.name.underscore)
+    key = @node_environment.hub? ? @node_environment.hub.key : Breadcrumb.generate_key(@statement_node_type.name.underscore)
     
     @breadcrumb = Breadcrumb.new(key, parent_node, :language_ids => @language_preference_list, 
                                                    :origin => @node_environment.origin, 
                                                    :bids => @node_environment.bids, 
-                                                   :final_key => params[:hub])
+                                                   :final_key => @node_environment.hub.to_s)
     
     @bids = @node_environment.add_bid(@breadcrumb.key)
   end
@@ -961,7 +962,7 @@ class StatementsController < ApplicationController
   ####################
 
   def alternative_mode?(statement_node_or_level)
-    return true if !params[:hub].blank?
+    return true if @node_environment.hub
     statement_node_or_level = 0 if statement_node_or_level.nil?
     stack_ids = @current_stack || (@ancestors ? (@ancestors + [@statement_node]).map(&:id) : nil)
     @node_environment.alternative_modes? and stack_ids and @node_environment.alternative_modes.include?(statement_node_or_level.kind_of?(Integer) ? statement_node_or_level : stack_ids.index(statement_node_or_level.id))

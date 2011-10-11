@@ -1,4 +1,4 @@
-class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_modes)
+class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_modes, :hub)
   
   include ActionController::UrlWriter
   
@@ -46,11 +46,11 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
   
   
   
-  def initialize(new_level, bids, origin, alternative_modes)
+  def initialize(new_level, bids, origin, alternative_modes, hub)
     # new level
     self.new_level = true if !new_level.blank?
     
-    #breadcrumb ids
+    # breadcrumb ids
     if bids.blank?
       self.bids = []
     else
@@ -59,10 +59,10 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
       self.bids = cont
     end
     
-    #origin
+    # origin
     self.origin = origin.blank? ? nil : Pair.new(origin[0,2], CGI.unescape(origin[2..-1]))
     
-    #alternative_levels
+    # alternative_levels
     if alternative_modes.blank?
       self.alternative_modes =  []
     else
@@ -70,6 +70,9 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
       alternative_modes.split(",").map(&:to_i).each{|al| cont << al }
       self.alternative_modes = cont
     end
+    
+    # hub (important for the creation of alternatives)
+    self.hub = Pair.new(hub[0,2], hub[2..-1]) if !hub.blank?
   end
   
   def add_bid(bid)
@@ -108,6 +111,10 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
   
   def alternative_modes?
     !self.alternative_modes.blank?
+  end
+  
+  def hub?
+    self.hub.present?
   end
   
 end

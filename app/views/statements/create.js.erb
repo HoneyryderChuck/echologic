@@ -40,7 +40,7 @@ al = al.length > 0 ? al.split(',') : [];
   al = [];
 <% end %>
 
-<% if params[:hub] %>
+<% if @node_environment.hub? %>
   if($.inArray(<%= @statement_node.level %>, al) == -1) {
     al.push(<%= @statement_node.level %>);
 	}

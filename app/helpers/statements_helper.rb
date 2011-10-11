@@ -505,7 +505,7 @@ module StatementsHelper
 
   def summary_hint_text(statement_node)
     text = ""
-    text << I18n.t("discuss.statements.text_hint.alternative_prefix") if params[:hub].present? and params[:hub].start_with? 'al'
+    text << I18n.t("discuss.statements.text_hint.alternative_prefix") if @node_environment.hub?
     text << I18n.t("discuss.statements.text_hint.#{node_type(statement_node)}")
     text
   end
@@ -877,7 +877,7 @@ module StatementsHelper
   end
   
   def alternative_mode?(statement_node_or_level)
-    return true if !params[:hub].blank?
+    return true if @node_environment.hub?
     return false if statement_node_or_level.nil?
     index = statement_node_or_level.kind_of?(Integer) ? statement_node_or_level : 
             (@current_stack ? @current_stack.index(statement_node_or_level.id) : statement_node_or_level.level)
