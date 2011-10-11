@@ -77,5 +77,9 @@ class Breadcrumb < Struct.new(:code, :key, :css, :url, :title, :page_count, :lab
         when 'discuss_alternatives_question' then 'dq'
       end
     end
+    
+    def all_keys
+      %w(ds sr mi pr im ar bi fq jp al dq)
+    end
   end
 end

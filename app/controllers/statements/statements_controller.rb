@@ -114,7 +114,7 @@ class StatementsController < ApplicationController
     #search terms as tags
     if @statement_node_type.taggable?
       @statement_node.load_root_tags if @statement_node_type.is_top_statement?
-      load_search_terms_as_tags(@node_environment.origin) if @node_environment.origin and @node_environment.origin.key.eql?('sr')
+      load_search_terms_as_tags(@node_environment.origin) if @node_environment.origin.sr?
     end
 
     if @node_environment.new_level?

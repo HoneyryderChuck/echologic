@@ -57,6 +57,12 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
       super
     end
     
+    Breadcrumb.all_keys.each do |key|
+      define_method :"#{key}" do 
+        self.key and self.key.eql?(key)
+      end
+    end
+    
     def to_s
       "#{self.key}#{self.value}"
     end
