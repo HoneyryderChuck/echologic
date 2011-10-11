@@ -91,15 +91,23 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
       self.level = self.current_stack? ? self.current_stack.length - 1 : nil
     end
   end
+
+  # CHECKERS
+  
+  def new_level? ; self.new_level.eql?(true) ; end
+  def bids? ; !self.bids.blank? ; end
+  def alternative_modes? ; !self.alternative_modes.blank? ; end
+  def hub? ; self.hub.present? ; end
+  def current_stack? ; !self.current_stack.blank? ; end
+  
+  
   
   def add_bid(bid)
     self.bids + [bid]
   end
   
   def pop_bid
-    cp = self.bids.clone
-    cp.pop
-    cp
+    self.bids.clone.pop
   end
   
   
@@ -108,46 +116,27 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
   end
   
   def pop_alternative_mode
-    cp = self.alternative_modes.clone
-    cp.pop
-    cp
+    self.alternative_modes.clone.pop
   end
   
   def remove_alternative_mode(level)
-    cp = self.alternative_modes.clone
-    cp - [level]
+    self.alternative_modes.clone - [level] 
   end
   
-  def new_level?
-    self.new_level.eql?(true)
-  end
   
-  def bids?
-    !self.bids.blank?
-  end
-  
-  def alternative_modes?
-    !self.alternative_modes.blank?
-  end
-  
-  def hub?
-    self.hub.present?
-  end
-  
-  def current_stack?
-    !self.current_stack.blank?
-  end
-  
+  # gets the previous node of a given node in the current stack
   def previous_statement_node(statement_node)
     return nil if self.current_stack.blank? or statement_node.nil? or statement_node.level.eql?(0)
     StatementNode.find(previous_id(statement_node), :select => "id, lft, rgt, question_id") 
   end
   
+  # gets the previous node id of a give node in the current stack
   def previous_id(statement_node)
     index = self.current_stack.index(statement_node.id)
     self.current_stack[index-1]
   end
   
+  # gets the current level of a given node in the stack
   def stack_level(statement_node)
     return statement_node if statement_node.kind_of? Integer
     self.current_stack? ? self.index(statement_node.id) : statement_node.level
