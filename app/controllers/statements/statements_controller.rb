@@ -114,7 +114,7 @@ class StatementsController < ApplicationController
     #search terms as tags
     if @statement_node_type.taggable?
       @statement_node.load_root_tags if @statement_node_type.is_top_statement?
-      load_search_terms_as_tags(@node_environment.origin) if @node_environment.origin and @node_environment.origin.sr?
+      load_search_terms_as_tags(@node_environment.origin)
     end
 
     if @node_environment.new_level?
@@ -651,17 +651,7 @@ class StatementsController < ApplicationController
   end
 
   def load_node_environment
-    @node_environment = NodeEnvironment.new( 
-      @statement_node,
-      @statement_node_type,
-      params[:nl],
-      params[:bids],
-      params[:origin],
-      params[:al],
-      params[:hub],
-      params[:cs],
-      params[:sids]
-    )  
+    @node_environment = NodeEnvironment.new(@statement_node, @statement_node_type, params[:nl], params[:bids], params[:origin], params[:al], params[:hub], params[:cs], params[:sids])  
   end
 
   #
@@ -1067,11 +1057,7 @@ class StatementsController < ApplicationController
 
     # if has parent then load siblings
     if statement_node.parent_id
-      prev = @node_environment.current_stack? ? # if there's a current stack, load the results from the stack
-               (@node_environment.alternative_mode?(statement_node) ? # if statement is currently rendered as an alternative
-               statement_node.hub : # then prev must be the hub
-               @node_environment.previous_statement_node(statement_node)) :
-             statement_node.parent_node # no current stack, so just load the damn parent
+      prev = @node_environment.statement_node_above(statement_node)
       hub = statement_node.id if @node_environment.alternative_mode?(statement_node)
       siblings = statement_node.siblings_to_session :language_ids => @language_preference_list,
                                                     :user => current_user,
@@ -1124,7 +1110,7 @@ class StatementsController < ApplicationController
     opts[:page] ||= 1
     opts[:per_page] ||= QUESTIONS_PER_PAGE
     opts[:for_session] ||= false
-    if @node_environment.origin.present? #statement node is a question
+    if @node_environment.origin? #statement node is a question
       roots = case @node_environment.origin.key
 
         # get question siblings depending from the request's origin (key)
@@ -1135,7 +1121,7 @@ class StatementsController < ApplicationController
           opts[:for_session] ? sn.map(&:root_id) + ["/add/question"] : sn
 
         # discuss search with search results
-      when 'sr'then
+        when 'sr'then
           sn = search_statement_nodes(:search_term => @node_environment.origin.terms,
                                       :param => opts[:for_session] ? 'root_id' : nil,
                                       :node => opts[:node]).paginate(:page => 1, :per_page => @node_environment.origin.page * QUESTIONS_PER_PAGE)
@@ -1271,7 +1257,7 @@ class StatementsController < ApplicationController
   # Loads search terms from the search as tags for the statement node.
   #
   def load_search_terms_as_tags(pair)
-    return if pair.key.eql?('sr')
+    return if pair.nil? or !pair.sr?
     default_tags = pair.terms
     default_tags[/[\s]+/] = ',' if default_tags[/[\s]+/]
     default_tags = default_tags.split(',').compact

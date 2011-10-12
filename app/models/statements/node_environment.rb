@@ -92,7 +92,7 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
     self.hub = Pair.new(hub[0,2], hub[2..-1]) if !hub.blank?
     
     # current stack (visible statements)
-    self.current_stack = current_stack.blank? ? [] : current_stack.split(",").map(&:to_id)
+    self.current_stack = current_stack.blank? ? [] : current_stack.split(",").map(&:to_i)
     
     # sids (statements to render)
     self.sids = sids.blank? ? [] : sids.split(",").map(&:to_i)
@@ -110,6 +110,7 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
   
   def new_level? ; self.new_level.eql?(true) ; end
   def bids? ; !self.bids.blank? ; end
+  def origin? ; self.origin.present? ; end
   def alternative_modes? ; !self.alternative_modes.blank? ; end
   def hub? ; self.hub.present? ; end
   def current_stack? ; !self.current_stack.blank? ; end
@@ -154,7 +155,19 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
   # gets the current level of a given node in the stack
   def stack_level(statement_node)
     return statement_node if statement_node.kind_of? Integer
-    self.current_stack? ? self.index(statement_node.id) : statement_node.level
+    self.current_stack? ? self.current_stack.index(statement_node.id) : statement_node.level
+  end
+
+  def statement_node_above(statement_node)
+    if self.current_stack? # if there's a current stack, load the results from the stack
+      if self.alternative_mode?(statement_node) # if statement is currently rendered as an alternative
+        statement_node.hub # then prev must be the hub
+      else
+        self.previous_statement_node(statement_node)
+      end
+    else
+      statement_node.parent_node # no current stack, so just load the damn parent
+    end
   end
   
   # gets the ancestors of a given node in the current stack
@@ -178,5 +191,7 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
     end
     self.alternative_modes.include?(l)
   end
+  
+  
   
 end
