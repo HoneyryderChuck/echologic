@@ -8,7 +8,7 @@
                :href => only_header ? statement_node_url(statement_node,
                                                          :expand => true) : nil do %>
   <!-- Alternatives -->
-  <%= render :partial => 'statements/alternative_header', :locals => {:statement_node => statement_node} if statement_node.class.has_alternatives? and alternative_mode?(statement_node) %>
+  <%= render :partial => 'statements/alternative_header', :locals => {:statement_node => statement_node} if statement_node.class.has_alternatives? and @node_environment.alternative_mode?(statement_node) %>
 	
 	<% content_tag :div, :class => "main_header" do %>
 		<% content_tag :div, :class => 'header_buttons' do %>
@@ -22,7 +22,7 @@
 			<% statement_node_context_link(statement_node,
 	                                   statement_document.title,
 	                                  (!only_header ? 'current' : 'back_to'),
-	                                  :hub => (alternative_mode?(statement_node) ? @node_environment.alternative_modes.to_s : nil),
+	                                  :hub => (@node_environment.alternative_mode?(statement_node) ? @node_environment.alternative_modes.to_s : nil),
 	                                  :css => 'ajax') %>
 			<% if statement_node.echoable? %>
 				<%= supporter_ratio_bar(statement_node,

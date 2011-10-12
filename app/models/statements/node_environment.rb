@@ -2,18 +2,20 @@
 #  
 #   Encapsulates all the external values to the statement node itself that play a part in the various workflows
 #   
+#    statement_node:    StatementNode       current statement node
 #    new_level:         Boolean:            tells if the current action will result in the renderization of the statement node on a level below (TODO: later this will store the animation type)
 #    bids:              Container(Pair):    stores the breadcrumb identifiers of the current action
 #    origin:            Pair:               stores the identifier of the origin of the root node of the current tree (or subtree)
 #    alternative_modes: Container(Integer): stores the level of the statement nodes currently displayed on alternative mode
 #    hub:               Pair:               stores the identifier of the "hub" sibling statement node (used on the creation of alternatives)
 #    current_stack:     Container(Integer): stores the statement node identifiers of the currently display statement stack
+#    sids:              Container(Integer): stores the identifiers of the statement nodes to render
 #    level:             Integer:            level at which the current statement (or teaser) will be displayed
-class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_modes, :hub, :current_stack, :level)
+class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, :alternative_modes, :hub, :current_stack, :sids, :level)
   
   include ActionController::UrlWriter
   
-  
+  attr_accessor :ancestors
   
   
   #   class: BidContainer
@@ -58,7 +60,7 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
     end
     
     Breadcrumb.all_keys.each do |key|
-      define_method :"#{key}" do 
+      define_method :"#{key}?" do 
         self.key and self.key.eql?(key)
       end
     end
@@ -70,7 +72,10 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
   
   
   
-  def initialize(statement_node, node_type, new_level, bids, origin, alternative_modes, hub, current_stack)
+  def initialize(statement_node, node_type, new_level, bids, origin, alternative_modes, hub, current_stack, sids)
+    
+    self.statement_node = statement_node
+    
     # new level
     self.new_level = true if !new_level.blank?
     
@@ -89,6 +94,9 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
     # current stack (visible statements)
     self.current_stack = current_stack.blank? ? [] : current_stack.split(",").map(&:to_id)
     
+    # sids (statements to render)
+    self.sids = sids.blank? ? [] : sids.split(",").map(&:to_i)
+    
     # level
     if statement_node.present? and statement_node.new_record?
       inc = self.hub? ? 0 : 1
@@ -105,6 +113,7 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
   def alternative_modes? ; !self.alternative_modes.blank? ; end
   def hub? ; self.hub.present? ; end
   def current_stack? ; !self.current_stack.blank? ; end
+  def sids? ; !self.sids.blank? ; end
   
   
   
@@ -146,6 +155,28 @@ class NodeEnvironment < Struct.new(:new_level, :bids, :origin, :alternative_mode
   def stack_level(statement_node)
     return statement_node if statement_node.kind_of? Integer
     self.current_stack? ? self.index(statement_node.id) : statement_node.level
+  end
+  
+  # gets the ancestors of a given node in the current stack
+  def ancestors
+    @ancestors = self.sids? ? StatementNode.find(self.sids).sort{|s1, s2|s1.level <=> s2.level} : (self.statement_node.nil? ? [] : self.statement_node.ancestors)
+  end
+  
+  
+  # checks if a given node (or level) is rendered in alternative mode
+  def alternative_mode?(statement_node_or_level)
+    return true if self.hub?
+    return false if !self.alternative_modes?
+    statement_node_or_level = 0 if statement_node_or_level.nil?
+    if statement_node_or_level.kind_of? Integer
+      l = statement_node_or_level
+    else
+      stack_ids = self.current_stack if self.current_stack?
+      stack_ids ||= (@ancestors + [self.statement_node]).map(&:id) if @ancestors.present?
+      return false if stack_ids.nil?
+      l = stack_ids.index(statement_node_or_level.id)
+    end
+    self.alternative_modes.include?(l)
   end
   
 end

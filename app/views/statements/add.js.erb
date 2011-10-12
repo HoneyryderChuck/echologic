@@ -6,9 +6,9 @@
 <% end %>
 
 /* history handling */
-<% if !params[:sids].blank? and @ancestors %>
+<% if @node_environment.sids? and @ancestors %>
   <% inc = @node_environment.level - @ancestors.length %>
-  var stack = "<%= params[:sids] %>".split(",");
+  var stack = <%= @node_environment.sids.to_json %>;
   <% @ancestors.each_with_index do |ancestor, index| %>
     var ancestor = stack[<%= index %>];
     var ancestor_element = $('#statements .statement').eq(<%= index %>);

@@ -277,7 +277,7 @@ module StatementsHelper
     content << content_tag(:div, :class => 'siblings container') do
       buttons = ''
       if statement_node.parent_node 
-        buttons << add_new_sibling_button(statement_node) if !alternative_mode?(statement_node)
+        buttons << add_new_sibling_button(statement_node) if !@node_environment.alternative_mode?(statement_node)
       else
         if @node_environment.origin.nil?
           buttons << add_new_question_button
@@ -310,7 +310,7 @@ module StatementsHelper
                                :title => I18n.t("discuss.tooltips.create_alternative")) do
           statement_icon_title(I18n.t("discuss.statements.types.alternative"))
         end
-        if alternative_mode?(statement_node) and @discuss_alternatives_question.nil?
+        if @node_environment.alternative_mode?(statement_node) and @discuss_alternatives_question.nil?
           buttons << add_new_child_link(statement_node, "discuss_alternatives_question", :nl => true, :bids => @node_environment.bids, :origin => @node_environment.origin) 
         end
       end
@@ -612,7 +612,7 @@ module StatementsHelper
   end
 
   def siblings_button(statement_node, type = node_type(statement_node), opts={})
-    if alternative_mode?(statement_node)
+    if @node_environment.alternative_mode?(statement_node)
       sib = statement_node
       name = "alternative"
       alternative_type = type.classify.constantize.name_for_siblings
@@ -639,14 +639,14 @@ module StatementsHelper
                                        name,
                                        :current_node => statement_node,
                                        :alternative_type => alternative_type,
-                                       :hub => (alternative_mode?(statement_node) ? "al#{statement_node.target_id}" : nil))
+                                       :hub => (@node_environment.alternative_mode?(statement_node) ? "al#{statement_node.target_id}" : nil))
       end
     end
 
     content_tag(:a,
                 :href => url,
                 :class => 'show_siblings_button expandable') do
-      content_tag(:span, I18n.t("discuss.statements.sibling_labels.#{alternative_mode?(statement_node) ? alternative_type : name}"),
+      content_tag(:span, I18n.t("discuss.statements.sibling_labels.#{@node_environment.alternative_mode?(statement_node) ? alternative_type : name}"),
                   :class => 'show_siblings_label ttLink no_border',
                   :title => I18n.t("discuss.tooltips.siblings.#{name}"))
     end
@@ -876,14 +876,6 @@ module StatementsHelper
     create_new_child_statement_link(statement_node, "discuss_alternatives_question", :css => "new_statement", :nl => true, :origin => @node_environment.origin.to_s, :bids => @node_environment.bids.to_s)
   end
   
-  def alternative_mode?(statement_node_or_level)
-    return true if @node_environment.hub?
-    return false if statement_node_or_level.nil?
-    index = @node_environment.stack_level(statement_node_or_level)
-    @node_environment.alternative_modes and 
-    @node_environment.alternative_modes.include?(index)
-  end
-
   ####################
   # BACKGROUND INFOS #
   ####################

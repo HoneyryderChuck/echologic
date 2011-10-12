@@ -10,7 +10,7 @@ class NodeEnvironmentTest < ActiveSupport::TestCase
     
     
     should "be able to read from new level" do
-      @node_env = NodeEnvironment.new('something', nil, nil, nil)
+      @node_env = NodeEnvironment.new(nil, nil, 'something', nil, nil, nil, nil, nil, nil)
       
       assert_true @node_env.new_level?
     end

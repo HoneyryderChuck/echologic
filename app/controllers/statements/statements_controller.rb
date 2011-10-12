@@ -114,7 +114,7 @@ class StatementsController < ApplicationController
     #search terms as tags
     if @statement_node_type.taggable?
       @statement_node.load_root_tags if @statement_node_type.is_top_statement?
-      load_search_terms_as_tags(@node_environment.origin) if @node_environment.origin.sr?
+      load_search_terms_as_tags(@node_environment.origin) if @node_environment.origin and @node_environment.origin.sr?
     end
 
     if @node_environment.new_level?
@@ -406,7 +406,7 @@ class StatementsController < ApplicationController
   #
   def add
     @type = params[:type].to_s
-    load_discuss_alternatives_question(@statement_node) if alternative_mode?(@node_environment.level)
+    load_discuss_alternatives_question(@statement_node) if @node_environment.alternative_mode?(@node_environment.level)
     begin
       if @node_environment.new_level?
         if @statement_node # this is the teaser's parent (e.g.: 1212345/add/proposal)
@@ -659,7 +659,8 @@ class StatementsController < ApplicationController
       params[:origin],
       params[:al],
       params[:hub],
-      params[:cs]
+      params[:cs],
+      params[:sids]
     )  
   end
 
@@ -940,18 +941,6 @@ class StatementsController < ApplicationController
   end
 
 
-  ####################
-  # ALTERNATIVE MODE #
-  ####################
-
-  def alternative_mode?(statement_node_or_level)
-    return true if @node_environment.hub
-    statement_node_or_level = 0 if statement_node_or_level.nil?
-    stack_ids = @node_environment.current_stack? || (@ancestors ? (@ancestors + [@statement_node]).map(&:id) : nil)
-    @node_environment.alternative_modes? and stack_ids and @node_environment.alternative_modes.include?(statement_node_or_level.kind_of?(Integer) ? statement_node_or_level : stack_ids.index(statement_node_or_level.id))
-  end
-
-
   #
   # Loads the discuss alternative node and document from a statement node.
   #
@@ -964,9 +953,9 @@ class StatementsController < ApplicationController
   #                                         value : StatementDocument: document in the preferred language
   #
   def load_discuss_alternatives_question(statement_node)
+    return if statement_node.new_record? or !@node_environment.alternative_mode?(statement_node)
     @discuss_alternatives_questions ||= {}
     @discuss_alternatives_documents ||= {}
-    return if statement_node.new_record? or !statement_node.class.has_alternatives? or !alternative_mode?(statement_node)
 
     # don't proceed if there is no discuss alternative yet
     daq = statement_node.discuss_alternatives_question
@@ -1011,10 +1000,9 @@ class StatementsController < ApplicationController
   #                             documents belonging to the loaded ancestors
   #
   def load_ancestors(teaser = false)
-    stack_ids = !params[:sids].blank? ? params[:sids].split(",") : nil
 
     if @statement_node
-      @ancestors = stack_ids ? StatementNode.find(stack_ids).sort{|s1, s2|s1.level <=> s2.level} : @statement_node.ancestors
+      @ancestors = @node_environment.ancestors
       @ancestor_documents = {}
       @ancestors.each {|a| 
         load_siblings(a)
@@ -1027,7 +1015,7 @@ class StatementsController < ApplicationController
 
         # if teaser: @statement_node is the teaser's parent, therefore, an ancestor
         # if stack ids exists, that means the @statement node is already in ancestors
-        @ancestors << @statement_node if !alternative_mode?(@node_environment.level) and !@ancestors.map(&:id).include?(@statement_node.id)
+        @ancestors << @statement_node if !@node_environment.alternative_mode?(@node_environment.level) and !@ancestors.map(&:id).include?(@statement_node.id)
         load_children_for_parent(@statement_node, @type)
       end
 
@@ -1080,11 +1068,11 @@ class StatementsController < ApplicationController
     # if has parent then load siblings
     if statement_node.parent_id
       prev = @node_environment.current_stack? ? # if there's a current stack, load the results from the stack
-               (alternative_mode?(statement_node) ? # if statement is currently rendered as an alternative
+               (@node_environment.alternative_mode?(statement_node) ? # if statement is currently rendered as an alternative
                statement_node.hub : # then prev must be the hub
                @node_environment.previous_statement_node(statement_node)) :
              statement_node.parent_node # no current stack, so just load the damn parent
-      hub = statement_node.id if alternative_mode?(statement_node)
+      hub = statement_node.id if @node_environment.alternative_mode?(statement_node)
       siblings = statement_node.siblings_to_session :language_ids => @language_preference_list,
                                                     :user => current_user,
                                                     :prev => prev,

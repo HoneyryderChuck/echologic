@@ -5,12 +5,12 @@
 	 <%# content_tag :div, '', :class => 'action_bar', :style => "border-width:0px" %>
 	 <% content_tag :div, :class => "summary simple_header_block discuss_right_block" do %>
 	 	 <!-- Header -->
-     <%= content_tag :h2, I18n.t("discuss.statements.types.#{alternative_mode?(@node_environment.level) ? 'alternative' : @type}") %>
+     <%= content_tag :h2, I18n.t("discuss.statements.types.#{@node_environment.alternative_mode?(@node_environment.level) ? 'alternative' : @type}") %>
 		 <!-- Teaser text and image -->
 	   <% content_tag :div, :class => "statement_content" do %>
 	     <%= content_tag :div, image_tag('add_statement_teaser_image.png', :class => 'image', :alt => ''),
                        :class => 'image_container'%>
-	     <%= I18n.t("discuss.statements.add_teaser.#{alternative_mode?(@node_environment.level) ? 'alternative' : @type}") %>
+	     <%= I18n.t("discuss.statements.add_teaser.#{@node_environment.alternative_mode?(@node_environment.level) ? 'alternative' : @type}") %>
 	   <% end %>
 	 <% end %>
 <% end %> 
