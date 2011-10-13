@@ -20,7 +20,7 @@ module ActiveRecord
         def has_alternatives?
           false
         end
-
+          
         def acts_as_alternative(*args)
           args.flatten! if args
           args.compact! if args
@@ -44,6 +44,11 @@ module ActiveRecord
           attr_accessor :is_alternative
 
 #          after_create :create_mirror_alternative 
+          
+          named_scope :by_alternatives, lambda { |opts|
+            return {} if opts[:alternative_ids].blank?
+            { :conditions => ["statement_nodes.id IN (?) ", opts[:alternative_ids]] }
+          }
           
           class_eval do
             
@@ -81,9 +86,6 @@ module ActiveRecord
                 'statements/more'
               end
 
-              def alternative_conditions(opts)
-                sanitize_sql([" AND statement_nodes.id IN (?) ", opts[:alternative_ids]])
-              end
             end
             
             def create_mirror_alternative

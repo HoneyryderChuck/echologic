@@ -10,6 +10,21 @@ class FollowUpQuestion < Question
   
   validates_associated :question
   
+  before_create :initialize_echo
+  
+  named_scope :by_statement_state, lambda { |opts|
+    creator = opts[:user] ? opts[:user].id : -1
+    {
+      :joins => " LEFT JOIN #{Statement.table_name} ON #{self.table_name}.statement_id = #{Statement.table_name}.id",
+      :conditions => ["(#{Statement.table_name}.editorial_state_id = ? OR #{self.table_name}.creator_id = ?)",
+                      StatementState['published'].id, creator]
+    }
+  }
+  
+  def initialize_echo
+    self.echo = self.question.echo  
+  end
+  
   def target_statement
     self.question
   end
@@ -33,20 +48,13 @@ class FollowUpQuestion < Question
   # string helpers (acts_as_echoable overwriting) #
   #################################################
   
+  
+  
   class << self
     
     # helper function to differentiate this model as a level 0 model
     def is_top_statement?
       true
-    end
-    
-    def children_joins
-      " LEFT JOIN #{Statement.table_name} ON #{self.table_name}.statement_id = #{Statement.table_name}.id"
-    end
-    
-    def state_conditions(opts)
-      sanitize_sql(["AND (#{Statement.table_name}.editorial_state_id = ? OR #{self.table_name}.creator_id = ?) ",
-      StatementState['published'].id, opts[:user] ? opts[:user].id : -1])
     end
   end
 end

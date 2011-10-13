@@ -632,7 +632,7 @@ module StatementsHelper
       else
         prev = sib ||
                (@node_environment.current_stack? ?
-               @node_environment.get_previous_statement_node(statement_node) :
+               @node_environment.previous_statement_node(statement_node) :
                statement_node.parent_node)
 
         descendants_statement_node_url(prev,

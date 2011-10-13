@@ -4,9 +4,16 @@ end
 
 Given /^the proposal has an ([^\"]*) child$/ do |state|
   @proposal.reload
-  imp = @proposal.children.first
-  imp.drafting_state = state
-  imp.save
+  instance_variable_set("@#{state}",@proposal.children.first)
+  var = instance_variable_get("@#{state}")
+  var.drafting_state = state
+  var.save
+end
+
+Then /^I should not see the ([^\"]*) child within "([^\"]*)"$/ do |state, container|
+  var = instance_variable_get("@#{state}")
+  title = var.statement_documents.first.title
+  Then 'I should not see "' + title + '" within "' + container + '"'
 end
 
 Then /^the state of the improvement must be "([^\"]*)"$/ do |state|

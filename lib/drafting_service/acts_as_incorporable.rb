@@ -16,13 +16,6 @@ module ActiveRecord
 
       module ClassMethods
         
-        #
-        # Aux Function: drafting conditions on a query (overwritten in acts_as_incorporable)
-        #
-        def drafting_conditions
-          ''
-        end
-
         def acts_as_incorporable(*args)
 
           class_eval do
@@ -68,6 +61,13 @@ module ActiveRecord
 
             end
 
+            # Named Scope  
+              
+            named_scope :by_drafting_state, lambda { |opts|
+              return {} if opts[:filter_drafting_state].blank?
+              { :conditions => "statement_nodes.drafting_state IN ('tracked', 'ready', 'staged')" }
+            }
+
             ####################################
             ###### Static values ###############
             ####################################
@@ -108,10 +108,6 @@ module ActiveRecord
               statement.document_in_language(drafting_language)
             end
             
-            def self.drafting_conditions 
-              " and statement_nodes.drafting_state IN ('tracked', 'ready', 'staged') "
-            end
-
           end # --- class_eval
 
         end

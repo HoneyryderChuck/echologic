@@ -40,7 +40,8 @@ module ActsAsDouble
           def statements_for_parent(opts)
             statements = []
             sub_types.each do |type|
-              statements << type.to_s.constantize.get_statements_for_parent(opts)
+              sub_opts = opts.merge(:type => type)
+              statements << children_statements(sub_opts).by_statement_state(sub_opts).by_alternatives(sub_opts).by_languages(sub_opts).all
             end
             statements = merge_statement_lists(statements) if opts[:for_session]
             statements
@@ -95,7 +96,6 @@ module ActsAsDouble
         #
         def siblings_to_session(opts)
           siblings = []
-          opts[:type] ||= self.class.to_s
           sibling_statements(opts).map{|s|s.map(&:id)}.each_with_index do |s, index|
             siblings << s + ["/#{self.parent_id.nil? ? '' :
                               "#{self.parent_node.target_id}/"}add/#{self.class.sub_types[index].to_s.underscore}"]

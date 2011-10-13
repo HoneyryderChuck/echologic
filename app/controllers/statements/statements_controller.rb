@@ -14,7 +14,7 @@ class StatementsController < ApplicationController
   before_filter :fetch_statement_node, :except => [:category, :my_questions, :new, :create,
                                                    :auto_complete_for_statement_title, :link_statement]
   before_filter :fetch_statement_node_type, :only => [:new, :create]
-  before_filter :load_node_environment
+  before_filter :load_node_environment, :except => [:new]
   before_filter :check_read_permission, :except => [:category, :my_questions, :new, :create,
                                                     :auto_complete_for_statement_title, :link_statement,
                                                     :link_statement_node]
@@ -110,6 +110,8 @@ class StatementsController < ApplicationController
                                                   :statement_history_attributes => {
                                                     :action => StatementAction["created"] 
                                                   })
+    
+    load_node_environment # environment can only be loaded after there is a statement node
     
     #search terms as tags
     if @statement_node_type.taggable?

@@ -24,6 +24,7 @@ module ActiveRecord
 
           class_eval do
             after_save :check_incorporated
+            
           end
 
           state_types.map(&:to_s).each do |state_type|
@@ -35,6 +36,8 @@ module ActiveRecord
               end
             )
           end
+          
+          
 
           class_eval do
 

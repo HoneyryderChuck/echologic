@@ -579,6 +579,7 @@ Feature: Take Part on a question
       And I choose the "A first proposal!" Proposal
       And the proposal has an approved child
       And I go to the proposal
+    Then I should not see the approved child within "div.improvements"
       And I follow localized "application.general.incorporate"
       And I fill in the following:
        | proposal_statement_attributes_statement_documents_attributes_0_title | Incorporated Title               |

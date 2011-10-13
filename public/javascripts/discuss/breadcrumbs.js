@@ -231,7 +231,7 @@
 
 
       function buildBreadcrumb(data, index, breadcrumbs_length) {
-        var b_key = data['key'].substring(0,2);
+        var b_key = data['code'].substring(0,2);
         var breadcrumb = $('<a/>').addClass('breadcrumb').
                             attr('id', data['key']).attr('href', data['url']).addClass(b_key);
         if (data['page_count']) {

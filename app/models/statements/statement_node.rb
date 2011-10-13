@@ -132,7 +132,32 @@ class StatementNode < ActiveRecord::Base
       end
     )
   end
-
+  
+  named_scope :children_statements, lambda {|opts|
+    select = opts[:for_session] ? "#{table_name}.id, #{table_name}.question_id" : "#{table_name}.*"
+    {
+      :select => "DISTINCT #{select}",
+      :joins => "LEFT JOIN #{Echo.table_name} e ON #{table_name}.echo_id = e.id",
+      :conditions => ["#{table_name}.type IN (?) AND #{table_name}.root_id = ? AND #{table_name}.lft >= ? AND #{table_name}.rgt <= ?",
+                       opts[:types] || [opts[:type].to_s], opts[:root_id], opts[:lft], opts[:rgt]],
+      :order => "e.supporter_count DESC, #{table_name}.created_at DESC, #{table_name}.id"
+    }
+  }
+  
+  named_scope :by_languages, lambda {|opts|
+    return {} if opts[:language_ids].blank?
+    {
+      :joins => "LEFT JOIN #{StatementDocument.table_name} d ON #{table_name}.statement_id = d.statement_id",
+      :conditions => ["d.language_id IN (?) ", opts[:language_ids]]
+    }
+  }
+  
+  # overwritten on sub classes
+  named_scope :by_statement_state, lambda {|opts| {} } 
+  named_scope :by_alternatives, lambda {|opts| {}}
+  named_scope :by_drafting_state, lambda {|opts| {}}
+  
+  
   ##############################
   ######### ACTIONS ############
   ##############################
@@ -370,86 +395,20 @@ class StatementNode < ActiveRecord::Base
     # Returns the number of child statements of a certain type (or types) from a given statement
     #
     def count_statements_for_parent(opts)
-      fields = parent_conditions(opts.merge({:types => sub_types.map(&:to_s)}))
-      fields[:select] = "DISTINCT #{table_name}.id"
-      self.count(:all, fields)
+      children_statements(opts).by_statement_state(opts).by_alternatives(opts).by_drafting_state(opts).by_languages(opts).count
     end
 
     #
     # Aux Function: gets a set of children given a certain parent (used to get siblings and children)
     #
     def statements_for_parent(opts)
-      get_statements_for_parent(opts)
-    end
-
-    #
-    # Aux Function: gets a set of children given a certain parent (used above)
-    # opts attributes:
-    #
-    # for_session (Boolean : optional) : if true, returns an array of statement ids with the teaser path as last argument. if false, returns, the statements array
-    # parent_id (Integer : optional) : if set, the parent id is added in the beginning of the teaser path (important URL contruct)
-    #
-    # about other possible attributes, check parent_conditions documentation
-    #
-    def get_statements_for_parent(opts)
-      fields = parent_conditions(opts)
-
-      statements = []
-
+      statements = children_statements(opts).by_statement_state(opts).by_alternatives(opts).by_drafting_state(opts).by_languages(opts).all
       if opts[:for_session]
-        fields[:select] = "DISTINCT #{table_name}.id, #{table_name}.question_id"
-        statements = self.base_class.scoped(fields).map{|s| s.question_id.nil? ? s.id : s.question_id}
-        
+        statements = statements.map(&:target_id)
         parent_id = opts[:hub] || opts[:parent_id]
         statements << "/#{parent_id.nil? ? '' : "#{parent_id}/" }add/#{self.name.underscore}" # ADD TEASER
-      else
-        fields[:select] = "DISTINCT #{table_name}.*"
-        statements = self.base_class.all(fields)
       end
       statements
-    end
-
-    #
-    # Aux: Builds the query attributes for standard children operations
-    # opts attributes:
-    #
-    # language_ids (Array[Integer] : optional) : filters out documents which language is not included on the array (gets all of them if nil)
-    # drafting_states (Array[String] : optional) : filters out incorporable statements per drafting state (only for incorporable types)
-    #
-    def parent_conditions(opts)
-      fields = {}
-      fields.delete(:readonly)
-      fields[:joins] =  "LEFT JOIN #{StatementDocument.table_name} d ON #{table_name}.statement_id = d.statement_id "
-      fields[:joins] << "LEFT JOIN #{Echo.table_name} e ON #{table_name}.echo_id = e.id"
-      fields[:joins] << children_joins
-      fields[:conditions] = children_conditions(opts)
-      fields[:conditions] << state_conditions(opts)
-      fields[:conditions] << alternative_conditions(opts) if !opts[:alternative_ids].blank?
-      fields[:conditions] << sanitize_sql([" AND d.language_id IN (?) ", opts[:language_ids]]) if opts[:language_ids]
-      fields[:conditions] << drafting_conditions if opts[:filter_drafting_state]
-      fields[:order] = "e.supporter_count DESC, #{table_name}.created_at DESC, #{table_name}.id"
-      fields
-    end
-
-    def children_joins
-      ''
-    end
-
-    def state_conditions(opts)
-      ''
-    end
-
-    #
-    # returns a string of sql conditions representing getting statement nodes of certain types filtered by parent
-    # opts attributes:
-    # types (Array(String)) : array of types of statement nodes to filter by
-    # parent_id (Integer) : id of parent statement node
-    #
-    def children_conditions(opts)
-      sanitize_sql(["#{table_name}.type IN (?) AND
-                     #{table_name}.root_id = ? AND
-                     #{table_name}.lft >= ? AND #{table_name}.rgt <= ? ",
-                    opts[:types] || [self.name], opts[:root_id], opts[:lft], opts[:rgt]])
     end
 
     public
