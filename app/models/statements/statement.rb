@@ -124,7 +124,7 @@ class Statement < ActiveRecord::Base
   
   class << self
     
-    #
+    # TODO: TO BE DELETED AS SOON AS I IMPLEMENT THE UNION NAMED SCOPE ON THE STATEMENT NODE!!!!!!
     # returns a string of sql conditions representing the conditions to search on a statement (access conditions)
     # opts attributes:
     # opts (Array) : parameters important to generate the conditions
@@ -138,83 +138,5 @@ class Statement < ActiveRecord::Base
       access_conditions << sanitize_sql(["#{permission_user} = ?", opts[:user].id]) if opts[:user]
       "(#{access_conditions.join(' OR ')})"
     end
-    
-    
-    #
-    # gets a set of statements given an hash of arguments
-    #
-    # opts attributes:
-    #
-    # search_term (string : optional) : value we ought to search for on title, text and statement tags
-    # param (string : optional) : specifies the attribute which we should search
-    # type (string : optional) : defines the type of statement to look for ("Question" in most of the cases)
-    # show_unpublished (boolean : optional) : if false or nil, only get the published statements (see user as well)
-    # user (User : optional) : only used if show_unpublished is false or nil; gets the statements belonging to the user regardless of state (published or new)
-    # language_ids (Array[Integer] : optional) : filters out documents which language is not included on the array (gets all of them if nil)
-    #
-    # Called with no attributes filled: returns all published statements
-    #
-    def search_statements(opts={})
-      
-      document_conditions = []
-      
-      # Languages
-      if opts[:user] and !opts[:user].spoken_languages.empty? and opts[:language_ids]
-        document_conditions << sanitize_sql(["d.language_id IN (?)", opts[:language_ids]])
-      end
-      
-      statement_conditions = []
-      statement_conditions << conditions(opts)
-      
-      # Published state
-      unless opts[:show_unpublished]
-        publish_condition = []
-        publish_condition << sanitize_sql(["#{table_name}.editorial_state_id = ?",StatementState['published'].id])
-        statement_conditions << "(#{publish_condition.join(' OR ')})"
-      end
-      
-      # Limit
-      limit = "LIMIT #{opts[:limit]}" if opts[:limit]
-      
-      search_term = opts.delete(:search_term)
-      if !search_term.blank?
-        term_query = "SELECT DISTINCT statement_id AS id FROM search_statement_text d "
-        term_query << "WHERE "
-        
-        term_queries = []
-        if search_term.include? ','
-          terms = search_term.split(',')
-        else
-          terms = search_term.split(/[\s]+/)
-        end
-        terms.map(&:strip).each do |term|
-          or_conditions = StatementDocument.term_conditions(term)
-          term_queries << (term_query + (document_conditions + ["(#{or_conditions})"]).join(" AND "))
-        end
-        
-        term_queries = term_queries.join(" UNION ALL ")
-        query = "SELECT #{table_name}.#{opts[:param] || '*'} " +
-                "FROM (#{term_queries}) statement_ids " +
-                "LEFT JOIN #{table_name} ON #{table_name}.id = statement_ids.id " +
-                "LEFT OUTER JOIN statement_permissions sp ON #{table_name}.id = sp.statement_id " +
-                "WHERE #{statement_conditions.join(" AND ")} " +
-                "GROUP BY #{table_name}.id " +
-                "ORDER BY COUNT(#{table_name}.id) DESC, " +
-                "#{table_name}.id #{limit};"
-      else
-        document_conditions << "d.current = 1"
-        
-        query = "SELECT #{table_name}.#{opts[:param] || '*'} " +
-                "FROM #{table_name} " +
-                "LEFT JOIN statement_documents d ON d.statement_id = #{table_name}.id " +
-                "LEFT OUTER JOIN statement_permissions sp ON #{table_name}.id = sp.statement_id " +
-                extaggable_joins_clause +
-                "WHERE #{(statement_conditions + document_conditions).join(" AND ")} " +
-                "ORDER BY #{table_name}.id #{limit};"
-      end
-      find_by_sql query
-    end
-    
-    
   end
 end

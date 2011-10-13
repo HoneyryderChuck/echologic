@@ -12,8 +12,8 @@ class FollowUpQuestion < Question
   
   before_create :initialize_echo
   
-  named_scope :by_statement_state, lambda { |opts|
-    creator = opts[:user] ? opts[:user].id : -1
+  named_scope :by_statement_state, lambda { |user|
+    creator = user ? user.id : -1
     {
       :joins => " LEFT JOIN #{Statement.table_name} ON #{self.table_name}.statement_id = #{Statement.table_name}.id",
       :conditions => ["(#{Statement.table_name}.editorial_state_id = ? OR #{self.table_name}.creator_id = ?)",

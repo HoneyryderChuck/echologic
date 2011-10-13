@@ -63,8 +63,7 @@ module ActiveRecord
 
             # Named Scope  
               
-            named_scope :by_drafting_state, lambda { |opts|
-              return {} if opts[:filter_drafting_state].blank?
+            named_scope :by_drafting_state, lambda { |states|
               { :conditions => "statement_nodes.drafting_state IN ('tracked', 'ready', 'staged')" }
             }
 

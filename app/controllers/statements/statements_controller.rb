@@ -898,20 +898,6 @@ class StatementsController < ApplicationController
   end
 
   #
-  # Calls the statement sql query.
-  # opts attributes:
-  #
-  # search_term (String : optional) : text snippet to look for in the statements
-  #
-  # for more info about attributes, please check the Statement.search_statements documentation
-  #
-  def search_statements(opts = {})
-    opts[:languages] ||= filter_languages
-    Statement.search_statements(opts.merge({:user => current_user,
-                                            :show_unpublished => current_user && current_user.has_role?(:editor)}))
-  end
-
-  #
   # Gets all the statement documents belonging to a group of statements, and orders them per language ids.
   # opts attributes:
   #

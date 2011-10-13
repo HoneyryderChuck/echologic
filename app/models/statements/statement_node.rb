@@ -144,18 +144,58 @@ class StatementNode < ActiveRecord::Base
     }
   }
   
-  named_scope :by_languages, lambda {|opts|
+  named_scope :by_languages, lambda {|opts| 
     return {} if opts[:language_ids].blank?
+     t = opts[:table_name] || table_name
     {
-      :joins => "LEFT JOIN #{StatementDocument.table_name} d ON #{table_name}.statement_id = d.statement_id",
-      :conditions => ["d.language_id IN (?) ", opts[:language_ids]]
+      :joins => "LEFT JOIN #{StatementDocument.table_name} d ON d.statement_id = #{t}.statement_id",
+      :conditions => ["d.current = 1 AND d.language_id IN (?)", opts[:language_ids]]
+    }
+  }
+  
+  
+  
+  named_scope :get_statement_nodes, lambda {|param|
+    param ||= "*"
+    {
+      :select => "DISTINCT s.#{param}",
+      :from => "search_statement_nodes s",
+      :conditions => "s.top_level = 1",
+      :order => "s.supporter_count DESC, s.id DESC"
+    }
+  }
+  
+  
+  named_scope :by_permissions, lambda {|user|
+    return {:conditions => "s.closed_statement IS NULL"} if user.nil?
+    {
+      :conditions => ["s.closed_statement IS NULL OR s.granted_user_id = ?", user.id]
+    }
+  }
+  
+  named_scope :by_types, lambda {|types|
+    {
+      :conditions => ["s.type IN (?)", types]
+    }
+  }
+  
+  named_scope :by_published, lambda {|user|
+    return {:conditions => ["s.editorial_state_id = ?", StatementState['published']] } if user.blank? 
+    {
+      :conditions => ["s.editorial_state_id = ? OR s.creator_id = ?", StatementState['published'].id, user.id]
+    }
+  }
+  
+  named_scope :by_drafting_state, lambda { |states|
+    return {} if states.blank?
+    {
+      :conditions => ["s.drafting_state IN (?)", states]
     }
   }
   
   # overwritten on sub classes
   named_scope :by_statement_state, lambda {|opts| {} } 
-  named_scope :by_alternatives, lambda {|opts| {}}
-  named_scope :by_drafting_state, lambda {|opts| {}}
+  named_scope :by_alternatives, lambda {|ids| {}}
   
   
   ##############################
@@ -395,14 +435,18 @@ class StatementNode < ActiveRecord::Base
     # Returns the number of child statements of a certain type (or types) from a given statement
     #
     def count_statements_for_parent(opts)
-      children_statements(opts).by_statement_state(opts).by_alternatives(opts).by_drafting_state(opts).by_languages(opts).count
+      statements = children_statements(opts).by_statement_state(opts[:user]).by_alternatives(opts[:alternative_ids])
+      statements = statements.by_drafting_state(nil) if opts[:filter_drafting_state]
+      statements.by_languages(opts).count
     end
 
     #
     # Aux Function: gets a set of children given a certain parent (used to get siblings and children)
     #
     def statements_for_parent(opts)
-      statements = children_statements(opts).by_statement_state(opts).by_alternatives(opts).by_drafting_state(opts).by_languages(opts).all
+      statements = children_statements(opts).by_statement_state(opts[:user]).by_alternatives(opts[:alternative_ids])
+      statements = statements.by_drafting_state(nil) if opts[:filter_drafting_state]
+      statements = statements.by_languages(opts).all
       if opts[:for_session]
         statements = statements.map(&:target_id)
         parent_id = opts[:hub] || opts[:parent_id]
@@ -429,48 +473,50 @@ class StatementNode < ActiveRecord::Base
     # Called with no attributes filled: returns all published questions
     #
     def search_statement_nodes(opts={})
-      aggregator_field = opts[:types].nil? ? 'root_id' : 'id'
-
-      # Constant criteria
-      document_conditions = []
-
-      # Languages
-      if opts[:user] and !opts[:user].spoken_languages.empty? and opts[:language_ids]
-        document_conditions << sanitize_sql(["d.language_id IN (?)", opts[:language_ids]])
-      end
-
-      # Permissions
-      opts[:node_conditions] ||= []
-      opts[:node_conditions].map!{|cond|sanitize_sql(cond)}
-      opts[:node_conditions] << Statement.conditions(opts, "s.closed_statement", "s.granted_user_id")
-      opts[:node_conditions] << "s.top_level = 1"
-
-      # Statement type
-      if opts[:types]
-        opts[:node_conditions] << sanitize_sql(["s.type IN (?)", opts[:types]])
-      end
-
-      # Published state
-      unless opts[:show_unpublished]
-        publish_condition = []
-        publish_condition << sanitize_sql(["s.editorial_state_id = ?",StatementState['published'].id])
-        publish_condition << sanitize_sql(["s.creator_id = ?",  opts[:user].id]) if opts[:user]
-        opts[:node_conditions] << "(#{publish_condition.join(' OR ')})"
-      end
-
-      # Drafting state
-      if opts[:drafting_states]
-        opts[:node_conditions] << sanitize_sql(["s.drafting_state IN (?)", opts[:drafting_states]])
-      end
-
-      # Limit
-      limit = "LIMIT #{opts[:limit]}" if opts[:limit]
-
-      opts[:joins] ||= ""
-
       # Search terms
       search_term = opts.delete(:search_term)
+      
+      
       if !search_term.blank?
+        aggregator_field = opts[:types].nil? ? 'root_id' : 'id'
+  
+        # Constant criteria
+        document_conditions = []
+  
+        # Languages
+        if opts[:user] and !opts[:user].spoken_languages.empty? and opts[:language_ids]
+          document_conditions << sanitize_sql(["d.language_id IN (?)", opts[:language_ids]])
+        end
+  
+        # Permissions
+        opts[:node_conditions] ||= []
+        opts[:node_conditions].map!{|cond|sanitize_sql(cond)}
+        opts[:node_conditions] << Statement.conditions(opts, "s.closed_statement", "s.granted_user_id")
+        opts[:node_conditions] << "s.top_level = 1"
+  
+        # Statement type
+        if opts[:types]
+          opts[:node_conditions] << sanitize_sql(["s.type IN (?)", opts[:types]])
+        end
+  
+        # Published state
+        unless opts[:show_unpublished]
+          publish_condition = []
+          publish_condition << sanitize_sql(["s.editorial_state_id = ?",StatementState['published'].id])
+          publish_condition << sanitize_sql(["s.creator_id = ?",  opts[:user].id]) if opts[:user]
+          opts[:node_conditions] << "(#{publish_condition.join(' OR ')})"
+        end
+  
+        # Drafting state
+        if opts[:drafting_states]
+          opts[:node_conditions] << sanitize_sql(["s.drafting_state IN (?)", opts[:drafting_states]])
+        end
+  
+        # Limit
+        limit = "LIMIT #{opts[:limit]}" if opts[:limit]
+  
+        opts[:joins] ||= ""
+  
         term_query = "SELECT DISTINCT statement_id AS id FROM search_statement_text d "
         term_query << "WHERE "
 
@@ -495,26 +541,28 @@ class StatementNode < ActiveRecord::Base
                            "GROUP BY s.#{aggregator_field} " +
                            "ORDER BY COUNT(s.#{aggregator_field}) DESC, " +
                            "s.supporter_count DESC, s.id DESC #{limit};"
+        
+        find_by_sql statements_query
       else
-        document_conditions << "d.current = 1"
-
-        opts[:node_conditions] << "s.type = 'Question'" if opts[:types].nil?
-
-        joins = "LEFT JOIN statement_documents d ON d.statement_id = s.statement_id " +
-                Statement.extaggable_joins_clause("s.statement_id")
-        joins << opts[:joins]
-
-        statements_query = "SELECT DISTINCT s.#{opts[:param] || '*'} from search_statement_nodes s " + joins +
-                           "WHERE " + (opts[:node_conditions] + document_conditions).join(' AND ') +
-                           " ORDER BY s.supporter_count DESC, s.id DESC #{limit};"
+        nodes = StatementNode.get_statement_nodes(opts[:param]).by_permissions(opts[:user])
+        nodes = nodes.by_languages(opts.merge(:table_name => 's')) unless opts[:user].nil? or opts[:user].spoken_languages.empty?
+        nodes = opts[:types].present? ? nodes.by_types(opts[:types]) : nodes.scoped(:conditions => "s.type = 'Question'")
+        nodes = nodes.by_published(opts[:user]) unless opts[:show_unpublished]
+        nodes = nodes.by_drafting_state(opts[:drafting_states])
+        opts[:nodes_conditions].each {|cond| nodes = nodes.scoped(:conditions => sanitize_sql(cond)) } unless opts[:nodes_conditions].blank?
+        
+        
+        nodes.all(:limit => opts[:limit])
       end
-      find_by_sql statements_query
+      
     end
 
     def default_scope
       { :include => :echo,
         :order => "echos.supporter_count DESC, #{table_name}.created_at DESC, #{table_name}.id" }
     end
+
+  
 
 
     ###################################
