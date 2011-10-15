@@ -15,7 +15,7 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
   
   include ActionController::UrlWriter
   
-  attr_accessor :ancestors
+  attr_accessor :ancestors, :node_type
   
   
   #   class: BidContainer
@@ -75,6 +75,7 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
   def initialize(statement_node, node_type, new_level, bids, origin, alternative_modes, hub, current_stack, sids)
     
     self.statement_node = statement_node
+    self.node_type = node_type 
     
     # new level
     self.new_level = true if !new_level.blank?
@@ -192,6 +193,15 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
     self.alternative_modes.include?(l)
   end
   
+  # Loads information necessary to build a new breadcrumb
+  def load_origin_params
+    klass = case self.node_type.name
+      when "FollowUpQuestion" then "fq"
+      when "DiscussAlternativesQuestion" then "dq"
+    end
+    
+    [self.statement_node.parent_node, klass]
+  end
   
   
 end

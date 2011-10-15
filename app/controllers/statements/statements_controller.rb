@@ -120,9 +120,7 @@ class StatementsController < ApplicationController
     if @node_environment.new_level?
       set_parent_breadcrumb
       # set new breadcrumb
-      if @statement_node_type.is_top_statement?
-        load_origin_statement
-      end
+      @previous_node, @previous_type = @node_environment.load_origin_params if @statement_node_type.is_top_statement?
     end
 
     load_echo_info_messages if @statement_node.echoable?
@@ -409,7 +407,7 @@ class StatementsController < ApplicationController
     begin
       if @node_environment.new_level?
         if @statement_node # this is the teaser's parent (e.g.: 1212345/add/proposal)
-          load_children_for_parent @statement_node, @type
+          load_children_to_session @statement_node, @type
         else # this is the question's teaser (e.g.: /add/question
           load_roots_to_session
         end
@@ -623,16 +621,6 @@ class StatementsController < ApplicationController
     @node_environment = NodeEnvironment.new(@statement_node, @statement_node_type, params[:nl], params[:bids], params[:origin], params[:al], params[:hub], params[:cs], params[:sids])  
   end
 
-  #
-  # Checks if the user can access this very statement
-  #
-  def check_statement_permissions
-    # check if the user has permissions to read this statement
-    if @statement_node and !check_tag_permissions(@statement_node.root.topic_tags, false)
-      redirect_to_url discuss_search_url, 'discuss.statements.read_permission'
-      return
-    end
-  end
 
   #
   # Redirect to parent if incorporable is approved or already incorporated.
@@ -680,9 +668,8 @@ class StatementsController < ApplicationController
     statement_attrs = params[statement_node_symbol][:statement_attributes]
     return if statement_attrs.blank?
     if statement_attrs.include? :statement_documents_attributes
-      document_param = statement_attrs[:statement_documents_attributes]["0"]
-      text = document_param[:text]
-      document_param[:text] = "" if text.eql?('<br>')
+      text = statement_attrs[:statement_documents_attributes]["0"][:text]
+      text = "" if text.eql?('<br>')
     end
   end
 
@@ -740,10 +727,8 @@ class StatementsController < ApplicationController
     else
       bids = []
       @ancestors.each_with_index do |ancestor, index|
-        b_type = ancestor == @ancestors.last ?
-                 @statement_node.u_class_name :
-                 @ancestors[index+1].u_class_name
-        bids << Struct.new(:key, :value).new(Breadcrumb.generate_key(b_type),ancestor.id)
+        b_type = index == @ancestors.length-1 ? @statement_node.u_class_name : @ancestors[index+1].u_class_name
+        bids << Struct.new(:key, :value).new(Breadcrumb.generate_key(b_type),ancestor.target_id)
       end if @ancestors
     end
 
@@ -752,7 +737,7 @@ class StatementsController < ApplicationController
     origin_bids = bids.select{|b|Breadcrumb.origin_keys.include?(b.key)}
 
     bids.each_with_index do |bid, index|
-      origin = index > 0 ? origin_bids[index-1] : ''
+      origin = origin_bids[index-1] if index > 0
       
       breadcrumb = Breadcrumb.new(bid.key, bid.value, :language_ids => @language_preference_list, 
                                                       :origin => origin, 
@@ -781,22 +766,18 @@ class StatementsController < ApplicationController
   def has_read_permission?(statement_tags)
     read_tags = filter_permission_tags(statement_tags, :read)
 
-    if read_tags.empty? # no read permission tags, good to go
-      return true
-    elsif current_user.nil? # no user logged in, can't access closed statements
-      return false
-    elsif current_user.has_role? :editor # editor can read everything
-      return true
-    else
-      # Calculate for the remaining users
-      decision_making_tags = current_user.decision_making_tags
-      read_tags.each do |tag|
-        return true if decision_making_tags.include? tag  # User has one of the **tags
-      end
-
-      #User has none of the **tags -> no read permission
-      return false
+    return true if read_tags.empty? # no read permission tags, good to go
+    return false if current_user.nil? # no user logged in, can't access closed statements
+    return true if current_user.has_role? :editor # editor can read everything
+    
+    # Calculate for the remaining users
+    decision_making_tags = current_user.decision_making_tags
+    read_tags.each do |tag|
+      return true if decision_making_tags.include? tag  # User has one of the **tags
     end
+
+    #User has none of the **tags -> no read permission
+    return false
   end
 
   #
@@ -822,27 +803,22 @@ class StatementsController < ApplicationController
   def has_write_permission?(statement_tags)
     write_tags = filter_permission_tags(statement_tags, :write)
 
-    if write_tags.empty? # no write permission tags, good to go
-      return true
-    elsif current_user.nil? # no user logged in, can't write protected statements
-      return false
-    else
-      # Calculate for the remaining users
-      decision_making_tags = current_user.decision_making_tags
-      write_tags.each do |tag|
-        return true if decision_making_tags.include? tag   # User has one of the *tags
-      end
-
-      # User has none of the *tags -> no write permission
-      set_info('discuss.statements.read_only_permission')
-      respond_to do |format|
-        format.html { flash_info and redirect_to request.referer }
-        format.js do
-          render_with_info
-        end
-      end
-      return false
+    return true if write_tags.empty? # no write permission tags, good to go
+    return false if current_user.nil? # no user logged in, can't write protected statements
+    
+    # Calculate for the remaining users
+    decision_making_tags = current_user.decision_making_tags
+    write_tags.each do |tag|
+      return true if decision_making_tags.include? tag   # User has one of the *tags
     end
+
+    # User has none of the *tags -> no write permission
+    set_info('discuss.statements.read_only_permission')
+    respond_to do |format|
+      format.html { flash_info and redirect_to request.referer }
+      format.js { render_with_info }
+    end
+    return false
   end
 
 
@@ -900,13 +876,13 @@ class StatementsController < ApplicationController
   #
   def load_discuss_alternatives_question(statement_node)
     return if statement_node.new_record? or !@node_environment.alternative_mode?(statement_node)
+    
     @discuss_alternatives_questions ||= {}
     @discuss_alternatives_documents ||= {}
 
     # don't proceed if there is no discuss alternative yet
     daq = statement_node.discuss_alternatives_question
     return if daq.nil?
-    
     
     class_name = statement_node.target_statement.u_class_name
     @discuss_alternatives_questions["#{class_name}_#{statement_node.target_id}"] ||= daq 
@@ -916,22 +892,6 @@ class StatementsController < ApplicationController
   ############################
   # SESSION HANDLING HELPERS #
   ############################
-
-  #
-  # Loads information necessary to build a breadcrumb for the new Follow Up Statement
-  #
-  # Loads instance variables:
-  # @previous_node(StatementNode) : the parent of the new statement
-  # @previous_type(String) : type of breadcrumb
-  #
-  def load_origin_statement
-    @previous_node = @statement_node.parent_node
-    @previous_type = case @statement_node_type.name
-      when "FollowUpQuestion" then "fq"
-      when "DiscussAlternativesQuestion" then "dq"
-    end
-  end
-
 
   #
   # Loads the ancestors of the current statement node, in order to display the correct context.
@@ -950,19 +910,17 @@ class StatementsController < ApplicationController
     if @statement_node
       @ancestors = @node_environment.ancestors
       @ancestor_documents = {}
-      @ancestors.each {|a| 
+      (@ancestors + [@statement_node]).each {|a| 
         load_siblings(a)
         load_discuss_alternatives_question(a) 
       }
 
-      load_siblings(@statement_node) # if teaser: @statement_node is the teaser's parent, otherwise the node on the bottom-most level
-      load_discuss_alternatives_question(@statement_node)
       if teaser
 
         # if teaser: @statement_node is the teaser's parent, therefore, an ancestor
         # if stack ids exists, that means the @statement node is already in ancestors
         @ancestors << @statement_node if !@node_environment.alternative_mode?(@node_environment.level) and !@ancestors.map(&:id).include?(@statement_node.id)
-        load_children_for_parent(@statement_node, @type)
+        load_children_to_session(@statement_node, @type)
       end
 
       @ancestors.each do |a|
@@ -976,24 +934,6 @@ class StatementsController < ApplicationController
         @ancestors = []
       end
     end
-  end
-
-  #
-  # Loads the children ids array formatted for session from a certain type of a certain statement node
-  #
-  # statement_node(StatementNode) : the parent node
-  # type(String)                  : the type of children we want to get
-  #
-  # Loads instance variables:
-  # @siblings(Hash) : key   : statement node dom id ; ":type_:id" or "add_:type" for teasers (String)
-  #                   value : Array[Integer] : Array of statement ids with teaser path as last element
-  #
-  def load_children_for_parent(statement_node, type)
-    @siblings ||= {}
-    class_name = type.classify
-    siblings = statement_node.children_to_session :language_ids => @language_preference_list,
-                                                    :type => class_name, :user => current_user
-    @siblings["add_#{type}"] = siblings
   end
 
   #
@@ -1026,6 +966,25 @@ class StatementsController < ApplicationController
   end
   
 
+
+  #
+  # Loads the children ids array formatted for session from a certain type of a certain statement node
+  #
+  # statement_node(StatementNode) : the parent node
+  # type(String)                  : the type of children we want to get
+  #
+  # Loads instance variables:
+  # @siblings(Hash) : key   : statement node dom id ; ":type_:id" or "add_:type" for teasers (String)
+  #                   value : Array[Integer] : Array of statement ids with teaser path as last element
+  #
+  def load_children_to_session(statement_node, type)
+    @siblings ||= {}
+    class_name = type.classify
+    siblings = statement_node.children_to_session :language_ids => @language_preference_list,
+                                                    :type => class_name, :user => current_user
+    @siblings["add_#{type}"] = siblings
+  end
+  
   #
   # Loads Add Question Teaser siblings (Only for HTTP and add question teaser).
   #
@@ -1037,6 +996,10 @@ class StatementsController < ApplicationController
     @siblings ||= {}
     @siblings["add_question"] = roots_to_session
   end
+
+  
+
+  
 
   #
   # Gets the root ids that need to be loaded to the session.
