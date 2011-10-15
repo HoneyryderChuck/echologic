@@ -13,7 +13,7 @@ module TranslationModule
     @statement_document ||= @statement_node.document_in_preferred_language(@language_preference_list)
     if (is_current_document = @statement_document.id == params[:current_document_id].to_i) and
        !(already_translated = @statement_document.language_id == @locale_language_id)
-      has_lock = acquire_lock(@statement_document)
+      has_lock = current_user.acquire_lock(@statement_document)
       if @new_statement_document.nil?
         @new_statement_document ||= @statement_document.clone
         @new_statement_document.title = nil
@@ -59,9 +59,8 @@ module TranslationModule
         
         @new_statement_document = StatementDocument.new(new_attrs_doc)
         
-        holds_lock = holds_lock?(old_statement_document, locked_at)
         
-        if holds_lock
+        if current_user.holds_lock?(old_statement_document, locked_at)
           new_attrs_doc.merge!({:current => true, :language_id => @locale_language_id})
           new_attrs_doc[:statement_history_attributes].merge!({:author_id => current_user.id})
 

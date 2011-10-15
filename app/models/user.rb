@@ -197,6 +197,37 @@ class User < ActiveRecord::Base
   end
 
   ##
+  ## STATEMENT DOCUMENT WRITING RIGHTS HANDLING
+  ##
+
+  
+  #
+  # Returns true if the current user could successfully acquire the lock.
+  #
+  def acquire_lock(statement_document)
+    StatementDocument.transaction do
+      if statement_document.locked_by.nil?
+        statement_document.lock(self)
+      elsif self != statement_document.locked_by
+        if statement_document.locked_at >= StatementDocument::EDIT_LOCKING_TIME.ago
+          return false
+        else
+          statement_document.lock(self)
+        end
+      end
+    end
+    return true
+  end
+
+  #
+  # Returns true if the current user still holds his original lock he acquired when starting to edit the statement.
+  #
+  def holds_lock?(statement_document, locked_at)
+    statement_document.locked_by == self && statement_document.locked_at.to_s == locked_at
+  end
+
+
+  ##
   ## SPOKEN LANGUAGES
   ##
 

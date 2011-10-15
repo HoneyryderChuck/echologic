@@ -16,7 +16,7 @@ module IncorporationModule
     end
 
     @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
-    has_lock = acquire_lock(@statement_document)
+    has_lock = current_user.acquire_lock(@statement_document)
     @action ||= StatementAction["incorporated"]
     if still_approved && has_lock
       old_document_id = @statement_document.id

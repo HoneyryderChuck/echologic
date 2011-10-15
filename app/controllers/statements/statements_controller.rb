@@ -46,8 +46,6 @@ class StatementsController < ApplicationController
   # ATTRIBUTES #
   ##############
 
-  @@edit_locking_time = 1.hours
-
   # Shows a selected statement
   #
   # Method:   GET
@@ -207,7 +205,7 @@ class StatementsController < ApplicationController
     @statement_document ||= @statement_node.document_in_preferred_language(@language_preference_list)
 
     if (is_current_document = (@statement_document.id == params[:current_document_id].to_i))
-      has_lock = acquire_lock(@statement_document)
+      has_lock = current_user.acquire_lock(@statement_document)
       @statement_document = @statement_document.clone if has_lock
       @statement_document.statement_history.old_document_id = params[:current_document_id].to_i
       @statement_document.statement_history.action = StatementAction["updated"] 
@@ -249,9 +247,8 @@ class StatementsController < ApplicationController
       attrs[:new_permission_tags] = filter_permission_tags(form_tags.split(","), :read_write)
 
       old_statement_document = StatementDocument.find(attrs_doc[:statement_history_attributes][:old_document_id])
-      holds_lock = holds_lock?(old_statement_document, locked_at)
       
-      if holds_lock
+      if current_user.holds_lock?(old_statement_document, locked_at)
         StatementNode.transaction do
           # add default parameters
           attrs_doc.merge!({:current => true})
@@ -287,7 +284,7 @@ class StatementsController < ApplicationController
   def cancel
     locked_at = params[:locked_at]
     @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
-    @statement_document.unlock if holds_lock?(@statement_document, locked_at)
+    @statement_document.unlock if current_user.holds_lock?(@statement_document, locked_at)
     show_statement
   end
 
@@ -594,35 +591,6 @@ class StatementsController < ApplicationController
     @authors = @statement_node.authors
   end
 
-
-  #####################
-  # Editing / Locking #
-  #####################
-
-  #
-  # Returns true if the current user could successfully acquire the lock.
-  #
-  def acquire_lock(statement_document)
-    StatementDocument.transaction do
-      if statement_document.locked_by.nil?
-        statement_document.lock(current_user)
-      elsif current_user != statement_document.locked_by
-        if statement_document.locked_at >= @@edit_locking_time.ago
-          return false
-        else
-          statement_document.lock(current_user)
-        end
-      end
-    end
-    return true
-  end
-
-  #
-  # Returns true if the current user still holds his original lock he acquired when starting to edit the statement.
-  #
-  def holds_lock?(statement_document, locked_at)
-    statement_document.locked_by == current_user && statement_document.locked_at.to_s == locked_at
-  end
 
 
   ###########

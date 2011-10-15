@@ -1,5 +1,7 @@
 class StatementDocument < ActiveRecord::Base
 
+  EDIT_LOCKING_TIME = 1.hours
+
   belongs_to :statement
   has_many :statement_nodes, :through => :statement, :source => :statement_nodes
 
