@@ -134,7 +134,7 @@ class StatementNode < ActiveRecord::Base
   end
   
   named_scope :children_statements, lambda {|opts|
-    select = opts[:for_session] ? "#{table_name}.id, #{table_name}.question_id" : "#{table_name}.*"
+    select = opts[:for_session] ? "#{table_name}.id, #{table_name}.question_id, #{table_name}.echo_id" : "#{table_name}.*"
     {
       :select => "DISTINCT #{select}",
       :joins => "LEFT JOIN #{Echo.table_name} e ON #{table_name}.echo_id = e.id",
@@ -452,7 +452,7 @@ class StatementNode < ActiveRecord::Base
       statements = statements.by_languages(opts).all(:include => include)
       if opts[:for_session]
         statements = statements.map(&:target_id)
-        parent_id = opts[:hub] || opts[:parent_id]
+        parent_id = opts[:parent_id]#opts[:hub] || opts[:parent_id]
         statements << "/#{parent_id.nil? ? '' : "#{parent_id}/" }add/#{self.name.underscore}" # ADD TEASER
       end
       statements
@@ -611,7 +611,12 @@ class StatementNode < ActiveRecord::Base
     end
 
     def format_types(types, opts={})
-      types.map!{|klass, vis| klass.to_s.constantize.sub_types.map{|st|[st, vis]}.first } if opts[:expand]
+      types = types.clone
+      if opts[:expand]
+        array = []
+        types.each{|klass, vis| array += klass.to_s.constantize.sub_types.map{|st|[st, vis]} }
+        types = array
+      end
       return types.map{|klass, vis| klass } if !opts[:visibility]
       types
     end

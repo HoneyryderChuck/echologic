@@ -132,8 +132,8 @@ module ActiveRecord
                 alternative_ids << target_id if opts[:with_self]
                 #TODO: When the support of multiple alternatives is set, we have to rethink this
                 alternative_statements = hub.child_statements(opts.merge({:type => self.class.alternative_types.first.to_s,
-                                                                                          :alternative_ids => alternative_ids,
-                                                                                          :filter_drafting_state => true})).flatten
+                                                                          :alternative_ids => alternative_ids,
+                                                                          :filter_drafting_state => true})).flatten
               end
               
               per_page = alternative_statements.length if per_page.nil? or per_page < 0

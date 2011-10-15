@@ -55,7 +55,7 @@ module StatementsHelper
         if arg.kind_of?(Integer)
           count = arg
         else
-          selected = index if selected.nil?
+          selected = dom_child_type if selected.nil?
           count = child_type.to_s.constantize.double? ? arg.map(&:total_entries).sum : arg.total_entries
           children_to_render[dom_child_type] = arg
         end
@@ -66,10 +66,10 @@ module StatementsHelper
       # Load headers
       content << content_tag(:div, :class => "headline expandable") do
         header_content = ''
-        headers.each_with_index do |h, i|
-          header_content << children_heading_title(h[0],h[1],
-                            :path => children_statement_node_url(statement_node, :type => h[0]),
-                            :selected => i==selected)
+        headers.each do |dom_type, count|
+          header_content << children_heading_title(dom_type,count,
+                            :path => children_statement_node_url(statement_node, :type => dom_type),
+                            :selected => dom_type.eql?(selected))
         end
         header_content << content_tag(:span, '', :class => 'loading', :style => 'display: none')
         header_content << content_tag(:div, '', :class => 'expand_icon')
@@ -79,13 +79,13 @@ module StatementsHelper
       # load children
       content << content_tag(:div, :class => 'children_content expandable_content') do
         children_content = ''
-        headers.each_with_index do |h, index|
-          children_content << render(:partial => h[0].classify.constantize.children_list_template,
-                                     :locals => {:child_type => h[0],
-                                                 :children => children_to_render[h[0]],
+        headers.each do |dom_type, count|
+          children_content << render(:partial => dom_type.classify.constantize.children_list_template,
+                                     :locals => {:child_type => dom_type,
+                                                 :children => children_to_render[dom_type],
                                                  :parent => @statement_node,
-                                                 :display => index==0,
-                                                 :new_level => true}) if children_to_render[h[0]]
+                                                 :display => dom_type.eql?(selected),
+                                                 :new_level => true}) if children_to_render[dom_type]
         end
         children_content
       end

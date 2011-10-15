@@ -519,19 +519,18 @@ class StatementsController < ApplicationController
   #
   def load_all_children
     @children ||= {}
-    children_types = @statement_node.class.all_children_types(:visibility => true).transpose
+    children_types = @statement_node.class.all_children_types(:visibility => true)
     if !children_types.empty?
-      types = children_types[0]
       @children_documents ||= {}
-      types.each_with_index do |type, index|
-        immediate_render = children_types[1][index]
-        if @children[type].nil?
+     
+      children_types.each do |klass, immediate_render|
+        if @children[klass].nil?
           if immediate_render
-            load_children :type => type
+            load_children :type => klass
           else
-            @children[type] ||= @statement_node.count_child_statements :language_ids => filter_languages_for_children,
-                                                                       :user => current_user,
-                                                                       :type => type
+            @children[klass] ||= @statement_node.count_child_statements :language_ids => filter_languages_for_children,
+                                                                        :user => current_user,
+                                                                        :type => klass
           end
         end
       end

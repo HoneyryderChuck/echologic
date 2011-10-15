@@ -154,13 +154,13 @@ module ApplicationHelper
   def redirect_from_popup_to(target_url, params={})
     # Create the URL to redirect everything in the end
     redirect_url = target_url + '?' + (
-      params.merge({:authenticity_token => form_authenticity_token}).collect { |n| "#{n[0]}=#{u(n[1])}" if n[1] }
+      params.merge({:authenticity_token => form_authenticity_token}).collect { |k, v| "#{k}=#{u(v)}" if k }
     ).compact.join('&')
 
     # Create the wrapper URL the popup should redirect at the end
     token_url = redirect_from_popup_url + '?' + (
     { :redirect_url => redirect_url,
-      :authenticity_token => form_authenticity_token }.collect { |n| "#{n[0]}=#{u(n[1])}" if n[1] }
+      :authenticity_token => form_authenticity_token }.collect { |k, v| "#{k}=#{u(v)}" if k }
     ).compact.join('&')
     token_url
   end
