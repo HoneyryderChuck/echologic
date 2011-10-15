@@ -565,9 +565,6 @@ class StatementNode < ActiveRecord::Base
         :order => "echos.supporter_count DESC, #{table_name}.created_at DESC, #{table_name}.id" }
     end
 
-  
-
-
     ###################################
     # EXPANDABLE CHILDREN GUI HELPERS #
     ###################################
@@ -614,12 +611,8 @@ class StatementNode < ActiveRecord::Base
     end
 
     def format_types(types, opts={})
-      if opts[:expand]
-        array = []
-        types.each{|c| array += c[0].to_s.constantize.sub_types.map{|st|[st, c[1]]} }
-        types = array
-      end
-      return types.map{|c|c[0]} if !opts[:visibility]
+      types.map!{|klass, vis| klass.to_s.constantize.sub_types.map{|st|[st, vis]}.first } if opts[:expand]
+      return types.map{|klass, vis| klass } if !opts[:visibility]
       types
     end
 
