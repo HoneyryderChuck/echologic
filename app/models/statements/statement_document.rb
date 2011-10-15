@@ -21,6 +21,27 @@ class StatementDocument < ActiveRecord::Base
   
   delegate :action, :author, :incorporated_node, :old_document, :to => :statement_history, :allow_nil => true
 
+  
+  named_scope :current_documents, lambda { { :conditions => { :current => true } } }
+  
+  named_scope :by_statements, lambda { |statement_ids, extended_params|
+    sel = "DISTINCT #{table_name}.id, #{table_name}.title, #{table_name}.statement_id, #{table_name}.language_id, #{table_name}.current"
+    sel = %w(id title statement_id language_id)
+    sel += extended_params if extended_params.present?
+    {
+      :select => "DISTINCT #{sel.map{|param| table_name+'.'+param }.join(', ')}",
+      :conditions => ["#{table_name}.statement_id IN (?)", statement_ids]
+    }
+  }
+  
+  named_scope :by_languages, lambda { |language_ids, match_original|
+    return { :conditions => ["#{table_name}.language_id IN (?)", language_ids] } if !match_original
+    {
+      :joins => :statement,
+      :conditions => ["(#{table_name}.language_id IN (?) OR #{table_name}.language_id = #{Statement.table_name}.original_language_id)", language_ids]
+    }
+  }
+
   def after_initialize
     self.build_statement_history if self.statement_history.nil?
   end
@@ -74,45 +95,5 @@ class StatementDocument < ActiveRecord::Base
       conditions
     end
     
-    #
-    # gets a set of current statement documents given an hash of arguments
-    #
-    # opts attributes:
-    #
-    # statement_ids (Array[Integer]) : array of statement ids which we have to search the documents through
-    # language_ids (Array[Integer])  : filters out documents which language is not included on the array
-    # 
-    # the rest of the opts hash works as a normal ActiveRecord query array; check documentation if you have doubts about it
-    #
-    def search_statement_documents(opts={})
-      opts.delete(:readonly)
-      
-      opts[:select] = "DISTINCT #{table_name}.id, " + 
-                                 "#{table_name}.title, " + 
-                                 "#{table_name}.statement_id, " + 
-                                 "#{table_name}.language_id, " +
-                                 "#{table_name}.current"
-      # insert more elements to be taken to the model if needed
-      more = opts.delete(:more).map{|m|"#{table_name}.#{m}"} if opts[:more]
-      opts[:select] << ", #{more.join(', ')}" if more
-      
-      # join will be important to get the original document
-      opts[:joins] = :statement if opts[:user].nil? or opts[:user].spoken_languages.empty?
-      
-      and_conditions = []
-      and_conditions << "#{table_name}.current = 1"
-      and_conditions << sanitize_sql(["#{table_name}.statement_id IN (?)", opts.delete(:statement_ids)])
-      # if there is no user, get the document in local language, or, if it does not exist, get the original
-      if (user = opts.delete(:user)).nil? or user.spoken_languages.empty?
-        and_conditions << sanitize_sql(["(#{table_name}.language_id IN (?) OR " +
-                                        "#{table_name}.language_id = #{Statement.table_name}.original_language_id)", 
-                                        opts.delete(:language_ids)])
-      else
-        and_conditions << sanitize_sql(["#{table_name}.language_id IN (?)", opts.delete(:language_ids)])
-      end
-      opts[:conditions] ||= and_conditions.join(" AND ")
-      opts[:order] ||= "#{table_name}.language_id" 
-      all opts
-    end
   end
 end

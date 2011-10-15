@@ -907,10 +907,9 @@ class StatementsController < ApplicationController
   def search_statement_documents(opts={})
     opts[:language_ids] ||= @language_preference_list
     opts[:user] = current_user
-    l_ids = opts[:language_ids]
-    statement_documents = StatementDocument.search_statement_documents(opts).sort! {|a, b|
-      a_index = l_ids.index(a.language_id)
-      b_index = l_ids.index(b.language_id)
+    statement_documents = StatementDocument.current_documents.by_statements(opts[:statement_ids], opts[:more]).by_languages(opts[:language_ids], (current_user.nil? or current_user.spoken_languages.empty?)).sort! {|a, b|
+      a_index = opts[:language_ids].index(a.language_id)
+      b_index = opts[:language_ids].index(b.language_id)
        (a_index and b_index) ? a_index <=> b_index : 0
     }
     statement_documents.each_with_object({}) do |sd, documents_hash|
