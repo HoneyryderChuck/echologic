@@ -639,7 +639,7 @@ class StatementsController < ApplicationController
   # @statement_node(StatementNode)
   #
   def fetch_statement_node
-    @statement_node ||= StatementNode.find(params[:id]) if params[:id].try(:any?) && params[:id] =~ /\d+/
+    @statement_node ||= StatementNode.find(params[:id], :include => :echo) if params[:id].try(:any?) && params[:id] =~ /\d+/
   end
 
   #
@@ -907,7 +907,9 @@ class StatementsController < ApplicationController
   def search_statement_documents(opts={})
     opts[:language_ids] ||= @language_preference_list
     opts[:user] = current_user
-    statement_documents = StatementDocument.current_documents.by_statements(opts[:statement_ids], opts[:more]).by_languages(opts[:language_ids], (current_user.nil? or current_user.spoken_languages.empty?)).sort! {|a, b|
+    statement_documents = StatementDocument.current_documents.by_statements(opts[:statement_ids], opts[:more]).
+                                           by_languages(opts[:language_ids], (current_user.nil? or current_user.spoken_languages.empty?)).
+                                           sort! {|a, b|
       a_index = opts[:language_ids].index(a.language_id)
       b_index = opts[:language_ids].index(b.language_id)
        (a_index and b_index) ? a_index <=> b_index : 0

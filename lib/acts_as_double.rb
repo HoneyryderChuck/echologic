@@ -43,7 +43,7 @@ module ActsAsDouble
               sub_opts = opts.merge(:type => type)
               sub_statements = children_statements(sub_opts).by_alternatives(sub_opts[:alternative_ids]).by_statement_state(sub_opts[:user]).by_alternatives(sub_opts[:alternative_ids])
               sub_statements = sub_statements.by_drafting_state(nil) if opts[:filter_drafting_state]
-              statements << sub_statements.by_languages(sub_opts).all 
+              statements << sub_statements.by_languages(sub_opts).all(:include => opts[:include], :limit => opts[:limit]) 
             end
             statements = merge_statement_lists(statements) if opts[:for_session]
             statements

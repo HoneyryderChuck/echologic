@@ -25,11 +25,11 @@ class StatementDocument < ActiveRecord::Base
   named_scope :current_documents, lambda { { :conditions => { :current => true } } }
   
   named_scope :by_statements, lambda { |statement_ids, extended_params|
-    sel = "DISTINCT #{table_name}.id, #{table_name}.title, #{table_name}.statement_id, #{table_name}.language_id, #{table_name}.current"
     sel = %w(id title statement_id language_id)
     sel += extended_params if extended_params.present?
     {
-      :select => "DISTINCT #{sel.map{|param| table_name+'.'+param }.join(', ')}",
+      :select => "DISTINCT #{sel.map{|param| table_name + '.' + param }.join(', ')}",
+      :include => :statement_history,
       :conditions => ["#{table_name}.statement_id IN (?)", statement_ids]
     }
   }

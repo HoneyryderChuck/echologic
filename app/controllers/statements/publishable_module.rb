@@ -39,7 +39,7 @@ module PublishableModule
     @origin << "|#{params[:page_count].blank? ? @page : params[:page_count]}"
     @origin = @origin
 
-    statement_nodes_not_paginated = search_statement_nodes :search_term => @value
+    statement_nodes_not_paginated = search_statement_nodes :search_term => @value, :include => [:echo, {:statement => :statement_image}]
 
     @count    = statement_nodes_not_paginated.count
     @statement_nodes = statement_nodes_not_paginated.paginate(:page => @page, :per_page => @per_page)

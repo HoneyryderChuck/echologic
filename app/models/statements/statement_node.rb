@@ -146,9 +146,8 @@ class StatementNode < ActiveRecord::Base
   
   named_scope :by_languages, lambda {|opts| 
     return {} if opts[:language_ids].blank?
-     t = opts[:table_name] || table_name
     {
-      :joins => "LEFT JOIN #{StatementDocument.table_name} d ON d.statement_id = #{t}.statement_id",
+      :joins => "LEFT JOIN #{StatementDocument.table_name} d ON d.statement_id = #{table_name}.statement_id",
       :conditions => ["d.current = 1 AND d.language_id IN (?)", opts[:language_ids]]
     }
   }
@@ -158,38 +157,40 @@ class StatementNode < ActiveRecord::Base
   named_scope :get_statement_nodes, lambda {|param|
     param ||= "*"
     {
-      :select => "DISTINCT s.#{param}",
-      :from => "search_statement_nodes s",
-      :conditions => "s.top_level = 1",
-      :order => "s.supporter_count DESC, s.id DESC"
+      :select => "DISTINCT statement_nodes.#{param}",
+      :from => "search_statement_nodes statement_nodes",
+      :conditions => "statement_nodes.top_level = 1",
+      :order => "statement_nodes.supporter_count DESC, statement_nodes.id DESC"
     }
   }
   
   
   named_scope :by_permissions, lambda {|user|
-    return {:conditions => "s.closed_statement IS NULL"} if user.nil?
+    return {:from => "search_statement_nodes statement_nodes", :conditions => "statement_nodes.closed_statement IS NULL"} if user.nil?
     {
-      :conditions => ["s.closed_statement IS NULL OR s.granted_user_id = ?", user.id]
+      :from => "search_statement_nodes statement_nodes",
+      :conditions => ["statement_nodes.closed_statement IS NULL OR statement_nodes.granted_user_id = ?", user.id]
     }
   }
   
   named_scope :by_types, lambda {|types|
     {
-      :conditions => ["s.type IN (?)", types]
+      :conditions => ["statement_nodes.type IN (?)", types]
     }
   }
   
   named_scope :by_published, lambda {|user|
-    return {:conditions => ["s.editorial_state_id = ?", StatementState['published']] } if user.blank? 
+    return {:from => "search_statement_nodes statement_nodes", :conditions => ["statement_nodes.editorial_state_id = ?", StatementState['published']] } if user.blank? 
     {
-      :conditions => ["s.editorial_state_id = ? OR s.creator_id = ?", StatementState['published'].id, user.id]
+      :from => "search_statement_nodes statement_nodes",
+      :conditions => ["statement_nodes.editorial_state_id = ? OR statement_nodes.creator_id = ?", StatementState['published'].id, user.id]
     }
   }
   
   named_scope :by_drafting_state, lambda { |states|
     return {} if states.blank?
     {
-      :conditions => ["s.drafting_state IN (?)", states]
+      :conditions => ["statement_nodes.drafting_state IN (?)", states]
     }
   }
   
@@ -444,9 +445,11 @@ class StatementNode < ActiveRecord::Base
     # Aux Function: gets a set of children given a certain parent (used to get siblings and children)
     #
     def statements_for_parent(opts)
+      include = [:echo, :parent]
+      include << {:hub => :parent} if has_alternatives?
       statements = children_statements(opts).by_statement_state(opts[:user]).by_alternatives(opts[:alternative_ids])
       statements = statements.by_drafting_state(nil) if opts[:filter_drafting_state]
-      statements = statements.by_languages(opts).all
+      statements = statements.by_languages(opts).all(:include => include)
       if opts[:for_session]
         statements = statements.map(&:target_id)
         parent_id = opts[:hub] || opts[:parent_id]
@@ -545,14 +548,14 @@ class StatementNode < ActiveRecord::Base
         find_by_sql statements_query
       else
         nodes = StatementNode.get_statement_nodes(opts[:param]).by_permissions(opts[:user])
-        nodes = nodes.by_languages(opts.merge(:table_name => 's')) unless opts[:user].nil? or opts[:user].spoken_languages.empty?
-        nodes = opts[:types].present? ? nodes.by_types(opts[:types]) : nodes.scoped(:conditions => "s.type = 'Question'")
+        nodes = nodes.by_languages(opts) unless opts[:user].nil? or opts[:user].spoken_languages.empty?
+        nodes = opts[:types].present? ? nodes.by_types(opts[:types]) : nodes.scoped(:conditions => "statement_nodes.type = 'Question'")
         nodes = nodes.by_published(opts[:user]) unless opts[:show_unpublished]
         nodes = nodes.by_drafting_state(opts[:drafting_states])
         opts[:nodes_conditions].each {|cond| nodes = nodes.scoped(:conditions => sanitize_sql(cond)) } unless opts[:nodes_conditions].blank?
         
         
-        nodes.all(:limit => opts[:limit])
+        nodes.all(:include => opts[:include], :limit => opts[:limit])
       end
       
     end
