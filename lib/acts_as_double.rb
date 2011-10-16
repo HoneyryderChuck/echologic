@@ -38,43 +38,12 @@ module ActsAsDouble
           # Overrides normal behaviour. Delegates to sub_types and merges the results.
           #
           def statements_for_parent(opts)
-            statements = []
-            sub_types.each do |type|
+            sub_types.each_with_object([]) do |type, arr|
               sub_opts = opts.merge(:type => type)
               sub_statements = children_statements(sub_opts).by_alternatives(sub_opts[:alternative_ids]).by_statement_state(sub_opts[:user]).by_alternatives(sub_opts[:alternative_ids])
               sub_statements = sub_statements.by_drafting_state(nil) if opts[:filter_drafting_state]
-              statements << sub_statements.by_languages(sub_opts).all(:include => opts[:include], :limit => opts[:limit]) 
+              arr << sub_statements.by_languages(sub_opts).all(:include => opts[:include], :limit => opts[:limit]) 
             end
-            statements = merge_statement_lists(statements) if opts[:for_session]
-            statements
-          end
-
-          #
-          # Overrides default behaviour. Returns a template to render both sub_types.
-          #
-          def children_list_template
-            "statements/double/children_list"
-          end
-
-          #
-          # Overrides default behaviour. Returns a template to render both sub_types.
-          #
-          def children_template
-            "statements/double/children"
-          end
-
-          #
-          # Overrides default behaviour. Returns a template to render both sub_types.
-          #
-          def more_template
-            "statements/double/more"
-          end
-
-          #
-          # Overrides default behaviour. Returns a template to render both sub_types.
-          #
-          def descendants_template
-            "statements/double/descendants"
           end
 
           #
@@ -86,26 +55,8 @@ module ActsAsDouble
             statements.map{|c|c.paginate(default_scope.merge(:page => page, :per_page => per_page))}
           end
 
-          def merge_statement_lists(list)
-            min = list.map(&:length).min
-            ordered_list = list.map{|s|s.slice(0,min)}.transpose + list.map{|s|s[min..-1]}
-            ordered_list.flatten
-          end
         end
 
-        #
-        # Overrides default behaviour. Collects a filtered list of all siblings statements.
-        #
-        def siblings_to_session(opts)
-          siblings = []
-          sibling_statements(opts).map{|s|s.map(&:id)}.each_with_index do |s, index|
-            siblings << s + ["/#{self.parent_id.nil? ? '' :
-                              "#{self.parent_node.target_id}/"}add/#{self.class.sub_types[index].to_s.underscore}"]
-          end
-          #order them properly, as you want them to be navigated
-          ordered_siblings = self.class.merge_statement_lists(siblings)
-          ordered_siblings
-        end
 
 
 

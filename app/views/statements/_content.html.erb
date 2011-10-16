@@ -2,7 +2,7 @@
 <% hide_content ||= false %>
 
 <% content_tag(:div, :class => 'expandable_content content', :style => (hide_content ? 'display: none;' : '')) do %>
-	 <%= render_alternatives(statement_node, @children[:Alternative]) if statement_node.class.has_alternatives? and !@node_environment.alternative_mode?(statement_node) %>
+	 <%= render_alternatives(statement_node, @children.alternatives) if statement_node.class.has_alternatives? and !@node_environment.alternative_mode?(statement_node) %>
 	 <%= render :partial => 'statements/action_bar',
               :locals => {:statement_node => statement_node}%>
 	 <%= render :partial => 'statements/summary',

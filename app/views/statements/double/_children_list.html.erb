@@ -1,6 +1,5 @@
 <% display ||= false %>
 <% child_type ||= @type.to_s.downcase %>
-<% children ||= @children %>
 <% no_more ||= false %>
 <% new_level ||= false %>
 <div class="<%= child_type.pluralize %> expandable_content children_container" style="<%= display ? 'display:block' : 'display:none'%>">

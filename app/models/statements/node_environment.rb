@@ -75,7 +75,7 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
   def initialize(statement_node, node_type, new_level, bids, origin, alternative_modes, hub, current_stack, sids)
     
     self.statement_node = statement_node
-    self.node_type = node_type 
+    @node_type = node_type 
     
     # new level
     self.new_level = true if !new_level.blank?
@@ -173,7 +173,7 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
   
   # gets the ancestors of a given node in the current stack
   def ancestors
-    @ancestors = self.sids? ? StatementNode.find(self.sids).sort{|s1, s2|s1.level <=> s2.level} : (self.statement_node.nil? ? [] : self.statement_node.ancestors)
+    @ancestors ||= self.sids? ? StatementNode.find(self.sids).sort{|s1, s2|s1.level <=> s2.level} : (self.statement_node.nil? ? [] : self.statement_node.ancestors)
   end
   
   
@@ -195,7 +195,7 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
   
   # Loads information necessary to build a new breadcrumb
   def load_origin_params
-    klass = case self.node_type.name
+    klass = case @node_type.name
       when "FollowUpQuestion" then "fq"
       when "DiscussAlternativesQuestion" then "dq"
     end

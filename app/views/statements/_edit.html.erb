@@ -6,7 +6,7 @@
                                          #{statement_node.taggable? ? 'taggable' : ''}
                                          #{statement_node.echoable? ? 'echoable' : ''}
                                          #{statement_node.class.has_embeddable_data? ? ('embeddable ' + statement_node.info_type.code) : ''}",
-                            'data-siblings' => @siblings ? @siblings[dom_id(statement_node)].to_json : ''} do |form| -%>
+                            'data-siblings' => @siblings ? @siblings.to_session(dom_id(statement_node)).to_json : ''} do |form| -%>
 														
   <%= hidden_field_tag :cs, @node_environment.current_stack.to_s if @node_environment.current_stack? %>
 	

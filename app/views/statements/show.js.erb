@@ -11,12 +11,12 @@
 <% if @node_environment.sids? and @ancestors %>
   <% inc = @node_environment.level - @ancestors.length %>
   var stack = <%= @node_environment.sids.to_json %>;
-	<% @ancestors.each_with_index do |ancestor, index| %>
+	<% @ancestors.keys.times do |index| %>
     var ancestor = stack[<%= index %>];
 		var ancestor_element = $('#statements .statement').eq(<%= index %>);
 		/* If not rendered, then render now */
     if(ancestor_element.length == 0 || !ancestor_element.attr('id').match(ancestor)) {
-		  var new_ancestor = $("<%= escape_javascript(render_ancestor(ancestor,
+		  var new_ancestor = $("<%= escape_javascript(render_ancestor(@ancestors[index] ,
 		                            @ancestor_documents[ancestor.statement_id])) %>").statement({'level' : <%= inc + index %>});
     } else {
       ancestor_element.data('api').hide();

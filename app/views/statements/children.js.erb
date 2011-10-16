@@ -1,5 +1,5 @@
 <% type_dom_class = @type.to_s.underscore %>
-var elements = $("<%= escape_javascript(render :partial => @children_list_template, :locals => {:children => @children[@type],
+var elements = $("<%= escape_javascript(render :partial => @children.children_list_template(@type), :locals => {:children => @children[@type],
                                                                                                  :child_type => type_dom_class,
                                                                                                  :new_level => true}) %>");
 var statement = $('#statements div.<%=node_type(@statement_node)%>');

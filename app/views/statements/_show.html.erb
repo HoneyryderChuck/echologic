@@ -7,7 +7,7 @@
 
 <% content_tag :div, :id => dom_id(statement_node), 
                :class => "statement #{type} #{statement_node.echoable? ? 'echoable' : ''} #{'alternative' if @node_environment.alternative_mode?(statement_node)}",
-               'data-siblings' => @siblings ? @siblings[dom_id(statement_node)].to_json : '',
+               'data-siblings' => @siblings ? @siblings.to_session(dom_id(statement_node)).to_json : '',
                'dom-parent' => dom_parent do %>
   <%= render :partial => 'statements/header',
              :locals => {:statement_node => statement_node,

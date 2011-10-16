@@ -3,11 +3,132 @@ class StatementNode < ActiveRecord::Base
   acts_as_subscribeable
   acts_as_nested_set :scope => :root_id, :base_conditions => "type != 'CasHub'"
 
+  ##
+  ## ASSOCIATIONS
+  ##
+  belongs_to :creator, :class_name => "User"
+  belongs_to :statement, :autosave => true
+
+  
+  has_many :statement_documents, :through => :statement, :source => :statement_documents do
+    def for_languages(lang_ids)
+      find(:all,
+           :conditions => {:language_id => lang_ids, :current => true},
+           :order => 'created_at ASC').sort {|a, b|
+        lang_ids.index(a.language_id) <=> lang_ids.index(b.language_id)
+      }.first
+    end
+  end
+
+  attr_accessor :new_permission_tags
+  
+  accepts_nested_attributes_for :statement
+
+  ##
+  ## ALIAS
+  ##
   alias_attribute :target_id, :id
   alias_attribute :target_root_id, :root_id
   
-  attr_accessor :new_permission_tags
+  
+  ##
+  ## DELEGATIONS
+  ## 
+  delegate :image, :published?, :topic_tags, :filtered_topic_tags, :hash_topic_tags, :has_author?, :authors, 
+           :original_language, :editorial_state, :statement_image, :taggable?, :publish, :to => :statement
 
+
+  ##
+  ## VALIDATIONS
+  ##
+
+  validates_presence_of :creator_id
+  validates_presence_of :statement
+  validates_associated :creator
+  validates_associated :statement
+
+  after_destroy :destroy_associated_objects
+  before_create :initialise_root_for_leaf
+  after_save    :assign_permission_tags_to_creator
+
+  ##
+  ## NAMED SCOPES
+  ##
+
+  #auxiliar named scopes only used for tests
+  %w(question proposal improvement pro_argument contra_argument follow_up_question).each do |type|
+    class_eval %(
+      named_scope :#{type.pluralize}, lambda{{ :conditions => { :type => '#{type.camelize}' } } }
+    )
+  end
+
+  named_scope :by_creator, lambda {|id| {:conditions => ["creator_id = ?", id]}}
+  named_scope :by_creation, :order => 'created_at DESC'
+  named_scope :only_id, :select => 'statement_nodes.id'
+
+  named_scope :children_statements, lambda {|opts|
+    select = opts[:for_session] ? "#{table_name}.id, #{table_name}.question_id, #{table_name}.echo_id" : "#{table_name}.*"
+    {
+      :select => "DISTINCT #{select}",
+      :joins => "LEFT JOIN #{Echo.table_name} e ON #{table_name}.echo_id = e.id",
+      :conditions => ["#{table_name}.type IN (?) AND #{table_name}.root_id = ? AND #{table_name}.lft >= ? AND #{table_name}.rgt <= ?",
+                       opts[:types] || [opts[:type].to_s], opts[:root_id], opts[:lft], opts[:rgt]],
+      :order => "e.supporter_count DESC, #{table_name}.created_at DESC, #{table_name}.id"
+    }
+  }
+  
+  named_scope :by_languages, lambda {|opts| 
+    return {} if opts[:language_ids].blank?
+    {
+      :joins => "LEFT JOIN #{StatementDocument.table_name} d ON d.statement_id = #{table_name}.statement_id",
+      :conditions => ["d.current = 1 AND d.language_id IN (?)", opts[:language_ids]]
+    }
+  }
+  
+  named_scope :get_statement_nodes, lambda {|param|
+    param ||= "*"
+    {
+      :select => "DISTINCT statement_nodes.#{param}",
+      :from => "search_statement_nodes statement_nodes",
+      :conditions => "statement_nodes.top_level = 1",
+      :order => "statement_nodes.supporter_count DESC, statement_nodes.id DESC"
+    }
+  }
+  
+  named_scope :by_permissions, lambda {|user|
+    return {:from => "search_statement_nodes statement_nodes", :conditions => "statement_nodes.closed_statement IS NULL"} if user.nil?
+    {
+      :from => "search_statement_nodes statement_nodes",
+      :conditions => ["statement_nodes.closed_statement IS NULL OR statement_nodes.granted_user_id = ?", user.id]
+    }
+  }
+  
+  named_scope :by_types, lambda {|types|
+    {
+      :conditions => ["statement_nodes.type IN (?)", types]
+    }
+  }
+  
+  named_scope :by_published, lambda {|user|
+    return {:from => "search_statement_nodes statement_nodes", :conditions => ["statement_nodes.editorial_state_id = ?", StatementState['published']] } if user.blank? 
+    {
+      :from => "search_statement_nodes statement_nodes",
+      :conditions => ["statement_nodes.editorial_state_id = ? OR statement_nodes.creator_id = ?", StatementState['published'].id, user.id]
+    }
+  }
+  
+  named_scope :by_drafting_state, lambda { |states|
+    return {} if states.blank?
+    {
+      :conditions => ["statement_nodes.drafting_state IN (?)", states]
+    }
+  }
+  
+  # overwritten on sub classes
+  named_scope :by_statement_state, lambda {|opts| {} } 
+  named_scope :by_alternatives, lambda {|ids| {}}
+  
+  
   def target_statement
     self
   end
@@ -15,11 +136,16 @@ class StatementNode < ActiveRecord::Base
   def u_class_name
     self.class.name.underscore
   end
-
-  after_destroy :destroy_associated_objects
-  before_create :initialise_root_for_leaf
-  after_save    :assign_permission_tags_to_creator
-
+  
+  ## ACCESSORS
+  %w(title text).each do |accessor|
+    define_method accessor do |lang_ids|
+      doc = statement_documents.for_languages(lang_ids)
+      doc ? statement_documents.for_languages(lang_ids).send(accessor) : raise("no #{accessor} found in this language")
+    end
+  end
+  
+  
   def destroy_associated_objects
     #destroy_statement   # It didn't work - hard to comprehend, why.
     destroy_shortcuts
@@ -65,138 +191,7 @@ class StatementNode < ActiveRecord::Base
   def destroy_descendants
     descendants.destroy_all
   end
-
   
-
-
-  ##
-  ## ASSOCIATIONS
-  ##
-
-  belongs_to :creator, :class_name => "User"
-  belongs_to :statement, :autosave => true
-
-  delegate :image, :published?, :topic_tags, :filtered_topic_tags, :hash_topic_tags, :has_author?, :authors, 
-           :original_language, :editorial_state, :statement_image, :taggable?, :publish, :to => :statement
-
-  has_many :statement_documents, :through => :statement, :source => :statement_documents do
-    def for_languages(lang_ids)
-      find(:all,
-           :conditions => {:language_id => lang_ids, :current => true},
-           :order => 'created_at ASC').sort {|a, b|
-        lang_ids.index(a.language_id) <=> lang_ids.index(b.language_id)
-      }.first
-    end
-  end
-
-  accepts_nested_attributes_for :statement
-
-  ##
-  ## VALIDATIONS
-  ##
-
-  validates_presence_of :creator_id
-  validates_presence_of :statement
-  validates_associated :creator
-  validates_associated :statement
-
-
-  ##
-  ## NAMED SCOPES
-  ##
-
-  #auxiliar named scopes only used for tests
-  %w(question proposal improvement pro_argument contra_argument follow_up_question).each do |type|
-    class_eval %(
-      named_scope :#{type.pluralize}, lambda{{ :conditions => { :type => '#{type.camelize}' } } }
-    )
-  end
-
-  named_scope :by_creator, lambda {|id| {:conditions => ["creator_id = ?", id]}}
-  named_scope :published, lambda {|auth| {
-    :joins => :statement,
-    :conditions => ["statements.editorial_state_id = ?", StatementState['published'].id] } unless auth
-  }
-
-  # orders
-  named_scope :by_creation, :order => 'created_at DESC'
-  named_scope :only_id, :select => 'statement_nodes.id'
-
-
-  ## ACCESSORS
-  %w(title text).each do |accessor|
-    class_eval %(
-      def #{accessor}(lang_ids)
-        doc = statement_documents.for_languages(lang_ids)
-        doc ? statement_documents.for_languages(lang_ids).#{accessor} : raise('no #{accessor} found in this language')
-      end
-    )
-  end
-  
-  named_scope :children_statements, lambda {|opts|
-    select = opts[:for_session] ? "#{table_name}.id, #{table_name}.question_id, #{table_name}.echo_id" : "#{table_name}.*"
-    {
-      :select => "DISTINCT #{select}",
-      :joins => "LEFT JOIN #{Echo.table_name} e ON #{table_name}.echo_id = e.id",
-      :conditions => ["#{table_name}.type IN (?) AND #{table_name}.root_id = ? AND #{table_name}.lft >= ? AND #{table_name}.rgt <= ?",
-                       opts[:types] || [opts[:type].to_s], opts[:root_id], opts[:lft], opts[:rgt]],
-      :order => "e.supporter_count DESC, #{table_name}.created_at DESC, #{table_name}.id"
-    }
-  }
-  
-  named_scope :by_languages, lambda {|opts| 
-    return {} if opts[:language_ids].blank?
-    {
-      :joins => "LEFT JOIN #{StatementDocument.table_name} d ON d.statement_id = #{table_name}.statement_id",
-      :conditions => ["d.current = 1 AND d.language_id IN (?)", opts[:language_ids]]
-    }
-  }
-  
-  
-  
-  named_scope :get_statement_nodes, lambda {|param|
-    param ||= "*"
-    {
-      :select => "DISTINCT statement_nodes.#{param}",
-      :from => "search_statement_nodes statement_nodes",
-      :conditions => "statement_nodes.top_level = 1",
-      :order => "statement_nodes.supporter_count DESC, statement_nodes.id DESC"
-    }
-  }
-  
-  
-  named_scope :by_permissions, lambda {|user|
-    return {:from => "search_statement_nodes statement_nodes", :conditions => "statement_nodes.closed_statement IS NULL"} if user.nil?
-    {
-      :from => "search_statement_nodes statement_nodes",
-      :conditions => ["statement_nodes.closed_statement IS NULL OR statement_nodes.granted_user_id = ?", user.id]
-    }
-  }
-  
-  named_scope :by_types, lambda {|types|
-    {
-      :conditions => ["statement_nodes.type IN (?)", types]
-    }
-  }
-  
-  named_scope :by_published, lambda {|user|
-    return {:from => "search_statement_nodes statement_nodes", :conditions => ["statement_nodes.editorial_state_id = ?", StatementState['published']] } if user.blank? 
-    {
-      :from => "search_statement_nodes statement_nodes",
-      :conditions => ["statement_nodes.editorial_state_id = ? OR statement_nodes.creator_id = ?", StatementState['published'].id, user.id]
-    }
-  }
-  
-  named_scope :by_drafting_state, lambda { |states|
-    return {} if states.blank?
-    {
-      :conditions => ["statement_nodes.drafting_state IN (?)", states]
-    }
-  }
-  
-  # overwritten on sub classes
-  named_scope :by_statement_state, lambda {|opts| {} } 
-  named_scope :by_alternatives, lambda {|ids| {}}
   
   
   ##############################
@@ -450,12 +445,6 @@ class StatementNode < ActiveRecord::Base
       statements = children_statements(opts).by_statement_state(opts[:user]).by_alternatives(opts[:alternative_ids])
       statements = statements.by_drafting_state(nil) if opts[:filter_drafting_state]
       statements = statements.by_languages(opts).all(:include => include)
-      if opts[:for_session]
-        statements = statements.map(&:target_id)
-        parent_id = opts[:parent_id]#opts[:hub] || opts[:parent_id]
-        statements << "/#{parent_id.nil? ? '' : "#{parent_id}/" }add/#{self.name.underscore}" # ADD TEASER
-      end
-      statements
     end
 
     public
@@ -565,26 +554,6 @@ class StatementNode < ActiveRecord::Base
         :order => "echos.supporter_count DESC, #{table_name}.created_at DESC, #{table_name}.id" }
     end
 
-    ###################################
-    # EXPANDABLE CHILDREN GUI HELPERS #
-    ###################################
-
-    # PARTIAL PATHS #
-    def children_list_template
-      "statements/children_list"
-    end
-
-    def children_template
-      "statements/children"
-    end
-
-    def more_template
-      "statements/more"
-    end
-
-    def descendants_template
-      "statements/descendants"
-    end
 
     # TYPE-RELATIONS
 

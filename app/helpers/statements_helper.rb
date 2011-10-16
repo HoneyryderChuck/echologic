@@ -13,10 +13,12 @@ module StatementsHelper
   #
   # Renders ancestors headers (when we have a GET operation on a child node).
   #
-  def render_ancestors(ancestors, ancestor_documents)
+  def render_ancestors(ancestors)
+    return if @ancestors.nil?
     val = ''
-    ancestors.each do |ancestor|
-      val << render_ancestor(ancestor, ancestor_documents[ancestor.statement_id])
+    ancestors.keys.length.times do |ind|
+      ancestor = ancestors[ind]
+      val << render_ancestor(ancestor, ancestors.get_document(ancestor))
     end
     val
   end
@@ -66,10 +68,10 @@ module StatementsHelper
       # Load headers
       content << content_tag(:div, :class => "headline expandable") do
         header_content = ''
-        headers.each do |dom_type, count|
-          header_content << children_heading_title(dom_type,count,
-                            :path => children_statement_node_url(statement_node, :type => dom_type),
-                            :selected => dom_type.eql?(selected))
+        headers.each do |klass, count|
+          header_content << children_heading_title(klass,count,
+                            :path => children_statement_node_url(statement_node, :type => klass),
+                            :selected => klass.eql?(selected))
         end
         header_content << content_tag(:span, '', :class => 'loading', :style => 'display: none')
         header_content << content_tag(:div, '', :class => 'expand_icon')
@@ -79,13 +81,13 @@ module StatementsHelper
       # load children
       content << content_tag(:div, :class => 'children_content expandable_content') do
         children_content = ''
-        headers.each do |dom_type, count|
-          children_content << render(:partial => dom_type.classify.constantize.children_list_template,
-                                     :locals => {:child_type => dom_type,
-                                                 :children => children_to_render[dom_type],
+        headers.each do |klass, count|
+          children_content << render(:partial => children.children_list_template(klass),
+                                     :locals => {:child_type => klass,
+                                                 :children => children_to_render[klass],
                                                  :parent => @statement_node,
-                                                 :display => dom_type.eql?(selected),
-                                                 :new_level => true}) if children_to_render[dom_type]
+                                                 :display => klass.eql?(selected),
+                                                 :new_level => true}) if children_to_render[klass]
         end
         children_content
       end
@@ -677,11 +679,11 @@ module StatementsHelper
     # if prev/next for teaser
     unless @siblings.nil?
       if teaser
-        if (siblings = @siblings["add_#{@type}"])
+        if (siblings = @siblings.to_session("add_#{@type}"))
           element_index = siblings.index { |s| s =~ /#{@type}/ }
         end
       else # if prev/next for statement
-        if (siblings = @siblings[dom_id(statement_node)])
+        if (siblings = @siblings.to_session(dom_id(statement_node)))
           element_index = siblings.index(statement_node.id)
         end
       end

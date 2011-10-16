@@ -10,7 +10,7 @@ siblings_panel.insertAfter(siblings_button).bind("mouseleave", function() {
   $(this).fadeOut();
 }).fadeIn();
 
-var panel_height = <%= @children[@type].total_entries <= 10 ? ((@children[@type].total_entries + 1) * 29) : 290 %>
+var panel_height = <%= @children.get_children_container_height(@type) %>
 var children_list = statement.find('.header .siblings_panel .children_list');
 children_list.height(panel_height).jScrollPane({animateScroll: false});
 

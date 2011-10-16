@@ -27,9 +27,9 @@ class StatementsControllerTest < ActionController::TestCase
   end
 
   test "should publish non published debate" do
-    prev_published = StatementNode.published(false).count
+    prev_published = StatementNode.by_published(false).count
     put :publish, :id => statement_nodes(:non_published_question).to_param
-    assert_equal StatementNode.published(false).count, prev_published+1
+    assert_equal StatementNode.by_published(false).count, prev_published+1
   end
 
   #####################
@@ -369,8 +369,6 @@ class StatementsControllerTest < ActionController::TestCase
     assert_kind_of Hash, assigns(:children)
     assert_not_nil assigns(:children)
     assert_equal 7, assigns(:children)[:Proposal].size
-    assert_not_nil assigns(:children_documents)
-    assert_kind_of Hash, assigns(:children_documents)
     assert_response :success
   end
 
@@ -380,7 +378,6 @@ class StatementsControllerTest < ActionController::TestCase
     assert_kind_of Hash, assigns(:children)
     assert_equal 2, assigns(:children)[:Argument].size # Should be an array with 2 arrays inside, and they must be empty both
     assert assigns(:children)[:Argument].select{|s|s.kind_of? Array and s.empty?}
-    assert_not_nil assigns(:children_documents)
     assert_response :success
   end
 
@@ -399,7 +396,6 @@ class StatementsControllerTest < ActionController::TestCase
     assert_not_nil assigns(:children)
     assert_kind_of Hash, assigns(:children)
     assert_equal 7, assigns(:children)[:Proposal].size
-    assert_not_nil assigns(:children_documents)
     assert_response :success
   end
 
@@ -409,7 +405,6 @@ class StatementsControllerTest < ActionController::TestCase
     assert_kind_of Hash, assigns(:children)
     assert_equal 2, assigns(:children)[:Argument].size
     assert assigns(:children)[:Argument].select{|s|s.kind_of? Array and s.empty?}
-    assert_not_nil assigns(:children_documents)
     assert_response :success
   end
 
@@ -426,7 +421,6 @@ class StatementsControllerTest < ActionController::TestCase
     assert_not_nil assigns(:children)
     assert_kind_of Hash, assigns(:children)
     assert_equal 7, assigns(:children)[:Question].size
-    assert_not_nil assigns(:children_documents)
     assert_response :success
   end
 
@@ -435,7 +429,6 @@ class StatementsControllerTest < ActionController::TestCase
     assert_not_nil assigns(:children)
     assert_kind_of Hash, assigns(:children)
     assert_equal 2, assigns(:children)[:Question].size
-    assert_not_nil assigns(:children_documents)
     assert_response :success
   end
 
@@ -444,7 +437,6 @@ class StatementsControllerTest < ActionController::TestCase
     assert_not_nil assigns(:children)
     assert_kind_of Hash, assigns(:children)
     assert_equal 0, assigns(:children)[:Question].size
-    assert_not_nil assigns(:children_documents)
     assert_response :success
   end
 
@@ -453,7 +445,6 @@ class StatementsControllerTest < ActionController::TestCase
     assert_not_nil assigns(:children)
     assert_kind_of Hash, assigns(:children)
     assert_equal 9, assigns(:children)[:Proposal].size
-    assert_not_nil assigns(:children_documents)
     assert_response :success
   end
 
@@ -463,7 +454,6 @@ class StatementsControllerTest < ActionController::TestCase
     assert_kind_of Hash, assigns(:children)
     assert_equal 2, assigns(:children)[:Argument].size
     assert assigns(:children)[:Argument].select{|s|s.kind_of? Array and s.empty?}
-    assert_not_nil assigns(:children_documents)
     assert_response :success
   end
 

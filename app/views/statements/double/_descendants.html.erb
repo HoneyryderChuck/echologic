@@ -1,11 +1,10 @@
-<% children ||= @children %>
 <div class='siblings_panel popup_panel expandable_content'
      style="<%= display ? 'display:block' : 'display:none'%>">
   <%= sibling_box_title(child_type) %>
 
 	<!-- The siblings -->
   <% if children and children.kind_of?(Array) %>
-  <%= render :partial => child_type.classify.constantize.children_list_template,
+  <%= render :partial => @children.children_list_template(child_type),
              :locals => {:child_type => child_type, :children => children, :display => true, :no_more => true}%>
   <% end %>
 </div>

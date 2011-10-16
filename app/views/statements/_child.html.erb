@@ -1,5 +1,5 @@
 <%
-  statement_document = @children_documents[child.statement_id]
+  statement_document = @children.get_document(child)
   extra_classes ||= (@current_node && child == @current_node ? 'active' : '')
   extra_classes << " #{child.info_type.code}_link" if child.class.has_embeddable_data?
   new_level ||= false
