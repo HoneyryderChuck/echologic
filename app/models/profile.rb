@@ -4,6 +4,7 @@ class Profile < ActiveRecord::Base
 
   # Constants
   COMPLETENESS_THRESHOLD = 0.42
+  MAX_TERM_TO_SEARCH = 3
 
   # Every profile has to belong to a user.
   belongs_to :user
@@ -79,7 +80,7 @@ class Profile < ActiveRecord::Base
       joins = ""
       # Search for a certain competence area
       searched_fields = ["#{table_name}.full_name", "#{table_name}.city", "#{table_name}.country"]
-      conditions << User.extaggable_filter_by_type(competence)
+      conditions << sanitize_sql(["#{TaoTag.table_name}.context_id = ?", competence])
     end
 
     order_conditions = "CASE WHEN #{table_name}.completeness >= #{COMPLETENESS_THRESHOLD} THEN 0 ELSE 1 END, " +
@@ -89,7 +90,8 @@ class Profile < ActiveRecord::Base
     if !search_terms.blank?
       term_query =  "SELECT DISTINCT #{table_name}.id FROM #{table_name} "
       term_query << "LEFT JOIN #{User.table_name}  ON #{User.table_name}.id = #{table_name}.user_id "
-      term_query << User.extaggable_joins_clause("#{User.table_name}.id")
+      term_query << "LEFT JOIN #{TaoTag.table_name} ON (#{TaoTag.table_name}.tao_id = #{User.table_name}.id and #{TaoTag.table_name}.tao_type = '#{User.name}') " +
+                    "LEFT JOIN #{Tag.table_name}    ON #{TaoTag.table_name}.tag_id = #{Tag.table_name}.id "
       term_query << joins
       term_query << "WHERE "
 
@@ -101,7 +103,7 @@ class Profile < ActiveRecord::Base
         terms = search_terms.split(/[\s]+/)
       end
       terms.map(&:strip).each do |term|
-        or_conditions = [User.extaggable_conditions_for_term(term)]
+        or_conditions = [(term.length > MAX_TERM_TO_SEARCH ? sanitize_sql(["#{Tag.table_name}.value LIKE ?","%#{term}%"]) : sanitize_sql(["#{Tag.table_name}.value = ?",term]))]
         or_conditions += searched_fields.map{|field|sanitize_sql(["#{field} LIKE ?", "%#{term}%"])}
         term_queries << (term_query + (conditions + ["(#{or_conditions.join(" OR ")})"]).join(" AND "))
       end
@@ -116,7 +118,8 @@ class Profile < ActiveRecord::Base
     else
       profiles_query = "SELECT DISTINCT #{table_name}.*, #{User.table_name}.email from profiles " +
                        "LEFT JOIN #{User.table_name} ON #{User.table_name}.id = #{table_name}.user_id " +
-                       User.extaggable_joins_clause("#{User.table_name}.id") +
+                       "LEFT JOIN #{TaoTag.table_name} ON (#{TaoTag.table_name}.tao_id = #{User.table_name}.id and #{TaoTag.table_name}.tao_type = '#{User.name}') " +
+                       "LEFT JOIN #{Tag.table_name} ON #{TaoTag.table_name}.tag_id = #{Tag.table_name}.id " +
                        joins +
                        "WHERE " + conditions.join(' AND ') +
                        " ORDER BY " + order_conditions

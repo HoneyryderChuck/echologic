@@ -82,21 +82,4 @@ class StatementDocument < ActiveRecord::Base
     :conditions => ["#{StatementHistory.table_name}.old_document_id = ? AND #{self.class.table_name}.language_id != ? AND current = 1",
                     self.id, self.language.id])
   end
-
-  class << self
-    
-    #
-    # returns an array of sql conditions representing a search for a term across the searchable fields
-    # opts attributes:
-    # term (String) : the term to search for
-    #
-    def term_conditions(term)
-      conditions = Statement.extaggable_conditions_for_term(term, "d.tag")
-      if (term.length > 3)
-        conditions << sanitize_sql([" OR d.title LIKE ? OR d.text LIKE ?", "%#{term}%", "%#{term}%"])
-      end
-      conditions
-    end
-    
-  end
 end

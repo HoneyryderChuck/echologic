@@ -44,22 +44,6 @@ module ActiveRecord
               true
             end
 
-            #
-            # SQL Queries Helpers
-            #
-            def self.extaggable_joins_clause(attribute = "#{self.table_name}.id")
-              "LEFT JOIN #{TaoTag.table_name} ON (#{TaoTag.table_name}.tao_id = #{attribute} and #{TaoTag.table_name}.tao_type = '#{self.name}') " +
-              "LEFT JOIN #{Tag.table_name} ON #{TaoTag.table_name}.tag_id = #{Tag.table_name}.id "
-            end
-
-            def self.extaggable_conditions_for_term(term, attribute="#{Tag.table_name}.value", word_length=3)
-              (term.length > word_length ? sanitize_sql(["#{attribute} LIKE ?","%#{term}%"]) : sanitize_sql(["#{attribute} = ?",term]))
-            end
-
-            def self.extaggable_filter_by_type(type)
-              sanitize_sql(["#{TaoTag.table_name}.context_id = ?", type])
-            end
-
             include ActsAsTaggable::Taggable::Core
           end
         end
