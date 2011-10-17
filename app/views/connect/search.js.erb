@@ -3,5 +3,5 @@ var content = "<%= escape_javascript(render(:partial => 'connect/profiles/result
 $("#search_results_container").replaceWith(content);
 
 <% if @page.to_i == 1 %>
-  $.scrollTo('top', 400, function() {$('#profile_details_container:visible').animate(toggleParams, 500)});
+  $.scrollTo('#results_anchor', 400, function() {$('#profile_details_container:visible').animate(toggleParams, 500)});
 <% end %>
