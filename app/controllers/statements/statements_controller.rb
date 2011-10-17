@@ -1029,6 +1029,7 @@ class StatementsController < ApplicationController
         when 'mi' then
           sn = Question.by_creator(current_user).by_creation
           sn.only_id if opts[:for_session]
+          sn
         when 'jp' then opts[:node].nil? ? [] : [opts[:node]]
         when 'fq' then
           @previous_node = StatementNode.find(@node_environment.origin.value)
