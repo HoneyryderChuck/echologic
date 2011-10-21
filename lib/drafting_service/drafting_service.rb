@@ -423,14 +423,13 @@ class DraftingService
   # Sets and persists the given state and the state_since timestamp.
   #
   %w(track readify stage approve incorporate).each do |transition|
-    class_eval %(
-      def set_#{transition}(incorporable)
-        incorporable.state_since = Time.now.utc
-        incorporable.drafting_info.save
-        incorporable.send('#{transition}!')
-        incorporable.save
-      end
-    )
+    define_method "set_#{transition}" do |incorporable|
+      incorporable = StatementNode.find(incorporable.id) if incorporable.readonly?
+      incorporable.state_since = Time.now.utc
+      incorporable.drafting_info.save
+      incorporable.send("#{transition}!")
+      incorporable.save
+    end
   end
 
   ###############
