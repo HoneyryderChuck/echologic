@@ -138,8 +138,7 @@ module ActiveRecord
               
               per_page = alternative_statements.length if per_page.nil? or per_page < 0
               per_page = 1 if per_page.to_i == 0
-              alternative_statements.paginate(self.class.base_class.default_scope.merge(:page => page,
-                                                                                        :per_page => per_page))
+              alternative_statements.paginate(:page => page, :per_page => per_page)
             end
 
             # Function called on the alternative creation process

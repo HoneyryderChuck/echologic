@@ -17,12 +17,11 @@ module LinkingModule
                    s.id NOT IN (select id FROM statement_nodes n where n.lft >= ? AND n.rgt <= ? AND n.root_id = ?))",
                    parent_node.root_id, parent_node.lft, parent_node.rgt, parent_node.root_id]
 
-    statement_nodes = search_statement_nodes :param => 'statement_id',
+    statement_nodes = search_statement_nodes(:param => 'statement_id',
                                              :search_term => params[:q],
                                              :types => linkable_types,
-                                             :limit => params[:limit] || 5,
                                              :language_ids => [params[:code] || locale_language_id],
-                                             :node_conditions => [conditions]
+                                             :node_conditions => [conditions]).all(:limit => params[:limit] || 5)
     documents = search_statement_documents(:statement_ids => statement_nodes.map(&:statement_id))
 
     content = statement_nodes.map(&:statement_id).uniq.map{ |id|

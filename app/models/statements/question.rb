@@ -24,14 +24,6 @@ class Question < StatementNode
     self.update_attribute(:root_id, target_id) if !self.class.is_top_statement?
   end
 
-  # methods / settings to overwrite default statement_node behaviour
-
-  # the default scope defines basic rules for the sql query sent on this model
-  # for questions we do not need to include the echo, and we don't order by supporters count, as they are not supportable
-  def self.default_scope
-    { :order => %Q[created_at ASC] }
-  end
-
   def publishable?
     true
   end

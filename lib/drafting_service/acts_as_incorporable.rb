@@ -16,6 +16,8 @@ module ActiveRecord
 
       module ClassMethods
         
+        
+        
         def acts_as_incorporable(*args)
 
           class_eval do
@@ -63,9 +65,7 @@ module ActiveRecord
 
             # Named Scope  
               
-            named_scope :by_drafting_state, lambda { |states|
-              { :conditions => "statement_nodes.drafting_state IN ('tracked', 'ready', 'staged')" }
-            }
+            
 
             ####################################
             ###### Static values ###############

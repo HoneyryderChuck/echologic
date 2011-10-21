@@ -116,11 +116,9 @@ class StatementNode < ActiveRecord::Base
     }
   }
   
-  named_scope :by_drafting_state, lambda { |states|
-    return {} if states.blank?
-    {
-      :conditions => ["statement_nodes.drafting_state IN (?)", states]
-    }
+  
+  named_scope :by_visible_drafting_state, lambda {
+    { :conditions => "statement_nodes.drafting_state IS NULL OR statement_nodes.drafting_state IN ('tracked', 'ready', 'staged')" }
   }
   
   named_scope :by_terms, lambda {|terms, opts|
@@ -449,9 +447,9 @@ class StatementNode < ActiveRecord::Base
     # page, per_page (Integer) : pagination parameters
     #
     def paginate_statements(statements, page, per_page = nil)
-      per_page = statements.length if per_page.nil? or per_page < 0
+      per_page = statements.count if per_page.nil? or per_page < 0
       per_page = 1 if per_page.to_i == 0
-      statements.paginate(default_scope.merge(:page => page, :per_page => per_page))
+      statements.paginate(:page => page, :per_page => per_page)
     end
 
     ################################
@@ -463,7 +461,7 @@ class StatementNode < ActiveRecord::Base
     #
     def count_statements_for_parent(opts)
       statements = children_statements(opts).by_statement_state(opts[:user]).by_alternatives(opts[:alternative_ids])
-      statements = statements.by_drafting_state(nil) if opts[:filter_drafting_state]
+      statements = statements.by_visible_drafting_state if opts[:filter_drafting_state]
       statements.by_languages(opts).count
     end
 
@@ -473,9 +471,9 @@ class StatementNode < ActiveRecord::Base
     def statements_for_parent(opts)
       include = [:echo, :parent]
       include << {:hub => :parent} if has_alternatives?
-      statements = children_statements(opts).by_statement_state(opts[:user]).by_alternatives(opts[:alternative_ids])
-      statements = statements.by_drafting_state(nil) if opts[:filter_drafting_state]
-      statements = statements.by_languages(opts).all(:include => include)
+      statements = StatementNode.children_statements(opts).by_statement_state(opts[:user]).by_alternatives(opts[:alternative_ids])
+      statements = statements.by_visible_drafting_state(nil) if opts[:filter_drafting_state]
+      statements = statements.by_languages(opts)
     end
 
     public
@@ -509,21 +507,16 @@ class StatementNode < ActiveRecord::Base
       end
       nodes = opts[:types].present? ? nodes.by_types(opts[:types]) : nodes.scoped(:conditions => "statement_nodes.type = 'Question'")
       nodes = nodes.by_published(opts[:user]) unless opts[:show_unpublished]
-      nodes = nodes.by_drafting_state(opts[:drafting_states])
+      nodes = nodes.by_visible_drafting_state
       nodes = nodes.by_permissions(opts[:user])
       nodes.scoped(:joins => opts[:joins]) if !opts[:joins].blank?
       opts[:nodes_conditions].each {|cond| nodes = nodes.scoped(:conditions => sanitize_sql(cond)) } unless opts[:nodes_conditions].blank?
       
       
-      nodes.all(:include => opts[:include], :limit => opts[:limit])
+      nodes
     end
     
     
-
-    def default_scope
-      { :include => :echo,
-        :order => "echos.supporter_count DESC, #{table_name}.created_at DESC, #{table_name}.id" }
-    end
 
 
     # TYPE-RELATIONS
