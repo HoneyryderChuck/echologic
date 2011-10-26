@@ -624,7 +624,8 @@ module StatementsHelper
       if statement_node.nil?
         question_descendants_url(:origin => @node_environment.origin.to_s)
       else
-        parent = sib || (@node_environment.current_stack? ? @node_environment.get_previous_id(sib) : statement_node) # TODO: CHECK IF THIS WILL NOT FAIL BIG TIME
+        current = sib || statement_node
+        parent = (@node_environment.current_stack? ? @node_environment.previous_id(current) : current) # TODO: CHECK IF THIS WILL NOT FAIL BIG TIME
         descendants_statement_node_url(parent, name, :alternative_type => alternative_type)
       end
     else  # STATEMENT NODES

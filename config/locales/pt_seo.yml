@@ -56,7 +56,7 @@ pt:
         index: 'echo - Discutir'
         roadmap: 'echo - Evolução - Discutir'
       statements:
-        category: 'echo - Tópico de Discussão'
+        index: 'echo - Tópico de Discussão'
         show: 'echo - Discussão'
         new: 'Abra uma nova discussão'
         my_questions: 'Minhas Questões'

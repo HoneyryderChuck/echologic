@@ -49,8 +49,7 @@ class StatementNodeTest < ActiveSupport::TestCase
                                                                    :author => User.first,
                                                                    :action_id => StatementAction[:created].id,
                                                                  })
-        @statement_node.statement.publish
-        @statement_node.save!
+        @statement_node.statement.publish!
       end
 
       should "be able to access its statement documents data" do

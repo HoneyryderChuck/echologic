@@ -194,7 +194,7 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
   end
   
   # Loads information necessary to build a new breadcrumb
-  def load_origin_params
+  def origin_params
     klass = case @node_type.name
       when "FollowUpQuestion" then "fq"
       when "DiscussAlternativesQuestion" then "dq"

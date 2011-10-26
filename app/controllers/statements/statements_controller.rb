@@ -1,6 +1,6 @@
 class StatementsController < ApplicationController
 
-  verify :method => :get, :only => [:index, :show, :new, :edit, :category, :new_translation,
+  verify :method => :get, :only => [:index, :show, :new, :edit, :new_translation,
                                     :more, :children, :authors, :add, :ancestors, :descendants, :social_widget,
                                     :auto_complete_for_statement_title, :link_statement, :link_statement_node]
   verify :method => :post, :only => [:create, :share]
@@ -8,14 +8,14 @@ class StatementsController < ApplicationController
   verify :method => :delete, :only => [:destroy]
 
   # The order of these filters matters. change with caution.
-  skip_before_filter :require_user, :only => [:category, :show, :more, :children, :add, :ancestors, :descendants,
+  skip_before_filter :require_user, :only => [:index, :show, :more, :children, :add, :ancestors, :descendants,
                                               :redirect_to_statement, :auto_complete_for_statement_title]
 
-  before_filter :fetch_statement_node, :except => [:category, :my_questions, :new, :create,
+  before_filter :fetch_statement_node, :except => [:index, :my_questions, :new, :create,
                                                    :auto_complete_for_statement_title, :link_statement]
   before_filter :fetch_statement_node_type, :only => [:new, :create]
   before_filter :load_node_environment, :except => [:new]
-  before_filter :check_read_permission, :except => [:category, :my_questions, :new, :create,
+  before_filter :check_read_permission, :except => [:index, :my_questions, :new, :create,
                                                     :auto_complete_for_statement_title, :link_statement,
                                                     :link_statement_node]
   before_filter :redirect_if_approved_or_incorporated, :only => [:show, :edit, :update, :destroy,
@@ -39,7 +39,7 @@ class StatementsController < ApplicationController
   access_control do
     allow :admin
     allow logged_in, :editor, :except => [:destroy]
-    allow anonymous, :to => [:index, :show, :category, :more, :children, :authors, :add, :ancestors, :descendants]
+    allow anonymous, :to => [:index, :show, :more, :children, :authors, :add, :ancestors, :descendants]
   end
 
   ##############
@@ -54,7 +54,7 @@ class StatementsController < ApplicationController
   #
   def show
 
-#    begin
+    begin
       # Get document to show or redirect if not found
       @statement_document ||= @statement_node.document_in_preferred_language(@language_preference_list)
       if @statement_document.nil?
@@ -85,9 +85,9 @@ class StatementsController < ApplicationController
       load_discuss_alternatives_question(@statement_node)
 
       render_template 'statements/show'
-#    rescue Exception => e
-#      log_error_home(e, "Error showing statement.")
-#    end
+    rescue Exception => e
+      log_error_home(e, "Error showing statement.")
+    end
   end
 
   #
@@ -120,7 +120,7 @@ class StatementsController < ApplicationController
     if @node_environment.new_level?
       set_parent_breadcrumb
       # set new breadcrumb
-      @previous_node, @previous_type = @node_environment.load_origin_params if @statement_node_type.is_top_statement?
+      @previous_node, @previous_type = @node_environment.origin_params if @statement_node_type.is_top_statement?
     end
 
     load_echo_info_messages if @statement_node.echoable?
@@ -138,7 +138,6 @@ class StatementsController < ApplicationController
   # Response: HTTP or JS
   #
   def create
-    created = false
     attrs = params[statement_node_symbol].merge({:creator_id => current_user.id})
     doc_attrs = attrs[:statement_attributes][:statement_documents_attributes]["0"]
 
@@ -155,7 +154,6 @@ class StatementsController < ApplicationController
       attrs[:statement_attributes].merge!({:original_language_id => doc_attrs[:language_id] || @locale_language_id})  
     end
     
-
     begin
       StatementNode.transaction do
         # Prepare in memory
@@ -163,9 +161,7 @@ class StatementsController < ApplicationController
   
         # Rendering
         if @statement_node.save
-          created = true
-          EchoService.instance.created(@statement_node)
-          EchoService.instance.created(@statement_node.question) if @statement_node.question_id
+          
           
           @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
           load_siblings @statement_node
@@ -187,7 +183,7 @@ class StatementsController < ApplicationController
         load_ancestors and flash_error and render :template => 'statements/new'
       end
     else
-      log_message_info("Statement node has been created sucessfully.") if created
+      log_message_info("Statement node has been created sucessfully.") if @statement_node and @statement_node.valid?
     end
   end
 
@@ -208,8 +204,6 @@ class StatementsController < ApplicationController
       @statement_document.statement_history.old_document_id = params[:current_document_id].to_i
       @statement_document.statement_history.action = StatementAction["updated"] 
     end
-
-    
 
     if !current_user.may_edit? @statement_node
       set_statement_info 'discuss.statements.cannot_be_edited'
@@ -234,7 +228,6 @@ class StatementsController < ApplicationController
   # Response: JS
   #
   def update
-    update = false
     begin
       attrs = params[statement_node_symbol]
       attrs_doc = attrs[:statement_attributes][:statement_documents_attributes]["0"]
@@ -253,9 +246,6 @@ class StatementsController < ApplicationController
           attrs_doc[:statement_history_attributes].merge!({:author_id => current_user.id})
           
           if @statement_node.update_attributes(attrs)
-            old_statement_document.current = false
-            old_statement_document.unlock # also saves the document
-            update = true
             @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
             set_statement_info(@statement_document)
             show_statement
@@ -272,7 +262,7 @@ class StatementsController < ApplicationController
     rescue Exception => e
       log_error_statement(e, "Error updating statement node '#{@statement_node.id}'.")
     else
-      log_message_info("Statement node '#{@statement_node.id}' has been updated sucessfully.") if update
+      log_message_info("Statement node '#{@statement_node.id}' has been updated sucessfully.") if @statement_node and @statement_node.valid?
     end
   end
 
@@ -293,7 +283,7 @@ class StatementsController < ApplicationController
   #
   def authors
     begin
-      load_authors
+      @authors = @statement_node.authors
       respond_to do |format|
         format.html{show}
         format.js {render :template => 'statements/authors'}
@@ -313,7 +303,7 @@ class StatementsController < ApplicationController
   def descendants
     @type = params[:type].to_s.camelize.to_sym
     @current_node = StatementNode.find(params[:current_node]) if params[:current_node]
-#    begin
+    begin
       if @type.eql? :Alternative
         @hub_type = "alternative"
         @type = params[:alternative_type].to_s.camelize.to_sym
@@ -334,9 +324,9 @@ class StatementsController < ApplicationController
         }
         format.js { render :template => @children.descendants_template(@type) }
       end
-#    rescue Exception => e
-#      log_error_home(e, "Error loading descendants of type #{@type}.")
-#    end
+    rescue Exception => e
+      log_error_home(e, "Error loading descendants of type #{@type}.")
+    end
   end
 
   #
@@ -489,6 +479,35 @@ class StatementsController < ApplicationController
 
   protected
 
+
+  
+
+  # aux function to load the children with the right set of languages
+  def filter_languages_for_children
+    # if no user or user doesn't have any language defined, show everything
+    if current_user.nil? or current_user.spoken_languages.empty?
+      nil
+    else
+      @language_preference_list
+    end
+  end
+
+  # aux function to load the statements with the right set of languages
+  def filter_languages(opts={})
+    languages = @language_preference_list
+    if opts[:node] and !opts[:node].new_record?
+      # VERY IMP: remove statement original language if user doesn't speak it
+      original_language = opts[:node].original_language
+      languages -= [original_language.id] if languages.length > 1 and original_language.code.to_s != I18n.locale and
+       (current_user.nil? or
+       !current_user.sorted_spoken_languages.include?(original_language.id))
+    end
+    languages
+  end
+
+
+  private
+  
   def load_alternatives(page = 1, per_page = TOP_ALTERNATIVES, type = :Alternative, opts={})
     @children ||= StatementsContainer.new
     @children[type] = @statement_node.paginated_alternatives(page,
@@ -498,6 +517,7 @@ class StatementsController < ApplicationController
     @children.store_documents(search_statement_documents(:language_ids => filter_languages_for_children,
                                                          :statement_ids => @children[type].flatten.map(&:statement_id)))
   end
+
 
   #
   # Loads the children of the current statement
@@ -512,13 +532,7 @@ class StatementsController < ApplicationController
     @children ||= StatementsContainer.new
     
     @statement_node.class.all_children_types(:visibility => true).each do |klass, immediate_render|
-      if immediate_render
-        load_children :type => klass
-      else
-        @children[klass] ||= @statement_node.count_child_statements :language_ids => filter_languages_for_children,
-                                                                    :user => current_user,
-                                                                    :type => klass
-      end
+      load_children :type => klass, :count => !immediate_render
     end
     
     load_alternatives if @statement_node.class.has_alternatives?
@@ -545,47 +559,6 @@ class StatementsController < ApplicationController
     @children.store_documents(search_statement_documents :language_ids => filter_languages_for_children,
                                                           :statement_ids => @children[opts[:type]].flatten.map(&:statement_id))
   end
-
-  # aux function to load the children with the right set of languages
-  def filter_languages_for_children
-    # if no user or user doesn't have any language defined, show everything
-    if current_user.nil? or current_user.spoken_languages.empty?
-      nil
-    else
-      @language_preference_list
-    end
-  end
-
-  # aux function to load the statements with the right set of languages
-  def filter_languages(opts={})
-    languages = @language_preference_list
-    if opts[:node] and !opts[:node].new_record?
-      # VERY IMP: remove statement original language if user doesn't speak it
-      original_language = opts[:node].original_language
-      languages -= [original_language.id] if languages.length > 1 and original_language.code.to_s != I18n.locale and
-       (current_user.nil? or
-       !current_user.sorted_spoken_languages.include?(original_language.id))
-    end
-    languages
-  end
-
-  #
-  # Load the authors of the current statement.
-  #
-  # Loads instance variables:
-  # @authors(Array[User])
-  #
-  def load_authors
-    @authors = @statement_node.authors
-  end
-
-
-
-  ###########
-  # FILTERS #
-  ###########
-
-  private
 
   #
   # Gets the correspondent statement node to the id that is given in the request.
@@ -907,7 +880,7 @@ class StatementsController < ApplicationController
 
         # if teaser: @statement_node is the teaser's parent, therefore, an ancestor
         # if stack ids exists, that means the @statement node is already in ancestors
-        @ancestors[@ancestors.keys.length] = @statement_node if !@node_environment.alternative_mode?(@node_environment.level) and !@ancestors.map(&:id).include?(@statement_node.id)
+        @ancestors[@ancestors.keys.length] = @statement_node if !@node_environment.alternative_mode?(@node_environment.level) and !@ancestors.values.map(&:id).include?(@statement_node.id)
         load_children_to_session(@statement_node, @type)
       end
 
@@ -968,7 +941,7 @@ class StatementsController < ApplicationController
   #                   value : Array[Integer] : Array of statement ids with teaser path as last element
   #
   def load_children_to_session(statement_node, type)
-    @siblings ||= StatementsContainer
+    @siblings ||= StatementsContainer.new
     class_name = type.classify
     siblings = statement_node.children_to_session :language_ids => @language_preference_list,
                                                     :type => class_name, :user => current_user
@@ -1070,7 +1043,7 @@ class StatementsController < ApplicationController
   #
   def load_statement_level(teaser = false)
     # if it is a teaser, calculate the level of the current parent and add 1 (unless it's a question or follow up teaser)
-    @statement_node.level ||= teaser ?
+    @node_environment.level ||= teaser ?
                              ((@statement_node.nil? or @type.classify.constantize.is_top_statement?) ?
                                0 : @statement_node.level + 1) :
                              @statement_node.level

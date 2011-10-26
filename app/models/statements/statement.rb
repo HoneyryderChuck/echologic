@@ -105,8 +105,10 @@ class Statement < ActiveRecord::Base
   end
 
   # Publish a statement.
-  def publish
-    self.editorial_state = StatementState["published"]
+  def publish!
+    self.update_attribute :editorial_state, StatementState["published"]
+    EchoService.instance.published(node)
+    return self.valid?
   end
 
   def filtered_topic_tags

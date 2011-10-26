@@ -55,7 +55,7 @@ de:
         index: 'echo - Diskussion'
         roadmap: 'echo - Fahrplan für Diskutieren'
       statements:
-        category: 'echo - Diskussionsthemen'
+        index: 'echo - Diskussionsthemen'
         show: 'echo - Aussage'
         new: 'Neue Diskussion eröffnen'
         my_questions: 'Meine Diskussionen'

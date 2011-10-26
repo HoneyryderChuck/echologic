@@ -38,20 +38,21 @@ module ActsAsDouble
           # Overrides normal behaviour. Delegates to sub_types and merges the results.
           #
           def statements_for_parent(opts)
-            sub_types.each_with_object([]) do |type, arr|
+            statements = sub_types.each_with_object([]) do |type, arr|
+              next if type.eql?(self.class.name.to_sym)
               sub_opts = opts.merge(:type => type)
               sub_statements = children_statements(sub_opts).by_alternatives(sub_opts[:alternative_ids]).by_statement_state(sub_opts[:user]).by_alternatives(sub_opts[:alternative_ids])
               sub_statements = sub_statements.by_visible_drafting_state(nil) if opts[:filter_drafting_state]
               arr << sub_statements.by_languages(sub_opts).all(:include => opts[:include], :limit => opts[:limit]) 
             end
+            opts[:alternative_output] ? statements.first : statements
           end
 
           #
           # Overrides default behaviour.
           #
-          def paginate_statements(statements, page, per_page = nil)
-            per_page = statements.map(&:length).max if per_page.nil? or per_page < 0
-            per_page = 1 if per_page.to_i == 0
+          def paginate_statements(statements, page, per_page)
+            return statements.map{|c|c.paginate(:page => 1)} if per_page.nil? or per_page < 0
             statements.map{|c|c.paginate(:page => page, :per_page => per_page)}
           end
 

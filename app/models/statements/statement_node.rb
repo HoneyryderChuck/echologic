@@ -9,6 +9,9 @@ class StatementNode < ActiveRecord::Base
   belongs_to :creator, :class_name => "User"
   belongs_to :statement, :autosave => true
 
+  has_many :shared_statement_nodes, :class_name => "StatementNode", 
+           :finder_sql => 'SELECT DISTINCT * FROM statement_nodes ' +
+                          'WHERE statement_nodes.statement_id = #{statement_id} AND statement_nodes.id != #{id}'
   
   has_many :statement_documents, :through => :statement, :source => :statement_documents do
     def for_languages(lang_ids)
@@ -50,6 +53,8 @@ class StatementNode < ActiveRecord::Base
   after_destroy :destroy_associated_objects
   before_create :initialise_root_for_leaf
   after_save    :assign_permission_tags_to_creator
+#  after_create  :notify_observers
+  
 
   ##
   ## NAMED SCOPES
@@ -117,9 +122,8 @@ class StatementNode < ActiveRecord::Base
   }
   
   
-  named_scope :by_visible_drafting_state, lambda {
-    { :conditions => "statement_nodes.drafting_state IS NULL OR statement_nodes.drafting_state IN ('tracked', 'ready', 'staged')" }
-  }
+  named_scope :by_visible_drafting_state, :conditions => "statement_nodes.drafting_state IS NULL OR statement_nodes.drafting_state IN ('tracked', 'ready', 'staged')" 
+  
   
   named_scope :by_terms, lambda {|terms, opts|
     if terms.include? ','
@@ -166,14 +170,15 @@ class StatementNode < ActiveRecord::Base
     self.class.name.underscore
   end
   
-  ## ACCESSORS
-  %w(title text).each do |accessor|
-    define_method accessor do |lang_ids|
-      doc = statement_documents.for_languages(lang_ids)
-      doc ? statement_documents.for_languages(lang_ids).send(accessor) : raise("no #{accessor} found in this language")
-    end
+  def notify_observers
+    EchoService.instance.created(self)
   end
   
+  #TODO: Add this as after create filter when it works again
+  def create
+    super
+    notify_observers
+  end
   
   def destroy_associated_objects
     #destroy_statement   # It didn't work - hard to comprehend, why.
@@ -245,11 +250,7 @@ class StatementNode < ActiveRecord::Base
 
   def publish_descendants
     descendants.each do |node|
-      if !node.published?
-        node.publish
-        node.statement.save
-        EchoService.instance.published(node)
-      end
+      node.publish! if !node.published?
     end
   end
 
@@ -321,16 +322,15 @@ class StatementNode < ActiveRecord::Base
   #
   def sibling_statements(opts={})
     opts[:prev] ||= self.parent_node
+    
+    return [] if opts[:prev].nil?
+    
     opts[:type] ||= self.class.to_s
-    if opts[:prev].nil?
-      []
-    else
-      opts[:lft] = opts[:prev].lft
-      opts[:rgt] = opts[:prev].rgt
-      opts[:filter_drafting_state] = self.incorporable?
-      opts[:parent_id] = opts[:prev].target_id
-      self.child_statements(opts)
-    end
+    opts[:lft] = opts[:prev].lft
+    opts[:rgt] = opts[:prev].rgt
+    opts[:filter_drafting_state] = self.incorporable?
+    opts[:parent_id] = opts[:prev].target_id
+    self.child_statements(opts)
   end
 
   #
@@ -368,8 +368,7 @@ class StatementNode < ActiveRecord::Base
     opts[:page] ||= 1
     opts[:per_page] ||= TOP_CHILDREN
     children = child_statements(opts)
-    opts[:type] ? opts[:type].to_s.constantize.paginate_statements(children, opts[:page], opts[:per_page]) :
-    this.class.paginate_statements(children, opts[:page], opts[:per_page])
+    opts[:type].to_s.constantize.paginate_statements(children, opts[:page], opts[:per_page]) 
   end
 
   #
@@ -389,26 +388,8 @@ class StatementNode < ActiveRecord::Base
     opts[:lft] ||= self.lft
     opts[:rgt] ||= self.rgt
     opts[:filter_drafting_state] ||= self.draftable?
-    opts[:type] ? opts[:type].to_s.constantize.statements_for_parent(opts) : children
-  end
-
-  #
-  # counts the children the statement has of a certain type
-  # opts attributes:
-  #
-  # type (String : optional) : type of child statements to count
-  # user (User : optional) :   gets the statements belonging to the user regardless of state (published or new)
-  # language_ids (Array[Integer] : optional) : filters out statement nodes whose documents languages are not included on the array (gets all of them if nil)
-  #
-  # call with no attributes returns the count of immediate children (check awesome nested set)
-  # about other possible attributes, check count_statements_for_parent documentation
-  #
-  def count_child_statements(opts={})
-    opts[:root_id] = self.root_id
-    opts[:lft] = self.lft
-    opts[:rgt] = self.rgt
-    opts[:filter_drafting_state] = self.draftable?
-    opts[:type] ? opts[:type].to_s.constantize.count_statements_for_parent(opts) : children.count
+    statements = opts[:type] ? opts[:type].to_s.constantize.statements_for_parent(opts) : children
+    opts[:count] ? statements.count : statements
   end
 
   private
@@ -446,9 +427,8 @@ class StatementNode < ActiveRecord::Base
     # statements (Array) : array of objects to paginate
     # page, per_page (Integer) : pagination parameters
     #
-    def paginate_statements(statements, page, per_page = nil)
-      per_page = statements.count if per_page.nil? or per_page < 0
-      per_page = 1 if per_page.to_i == 0
+    def paginate_statements(statements, page, per_page)
+      return statements.paginate(:page => 1) if per_page.nil? or per_page < 0
       statements.paginate(:page => page, :per_page => per_page)
     end
 
@@ -460,9 +440,7 @@ class StatementNode < ActiveRecord::Base
     # Returns the number of child statements of a certain type (or types) from a given statement
     #
     def count_statements_for_parent(opts)
-      statements = children_statements(opts).by_statement_state(opts[:user]).by_alternatives(opts[:alternative_ids])
-      statements = statements.by_visible_drafting_state if opts[:filter_drafting_state]
-      statements.by_languages(opts).count
+      statements_for_parent.count
     end
 
     #

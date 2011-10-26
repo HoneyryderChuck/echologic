@@ -57,7 +57,7 @@ hu:
         index: 'echo - Megvitatjuk'
         roadmap: 'echo - Roadmap for Discuss'
       statements:
-        category: 'echo - Question Topic'
+        index: 'echo - Question Topic'
         show: 'echo - Statement'
         new: 'Open new question'
         my_questions: 'My Questions'

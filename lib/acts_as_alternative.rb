@@ -133,11 +133,11 @@ module ActiveRecord
                 #TODO: When the support of multiple alternatives is set, we have to rethink this
                 alternative_statements = hub.child_statements(opts.merge({:type => self.class.alternative_types.first.to_s,
                                                                           :alternative_ids => alternative_ids,
-                                                                          :filter_drafting_state => true})).flatten
+                                                                          :filter_drafting_state => true,
+                                                                          :alternative_output => true}))
               end
               
-              per_page = alternative_statements.length if per_page.nil? or per_page < 0
-              per_page = 1 if per_page.to_i == 0
+              return alternative_statements.paginate(:page => 1) if per_page.nil? or per_page < 0
               alternative_statements.paginate(:page => page, :per_page => per_page)
             end
 

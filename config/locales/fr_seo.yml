@@ -55,7 +55,7 @@ fr:
         index: 'echo - Discuter'
         roadmap: 'echo - Votre plan de route pour participer à la discussion'
       statements:
-        category: 'echo - Les thèmes de discussion'
+        index: 'echo - Les thèmes de discussion'
         show: 'echo - Débats'
         new: 'Ouvrir de nouvelles discussions'
         my_questions: 'Mes discussions'

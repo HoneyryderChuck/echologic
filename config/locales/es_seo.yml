@@ -55,7 +55,7 @@ es:
         index: 'echo - Debatir'
         roadmap: 'echo - Desarrollo de debatir'
       statements:
-        category: 'echo - Temas de debate'
+        index: 'echo - Temas de debate'
         show: 'echo - Documento de debate'
         new: 'Crear nuevo debate'
         my_questions: 'Mis Preguntas'

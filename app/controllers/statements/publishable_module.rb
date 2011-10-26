@@ -29,7 +29,7 @@ module PublishableModule
   # Params:   value: string, id (category): string
   # Response: JS
   #
-  def category
+  def index
     @value    = params[:search_terms] || ""
     @page     = params[:page].blank? ? 1 : params[:page]
     @page_count = params[:page_count].blank? ? 1 : params[:page_count]
@@ -58,11 +58,10 @@ module PublishableModule
   def publish
     begin
       StatementNode.transaction do
-        @statement_node.publish
+        
         respond_to do |format|
-          if @statement_node.statement.save
-            @statement_node.statement.statement_nodes.each do |node|
-              EchoService.instance.published(node)
+          if @statement_node.publish!
+            @statement_node.shared_statement_nodes.each do |node|
               node.publish_descendants
             end
             format.html {params[:in] == 'mi' ? my_questions : show}

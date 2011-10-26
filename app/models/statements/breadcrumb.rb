@@ -47,10 +47,7 @@ class Breadcrumb < Struct.new(:code, :key, :css, :url, :title, :page_count, :lab
   end
   
   def to_hash
-    self.members.each_with_object({}) {|m, hash|
-      hash[m.to_sym] = send(m) 
-      hash
-    }
+    Hash[self.members.map{|m|[m.to_sym, send(m)]}]
   end
   
   

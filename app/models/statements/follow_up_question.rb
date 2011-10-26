@@ -21,6 +21,11 @@ class FollowUpQuestion < Question
     }
   }
   
+  def notify_observers
+    EchoService.instance.created(self)
+    EchoService.instance.created(self.question) if self.question_id
+  end
+  
   def initialize_echo
     self.echo = self.question.echo  
   end

@@ -19,11 +19,11 @@ class StatementDocument < ActiveRecord::Base
   validates_associated :statement_history
 
   before_validation :set_history
+  after_create :unselect_old_document
   
   accepts_nested_attributes_for :statement_history
   
   delegate :action, :author, :incorporated_node, :old_document, :to => :statement_history, :allow_nil => true
-
   
   named_scope :current_documents, lambda { { :conditions => { :current => true } } }
   
@@ -51,6 +51,15 @@ class StatementDocument < ActiveRecord::Base
 
   def set_history
     self.statement_history.statement = self.statement
+  end
+  
+  # unsets the unactualized version of the document
+  # old document must be a document of the same language (if not, it was a translation) 
+  def unselect_old_document
+    if old_document = self.old_document 
+      old_document.current = false if self.language.eql?(old_document.language) 
+      old_document.unlock
+    end
   end
 
   # Returns if the document is an original or a translation

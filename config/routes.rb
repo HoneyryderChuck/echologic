@@ -13,7 +13,7 @@ ActionController::Routing::Routes.draw do |map|
   ##################
 
   # Submenus
-  map.discuss_search '/discuss/search', :controller => :statements, :action => :category
+  map.discuss_search '/discuss/search', :controller => :statements, :action => :index
   map.discuss_featured '/discuss/featured', :controller => :discuss, :action => :index
   map.my_questions '/discuss/my_questions', :controller => :statements, :action => :my_questions
   map.discuss_roadmap '/discuss/roadmap', :controller => :discuss, :action => :roadmap
@@ -21,6 +21,7 @@ ActionController::Routing::Routes.draw do |map|
   # Statements
   map.resources :statement_nodes,
                 :controller => :statements,
+                :except => [:index],
                 :member => [:echo, :unecho, :new_translation, :create_translation, :cancel, :social_widget,
                             :children, :more, :authors, :publish, :incorporate, :ancestors, :descendants, :share,
                             :link_statement, :link_statement_node],
@@ -281,7 +282,7 @@ ActionController::Routing::Routes.draw do |map|
   # Root and application's home URLs
   map.root :controller => 'static/echologic',
            :action => 'show'
-  map.app_home '/discuss/search', :controller => :statements, :action => :category
+  map.app_home '/discuss/search', :controller => :statements, :action => :index
 
 
   # Shortcut URLs
