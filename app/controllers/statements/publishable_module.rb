@@ -61,9 +61,6 @@ module PublishableModule
         
         respond_to do |format|
           if @statement_node.publish!
-            @statement_node.shared_statement_nodes.each do |node|
-              node.publish_descendants
-            end
             format.html {params[:in] == 'mi' ? my_questions : show}
             format.js do
               set_info("discuss.statements.published")

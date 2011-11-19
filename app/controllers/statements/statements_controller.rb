@@ -161,7 +161,7 @@ class StatementsController < ApplicationController
   
         # Rendering
         if @statement_node.save
-          
+          EchoService.instance.created(@statement_node)
           
           @statement_document = @statement_node.document_in_preferred_language(@language_preference_list)
           load_siblings @statement_node

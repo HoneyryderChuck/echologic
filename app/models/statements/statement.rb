@@ -106,8 +106,12 @@ class Statement < ActiveRecord::Base
 
   # Publish a statement.
   def publish!
+    return true if self.published?
     self.update_attribute :editorial_state, StatementState["published"]
-    EchoService.instance.published(node)
+    self.statement_nodes.each do |node|
+      EchoService.instance.published(node)
+      node.publish_descendants
+    end
     return self.valid?
   end
 

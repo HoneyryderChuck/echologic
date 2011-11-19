@@ -40,21 +40,21 @@ class StatementNodeTest < ActiveSupport::TestCase
     context "being saved" do
       setup do
         @statement_node = Question.new(:creator => User.first)
-        @statement_node.build_statement(:original_language_id => Language.first.id, :topic_tags => "bebe")
+        @statement_node.build_statement(:original_language_id => Language[:en].id, :topic_tags => "bebe", :editorial_state => StatementState[:published])
         doc = @statement_node.statement.statement_documents.build(:title => 'A new Document',
                                                                   :text => 'with a very short body, dude!',
-                                                                  :language_id => Language.first.id,
+                                                                  :language_id => Language[:en].id,
                                                                   :current => 1,
                                                                   :statement_history_attributes => {
                                                                    :author => User.first,
                                                                    :action_id => StatementAction[:created].id,
                                                                  })
-        @statement_node.statement.publish!
+        @statement_node.save!
       end
 
       should "be able to access its statement documents data" do
-        assert_equal @statement_node.document_in_preferred_language([Language.first.id]).title, "A new Document"
-        assert_equal @statement_node.document_in_preferred_language([Language.first.id]).text, "with a very short body, dude!"
+        assert_equal @statement_node.document_in_preferred_language([Language[:en].id]).title, "A new Document"
+        assert_equal @statement_node.document_in_preferred_language([Language[:en].id]).text, "with a very short body, dude!"
       end
 
 

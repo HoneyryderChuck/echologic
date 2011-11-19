@@ -12,12 +12,12 @@ class StatementsControllerTest < ActionController::TestCase
   #####################
 
   test "should get discuss search" do
-    get :category
+    get :index
     assert_response :success
   end
 
   test "should get discuss search with a value" do
-    get :category, :search_terms => '#echonomyjam'
+    get :index, :search_terms => '#echonomyjam'
     assert_response :success
   end
 

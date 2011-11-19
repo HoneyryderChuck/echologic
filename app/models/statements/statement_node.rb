@@ -38,7 +38,7 @@ class StatementNode < ActiveRecord::Base
   ## DELEGATIONS
   ## 
   delegate :image, :published?, :topic_tags, :filtered_topic_tags, :hash_topic_tags, :has_author?, :authors, 
-           :original_language, :editorial_state, :statement_image, :taggable?, :publish, :to => :statement
+           :original_language, :editorial_state, :statement_image, :taggable?, :publish, :publish!, :to => :statement
 
 
   ##
@@ -168,16 +168,6 @@ class StatementNode < ActiveRecord::Base
 
   def u_class_name
     self.class.name.underscore
-  end
-  
-  def notify_observers
-    EchoService.instance.created(self)
-  end
-  
-  #TODO: Add this as after create filter when it works again
-  def create
-    super
-    notify_observers
   end
   
   def destroy_associated_objects
