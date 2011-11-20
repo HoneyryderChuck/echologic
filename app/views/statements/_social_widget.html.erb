@@ -1,3 +1,5 @@
+<% statement_node ||=  @statement_node%>
+
 <% content_tag(:div, :class => 'social_echo_panel popup_panel expandable_content', :style => "display:none") do %>
   <%= content_tag :div, I18n.t("users.social_accounts.share.title"), :class => 'panel_header' %>
 	<%= content_tag :div, I18n.t("users.social_accounts.share.guide"), :class => 'panel_description' %>

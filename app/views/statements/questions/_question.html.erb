@@ -5,8 +5,7 @@
 	  <% image_link_to_question(question) %>
 
     <% content_tag :div, :class => 'right_panel' do %>
-      <%= supporter_ratio_bar(question) %>
-      <%= supporters_label(question, true) %>
+		  <%= render :partial => "statements/supporters", :locals => {:statement_node => question, :show_label => true} %>
       <% content_tag :div, :class => 'buttons',
                      :id => "#{dom_id(question)}_buttons" do %>
         <%= publish_button_or_state(question, :no_published_label => true, :in => :mi) %>

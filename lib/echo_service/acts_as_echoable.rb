@@ -164,8 +164,7 @@ module ActiveRecord
 
             # Ratio of this statement's supporters relative to the most supported sibbling statement's supporters.
             def support_relative_to_sibblings(parent_node, type)
-              max_support_count = parent_node ?
-                                  parent_node.max_child_support(type) : max_root_support
+              max_support_count = parent_node ? parent_node.max_child_support(type) : max_root_support
               max_support_count == 0 ? 0 : ((supporter_count.to_f / max_support_count.to_f) *
                                            [10*max_support_count, 100].min).to_i
             end

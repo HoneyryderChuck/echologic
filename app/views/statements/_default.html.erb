@@ -1,15 +1,24 @@
 <% @function_name = 'discuss' %>
 
+<!-- Render breadcrumbs -->
 <% content_tag :div, :id => 'breadcrumbs', :class => 'breadcrumbs' do %>
   <% content_tag :div, :class => 'elements' do %>
-    <%= render_breadcrumb(@breadcrumbs) if @breadcrumbs %>
+	 <%= render :partial => "statements/breadcrumb", :collection => @breadcrumbs %>
 	<% end %>
 <% end %>
 
-<div id="statements">
-  <%= render_ancestors(@ancestors) %>
+<%content_tag :div, :id => "statements" do %>
+
+	<!-- Render ancestors -->
+	<% @ancestors.ordered.each do |ancestor| %>
+	 <%= render :partial => 'statements/show', 
+              :locals => {:statement_node => ancestor, :statement_document => @ancestors.get_document(ancestor), :only_header => true} %>
+	<% end %>
+	
+	<!-- MAIN RENDER -->
   <%= render :partial => template %>
-</div>
+	
+<% end %>
 
 <%= content_tag :span, '', :id => 'social_messages', 'data-success' => I18n.t("users.social_accounts.share.success"),
                                                        'data-error' => I18n.t("users.social_accounts.share.error")%>

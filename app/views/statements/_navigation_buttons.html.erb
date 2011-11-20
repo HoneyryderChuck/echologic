@@ -1,0 +1,29 @@
+<% statement_node ||= @statement_node %>
+<% klass          ||= node_type(statement_node) %>
+<% classes        ||= nil %>
+<% is_form        ||= false %>
+
+
+<% if statement_node and (is_form or @node_environment.origin.present? and @node_environment.origin.key.eql?('dq') and statement_node.level.eql?(0)) %>
+  <!-- DISABLED BUTTONS -->
+  <%= statement_tag(:prev, klass, true) %>
+	<%= statement_tag(:next, klass, true) %>
+	<%= content_tag :span, I18n.t("discuss.statements.sibling_labels.#{klass.classify.constantize.name_for_siblings}"),
+                       :class => 'show_siblings_label disabled' %>
+<% else %>
+  <!-- NAVIGATION BUTTONS -->
+  <%= content_tag(:span, '', :class => 'loading', :style => 'display:none') %>
+  <% [:prev,:next].each do |button| %>
+    <%= statement_button(statement_node,
+                         statement_tag(button, klass),
+                         klass,
+                         :rel => button,
+                         :class => " statement_link #{classes} #{button}")%> 
+  <% end %>
+	
+	<!-- SIBLINGS BUTTON -->
+	<% link_to siblings_path(statement_node, klass), :class => 'show_siblings_button expandable' do %>
+	 <%= content_tag :span, siblings_label(statement_node, klass), :class => 'show_siblings_label ttLink no_border',
+                  :title => siblings_tooltip(statement_node, klass) %>
+	<% end %>
+<% end %> 

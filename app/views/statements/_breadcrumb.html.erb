@@ -1,0 +1,9 @@
+<% link_to breadcrumb.url, breadcrumb.container_attributes do %>
+  <%= content_tag :span, '', :class => 'delimiter' unless breadcrumb_counter.eql?(0) %>
+	<%= content_tag :span, breadcrumb.label, :class => 'label' %>
+	<%= content_tag :span, breadcrumb.over, :class => 'over' %>
+	<% content_tag :div, :class => breadcrumb.css do %>
+	 <%= content_tag :span, '', :class => 'icon' %>
+	 <%= content_tag :span, h(breadcrumb.title), :class => 'title' %>
+	<% end %>
+<% end %>

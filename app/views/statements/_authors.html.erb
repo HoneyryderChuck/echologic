@@ -1,6 +1,6 @@
-<div class="expandable_content authors jcarousel-echo-skin" style='display:none'>
+<% content_tag :div, :class => "expandable_content authors jcarousel-echo-skin" :style => 'display:none' %>
 	<%= render_authors @statement_node, current_user, @authors  %>
   <%= image_tag('page/separator_no_shadow.png',
                 :class => 'separator_image',
                 :alt => '') %>
-</div>
+<% end %>

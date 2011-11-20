@@ -3,13 +3,7 @@
 <% statement_node ||= @approved_node %>
 <% statement_document ||= @approved_document %>
 <% being_incorporated ||= false %>
-<% incorporate_now = !being_incorporated &&
-                     (!current_user or
-                      (statement_node.published? and
-                       parent_document.language == statement_node.drafting_language and
-                       statement_document.language. == statement_node.drafting_language and
-                       ((statement_node.times_passed == 0 and statement_document.author == current_user) or
-                        (statement_node.times_passed == 1 and statement_node.supported?(current_user))))) %>
+<% incorporate_now = incorporable?(statement_node, statement_document, parent_document, :being_incorporated => being_incorporated) %>
 
 <% if !statement_node.nil? %>
 
