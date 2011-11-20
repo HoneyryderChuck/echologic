@@ -1,1 +1,4 @@
 <%= render :partial => 'statements/default', :locals => {:template => 'statements/show'}%>
+
+<%= content_tag :span, '', :id => 'social_messages', 'data-success' => I18n.t("users.social_accounts.share.success"),
+                                                       'data-error' => I18n.t("users.social_accounts.share.error")%>

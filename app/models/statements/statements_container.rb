@@ -16,6 +16,12 @@ class StatementsContainer < Hash
     super
   end
   
+  # returns an ordered array of statements (default order is key)
+  def ordered
+    self.to_a.sort do |a, b| 
+      block_given? ? yield : a[0] <=> b[0]
+    end.map(&:last)
+  end
   
   # SESSION HELPERS
   

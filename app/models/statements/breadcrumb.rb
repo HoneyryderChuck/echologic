@@ -40,8 +40,7 @@ class Breadcrumb < Struct.new(:code, :key, :css, :url, :title, :page_count, :lab
   end
   
   def container_attributes
-    {:href => self.url,
-     :id => self.key,
+    {:id => self.key,
      :class => "breadcrumb #{self.code}",
      :page_count => self.page_count}
   end
@@ -72,6 +71,12 @@ class Breadcrumb < Struct.new(:code, :key, :css, :url, :title, :page_count, :lab
         when "background_info" then 'bi'
         when "follow_up_question" then 'fq'
         when 'discuss_alternatives_question' then 'dq'
+      end
+    end
+    
+    def generate_name(key)
+      case key
+        when 'fq' then 'follow_up_question'
       end
     end
     

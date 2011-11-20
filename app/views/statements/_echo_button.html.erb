@@ -1,0 +1,15 @@
+<% if statement_node.new_record? %>
+  <%= echo_button(:div, true, statement_node, (@messages || {}).merge(:class => 'new_record')) %>
+  <%= hidden_field_tag(:"statement_node[author_support]", 1) %>
+<% else %>
+  <% echoed = current_user && statement_node.supported?(current_user) %>
+  <% href = echoed ? unecho_statement_node_url(statement_node) : echo_statement_node_url(statement_node) %>
+  <%= echo_button(:a, echoed, statement_node, :href => href) %>
+	
+	<!-- SOCIAL WIDGET -->
+	<% content_tag(:div, :class => 'social_echo_container') do %>
+     <%= content_tag(:span, '', :class => 'social_echo_button expandable',
+                     :href => social_widget_statement_node_url(statement_node, :bids => @node_environment.bids.to_s, :origin =>@node_environment.origin.to_s),
+                     :style => "#{echoed ? '' : 'display:none'}") %>
+  <% end %>
+<% end %>

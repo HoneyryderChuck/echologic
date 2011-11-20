@@ -2,13 +2,8 @@
 <% statement_document ||= @statement_document %>
 <% only_header ||= false %>
 <% hide_content ||= false %>
-<% type = [statement_node.class.name_for_siblings, node_type(statement_node)].uniq.join(' ') %>
-<% dom_parent = @node_environment.alternative_mode?(statement_node) ? "alternative_#{statement_node.target_id}" : statement_node.parent_node ? dom_id(statement_node.parent_node) : @node_environment.origin.to_s %>
 
-<% content_tag :div, :id => dom_id(statement_node), 
-               :class => "statement #{type} #{statement_node.echoable? ? 'echoable' : ''} #{'alternative' if @node_environment.alternative_mode?(statement_node)}",
-               'data-siblings' => @siblings ? @siblings.to_session(dom_id(statement_node)).to_json : '',
-               'dom-parent' => dom_parent do %>
+<% content_tag :div, statement_element_attributes(statement_node) do %>
   <%= render :partial => 'statements/header',
              :locals => {:statement_node => statement_node,
                          :statement_document => statement_document,

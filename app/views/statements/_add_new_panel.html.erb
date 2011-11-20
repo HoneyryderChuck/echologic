@@ -1,0 +1,64 @@
+<% wide = statement_node.is_a?(Proposal) ? ' wide' : '' %>
+<% content_tag(:div, :class => "add_new_panel#{wide} popup_panel", :style => "display:none") do %>
+  <%= content_tag(:div, I18n.t("discuss.statements.add_new"), :class => 'panel_header') %>
+  <%= content_tag(:div, '', :class => 'block_separator') %>
+	
+	<!-- SIBLINGS LINE -->
+	<% content_tag(:div, :class => 'siblings container') do %>
+	 <% if statement_node.parent_node %> 
+    <%= add_new_sibling_button(statement_node) if !@node_environment.alternative_mode?(statement_node) %>
+   <% else %>
+    <% if @node_environment.origin.nil? %>
+      <%= add_new_question_button %>
+    <% elsif %w(ds mi sr jp dq).include? @node_environment.origin.key # create new question %>
+      <%= add_new_question_button if !@node_environment.origin.key.eql? 'dq' %>
+    <% else # create sibling follow up question %>
+      <% context_type = Breadcrumb.generate_name(@node_environment.origin.key) %>
+      <% link_to new_statement_node_url(@node_environment.origin.value, context_type, :origin => @node_environment.origin.to_s),
+                  :class => "create_#{context_type}_button_32 resource_link new_statement ttLink no_border",
+                  :title => I18n.t("discuss.statements.siblings.#{context_type}") do %>
+        <%= statement_icon_title(I18n.t("discuss.statements.siblings.#{context_type}")) %>
+      <% end %>
+		<% end %>	
+	 <% end %>
+	 <% if statement_node.class.has_alternatives? %>
+    <% link_to(new_statement_node_url(statement_node.target_id,
+                                      statement_node.class.alternative_types.first.to_s.underscore,
+                                      :hub => "al#{statement_node.target_id}",
+                                      :bids => @node_environment.bids.to_s,
+                                      :origin => @node_environment.origin.to_s),
+              :class => "create_alternative_button_32 resource_link new_statement ttLink no_border",
+              :title => I18n.t("discuss.tooltips.create_alternative")) do %>
+      <%= statement_icon_title(I18n.t("discuss.statements.types.alternative")) %>
+    <% end %>
+    <% if @node_environment.alternative_mode?(statement_node) and @discuss_alternatives_question.nil? %>
+      <%= add_new_child_link(statement_node, "discuss_alternatives_question", :nl => true, :bids => @node_environment.bids, :origin => @node_environment.origin) %> 
+    <% end %>
+   <%end%>
+	<% end %>
+	
+	<%= content_tag(:div, '', :class => 'block_separator') %>
+	
+	
+	<!-- CHILDREN LINE -->
+	<% children_types = statement_node.class.children_types(:expand => true) %>
+  <% content_tag(:div, :class => 'container') do %>
+    <% children_types.each do |type| %>
+      <%= add_new_child_link(statement_node, type.to_s.underscore) %>
+    <% end %>
+  <% end unless children_types.empty? %>
+	
+	
+	<%= content_tag(:div, '', :class => 'block_separator') %>
+	
+  <!-- DEFAULT LINE -->
+	
+	<% content_tag(:div, :class => 'container') do %>
+    <% statement_node.class.default_children_types(:visibility => false).each do |default_type| %>
+      <%= add_new_child_link(statement_node,
+                             default_type.to_s.underscore,
+                             :bids => @node_environment.bids.to_s,
+                             :origin => @node_environment.origin.to_s) %>
+    <% end %>
+  <% end %>
+<% end %>

@@ -11,25 +11,6 @@ module StatementsHelper
   ##################
 
   #
-  # Renders ancestors headers (when we have a GET operation on a child node).
-  #
-  def render_ancestors(ancestors)
-    return if @ancestors.nil?
-    val = ''
-    ancestors.keys.length.times do |ind|
-      ancestor = ancestors[ind]
-      val << render_ancestor(ancestor, ancestors.get_document(ancestor))
-    end
-    val
-  end
-
-  def render_ancestor(ancestor, document)
-    render :partial => 'statements/show', :locals => {:statement_node => ancestor,
-                                                      :statement_document => document,
-                                                      :only_header => true}
-  end
-
-  #
   # Renders all the possible children of the current node
   # (per type, ordering must be defined in the node type definition).
   #
@@ -95,66 +76,6 @@ module StatementsHelper
     end
   end
 
-
-  #
-  # Renders all the actions shown in the action panel on the left.
-  #
-  def render_statement_actions(statement_node, opts={})
-    opts[:class] ||= ""
-    opts[:class] << ' statement_actions'
-    content_tag :div, opts  do
-      actions = ""
-      actions << content_tag(:div, :class => "add_new_container") do
-        render_add_new_button(statement_node)
-      end
-
-      actions << content_tag(:div, :class => "actions_container") do
-        buttons = ''
-        buttons << content_tag(:div, :class => "embed_button_container") do
-          render_statement_embed_button(statement_node)
-        end
-        buttons << content_tag(:div, :class => "copy_url_container") do
-          render_copy_url_button(statement_node)
-        end
-        buttons
-      end
-
-      if current_user and current_user.may_delete?(statement_node)
-        actions << delete_statement_node_link(statement_node)
-      end
-      actions
-    end
-  end
-
-
-  #
-  # Renders the embed echo button into the action panel of discuss search.
-  #
-  def render_discuss_search_embed_button
-    content = ""
-    content << content_tag(:a, :id => 'embed_link', :class => 'big_action_button') do
-      link_content = ''
-      link_content << content_tag(:span, '', :class => "embed_icon")
-      link_content <<  content_tag(:span, I18n.t("discuss.statements.embed_button"), :class => 'label')
-      link_content
-    end
-    content << render_embed_panel(discuss_search_url(:mode => :embed, :search_terms => params[:search_terms]), 'search')
-  end
-
-
-  #
-  # Creates a link to embed echo with the given statement node as entry point into the system.
-  #
-  def render_statement_embed_button(statement_node)
-    url = statement_node_url(statement_node, :locale => I18n.locale, :mode => :embed)
-    content = ""
-    content << link_to(I18n.t("discuss.statements.embed_button"), '#',
-                       :class => 'embed_button text_button')
-    content << render_embed_panel(url, 'statement')
-    content
-  end
-
-
   #
   # Renders the embed statement panel to copy the embed code for the currently displayed statement.
   #
@@ -163,27 +84,14 @@ module StatementsHelper
     content_tag(:div,
                 :class => 'embed_panel popup_panel',
                 :style => "display:none") do
-      panel = ''
-      panel << content_tag(:div, I18n.t("discuss.statements.embed_#{mode}_title"), :class => 'panel_header')
-      panel << content_tag(:div, I18n.t("discuss.statements.embed_#{mode}_hint"))
-      panel << content_tag(:div, h(embedded_code), :class => 'embed_code')
-      panel
+      concat( 
+        content_tag(:div, I18n.t("discuss.statements.embed_#{mode}_title"), :class => 'panel_header') +
+        content_tag(:div, I18n.t("discuss.statements.embed_#{mode}_hint")) + 
+        content_tag(:div, h(embedded_code), :class => 'embed_code')
+      )
     end
   end
 
-
-  #
-  # Creates the button to pop up the Copy URL panel.
-  #
-  def render_copy_url_button(statement_node)
-    url = statement_node_url(statement_node, :mode => :platform)
-
-    content = ""
-    content << link_to(I18n.t("discuss.statements.copy_url"), '#',
-                       :class => 'copy_url_button text_button')
-    content << render_copy_url_panel(url)
-    content
-  end
 
   #
   # Renders the Copy URL panel to copy the statement URL into the clipboard.
@@ -191,13 +99,11 @@ module StatementsHelper
   def render_copy_url_panel(url)
     content_tag(:div, :class => 'copy_url_panel popup_panel',
                       :style => "display: none") do
-      panel = ''
-      panel << content_tag(:div, :class => 'panel_header') do
-        I18n.t("discuss.statements.copy_url_title")
-      end
-      panel << content_tag(:div, I18n.t('discuss.statements.copy_url_hint'), :class => '')
-      panel << content_tag(:div, h(url), :class => 'statement_url')
-      panel
+      concat(
+        content_tag(:div, I18n.t("discuss.statements.copy_url_title"), :class => 'panel_header') + 
+        content_tag(:div, I18n.t('discuss.statements.copy_url_hint'), :class => '') +
+        content_tag(:div, h(url), :class => 'statement_url')
+      )
     end
   end
 
@@ -243,84 +149,6 @@ module StatementsHelper
     end
   end
 
-  #
-  # Generates the 'New Statement' panel in the action panel.
-  #
-  def render_add_new_button(statement_node)
-    content = ''
-    content << content_tag(:div, :class => 'new_statement_button big_action_button') do
-      button = ''
-      button << content_tag(:span, '', :class => 'add_new_button_icon')
-      button << content_tag(:span, I18n.t('discuss.statements.add_new'),
-                            :class => 'label')
-      button
-    end
-    wide = statement_node.is_a?(Proposal) ? ' wide' : ''
-    content << content_tag(:div, :class => "add_new_panel#{wide} popup_panel",
-                           :style => "display:none") do
-      panel = ''
-      panel << content_tag(:div, :class => 'panel_header') do
-        I18n.t("discuss.statements.add_new")
-      end
-      panel << content_tag(:div, '', :class => 'block_separator')
-      panel << add_new_sibling_buttons(statement_node)
-      panel << add_new_child_buttons(statement_node)
-      panel << add_new_default_child_button(statement_node)
-      panel
-    end
-    content
-  end
-
-  #
-  # Creates a link to add a new sibling for the given statement (appears in the SIDEBAR).
-  #
-  def add_new_sibling_buttons(statement_node)
-    content = ''
-    content << content_tag(:div, :class => 'siblings container') do
-      buttons = ''
-      if statement_node.parent_node 
-        buttons << add_new_sibling_button(statement_node) if !@node_environment.alternative_mode?(statement_node)
-      else
-        if @node_environment.origin.nil?
-          buttons << add_new_question_button
-        elsif %w(ds mi sr jp dq).include? @node_environment.origin.key # create new question
-          buttons << add_new_question_button if !@node_environment.origin.key.eql? 'dq'
-        else # create sibling follow up question
-          context_type = ''
-          context_type << case @node_environment.origin.key
-            when 'fq' then "follow_up_question"
-          end
-
-          buttons << content_tag(:a, :href => new_statement_node_url(@node_environment.origin.value,
-                                                                     context_type,
-                                                                     :origin => @node_environment.origin.to_s),
-                                 :class => "create_#{context_type}_button_32 resource_link new_statement ttLink no_border",
-                                 :title => I18n.t("discuss.statements.siblings.#{context_type}")) do
-            statement_icon_title(I18n.t("discuss.statements.siblings.#{context_type}"))
-          end
-        end
-      end
-
-      # New alternative Button TODO: this is going to the logic above, in the future
-      if statement_node.class.has_alternatives?
-        buttons << content_tag(:a, :href => new_statement_node_url(statement_node.target_id,
-                                                                   statement_node.class.alternative_types.first.to_s.underscore,
-                                                                   :hub => "al#{statement_node.target_id}",
-                                                                   :bids => @node_environment.bids.to_s,
-                                                                   :origin => @node_environment.origin.to_s),
-                               :class => "create_alternative_button_32 resource_link new_statement ttLink no_border",
-                               :title => I18n.t("discuss.tooltips.create_alternative")) do
-          statement_icon_title(I18n.t("discuss.statements.types.alternative"))
-        end
-        if @node_environment.alternative_mode?(statement_node) and @discuss_alternatives_question.nil?
-          buttons << add_new_child_link(statement_node, "discuss_alternatives_question", :nl => true, :bids => @node_environment.bids, :origin => @node_environment.origin) 
-        end
-      end
-      buttons
-    end
-    content << content_tag(:div, '', :class => 'block_separator')
-    content
-  end
 
   #
   # Creates a link to add a new sibling for the given statement (appears in the SIDEBAR).
@@ -338,40 +166,6 @@ module StatementsHelper
     content
   end
 
-  #
-  # Creates a link to add a new child for the given statement (appears in the SIDEBAR).
-  #
-  def add_new_child_buttons(statement_node)
-    children_types = statement_node.class.children_types(:expand => true)
-    return '' if children_types.empty?
-    content = ''
-    content << content_tag(:div, :class => 'container') do
-      children = ''
-      children_types.each do |type|
-        children << add_new_child_link(statement_node, type.to_s.underscore)
-      end
-      children
-    end
-    content << content_tag(:div, '', :class => 'block_separator')
-    content
-  end
-
-  #
-  # Creates a link to add a new default child (follow up question, background info) for the given statement (appears in the SIDEBAR).
-  #
-  def add_new_default_child_button(statement_node)
-    content_tag(:div, :class => 'container') do
-      content = ''
-      statement_node.class.default_children_types(:visibility => false).each do |default_type|
-        dom_type = default_type.to_s.underscore
-        content << add_new_child_link(statement_node,
-                                      dom_type,
-                                      :bids => @node_environment.bids.to_s,
-                                      :origin => @node_environment.origin.to_s)
-      end
-      content
-    end
-  end
 
   #
   # Returns a link to create a new child statement from a given type for the given statement (appears in the SIDEBAR).
@@ -416,10 +210,10 @@ module StatementsHelper
   #
   def render_authors(statement_node, user, authors)
     content_tag(:ul, :class => 'authors_list') do
-      content = ''
-      content << render(:partial => 'statements/author', :collection => authors)
-      content << author_teaser(statement_node, user) if statement_node.draftable? and !authors.include?(user)
-      content
+      concat(
+        render(:partial => 'statements/author', :collection => authors) +
+        ((statement_node.draftable? and !authors.include?(user)) ? author_teaser(statement_node, user) : '')
+      )
     end
   end
 
@@ -428,11 +222,11 @@ module StatementsHelper
   #
   def author_teaser(statement_node, user)
     content_tag :li, :class => 'author teaser' do
-      content = ''
-      content << image_tag(user.avatar.url(:small), :alt => '')
-      content << content_tag(:span, I18n.t('users.authors.teaser.title'), :class => 'name')
-      content << create_new_child_statement_link(statement_node, 'improvement', :nl => true, :css => "new_statement")
-      content
+      concat(
+        image_tag(user.avatar.url(:small), :alt => '') +
+        content_tag(:span, I18n.t('users.authors.teaser.title'), :class => 'name') +
+        create_new_child_statement_link(statement_node, 'improvement', :nl => true, :css => "new_statement")
+      )
     end
   end
 
@@ -447,16 +241,6 @@ module StatementsHelper
             :confirm => I18n.t('discuss.statements.delete_confirmation')
   end
 
-  #
-  # Loads the function buttons of the current statement (edit, authors).
-  #
-  def function_buttons(statement_node, statement_document)
-    val = ''
-    val << edit_statement_node_link(statement_node, statement_document)
-    val << publish_statement_node_link(statement_node, statement_document) if statement_node.publishable?
-    val << authors_statement_node_link(statement_node)
-    content_tag :span, val, :class => 'action_buttons'
-  end
 
   #
   # Returns the block heading for the children of the current statement node.
@@ -522,6 +306,28 @@ module StatementsHelper
                                                                            dom_class(statement_node.target_statement)
   end
 
+  # 
+  # returns the dom id structure of the statement representing the parent of the statement node in the given context
+  #
+  def parent_statement_dom_id(statement_node)
+    @node_environment.alternative_mode?(statement_node) ? 
+    "alternative_#{statement_node.target_id}" : 
+    (statement_node.parent_node ? dom_id(statement_node.parent_node) : @node_environment.origin.to_s) 
+  end
+  
+  def statement_element_attributes(statement_node)
+    klasses = ["statement"]
+    klasses << [statement_node.class.name_for_siblings, node_type(statement_node)].uniq.join(' ')
+    klasses << 'echoable' if statement_node.echoable?
+    klasses << 'alternative' if @node_environment.alternative_mode?(statement_node)
+    {
+      :id => dom_id(statement_node), 
+      :class => klasses.join(" "),
+      :'data-siblings' => (@siblings.to_session(dom_id(statement_node)).to_json unless @siblings.blank?),
+      :'dom-parent' => parent_statement_dom_id(statement_node)
+   }
+ end
+ 
 
   #
   # Loads the right add statement image.
@@ -588,44 +394,21 @@ module StatementsHelper
   # Navigation #
   ##############
 
-  #
-  # Renders prev/next/siblings buttons for the current statement_node.
-  #
-  def navigation_buttons(statement_node, type, opts={})
-    buttons = ''
-    if statement_node and 
-      (opts[:form] or (@node_environment.origin.present? and @node_environment.origin.key.eql?('dq') and statement_node.level.eql?(0)))
-      %w(prev next).each{|button| buttons << statement_tag(button.to_sym, type, true)}
-      buttons << content_tag(:span,
-                             I18n.t("discuss.statements.sibling_labels.#{type.classify.constantize.name_for_siblings}"),
-                             :class => 'show_siblings_label disabled')
-    else
-      buttons << content_tag(:span, '', :class => 'loading', :style => 'display:none')
-      %w(prev next).each do |button|
-        buttons << statement_button(statement_node,
-                                    statement_tag(button.to_sym, type),
-                                    type,
-                                    :rel => button,
-                                    :class => " statement_link #{opts[:classes]} #{button}")
-      end
-      buttons << siblings_button(statement_node, type, opts)
-    end
-    buttons
-  end
-
-  def siblings_button(statement_node, type = node_type(statement_node), opts={})
+  # gets the path that the siblings button loads
+  def siblings_path(statement_node, klass = node_type(statement_node))
     if @node_environment.alternative_mode?(statement_node)
       sib = statement_node
+      alternative_type = klass.classify.constantize.name_for_siblings
       name = "alternative"
-      alternative_type = type.classify.constantize.name_for_siblings
     end
-    name ||= type.classify.constantize.name_for_siblings
-    url = if statement_node.nil? or statement_node.u_class_name != type # ADD TEASERS
+    name ||= klass.classify.constantize.name_for_siblings
+    
+    
+    if statement_node.nil? or statement_node.u_class_name != klass # ADD TEASERS
       if statement_node.nil?
         question_descendants_url(:origin => @node_environment.origin.to_s)
       else
-        current = sib || statement_node
-        parent = (@node_environment.current_stack? ? @node_environment.previous_id(current) : current) # TODO: CHECK IF THIS WILL NOT FAIL BIG TIME
+        parent = (@node_environment.current_stack? ? @node_environment.previous_id(statement_node) : statement_node) # TODO: CHECK IF THIS WILL NOT FAIL BIG TIME
         descendants_statement_node_url(parent, name, :alternative_type => alternative_type)
       end
     else  # STATEMENT NODES
@@ -642,18 +425,28 @@ module StatementsHelper
                                        name,
                                        :current_node => statement_node,
                                        :alternative_type => alternative_type,
-                                       :hub => (@node_environment.alternative_mode?(statement_node) ? "al#{statement_node.target_id}" : nil))
+                                       :hub => ("al#{statement_node.target_id}" if @node_environment.alternative_mode?(statement_node)))
       end
     end
-
-    content_tag(:a,
-                :href => url,
-                :class => 'show_siblings_button expandable') do
-      content_tag(:span, I18n.t("discuss.statements.sibling_labels.#{@node_environment.alternative_mode?(statement_node) ? alternative_type : name}"),
-                  :class => 'show_siblings_label ttLink no_border',
-                  :title => I18n.t("discuss.tooltips.siblings.#{name}"))
-    end
   end
+  
+  # gets the right label for the siblings button
+  def siblings_label(statement_node, klass = node_type(statement_node))
+    if @node_environment.alternative_mode?(statement_node)
+      alternative_type = klass.classify.constantize.name_for_siblings
+      name = "alternative"
+    end
+    name ||= klass.classify.constantize.name_for_siblings
+    
+    I18n.t("discuss.statements.sibling_labels.#{@node_environment.alternative_mode?(statement_node) ? alternative_type : name}")
+  end
+  
+  
+  # get tooltip for the siblings button
+  def siblings_tooltip(statement_node, klass = node_type(statement_node))
+    I18n.t("discuss.tooltips.siblings.#{@node_environment.alternative_mode?(statement_node) ? 'alternative' : klass.classify.constantize.name_for_siblings}")
+  end
+
 
   #
   # Renders the correct prev/next image buttons.
@@ -691,9 +484,9 @@ module StatementsHelper
       unless siblings.nil?
         element_index = 0 if element_index.nil?
         index = element_index
-        if options[:rel].eql? 'prev'
+        if options[:rel].eql? :prev
           index = element_index - 1
-        elsif options[:rel].eql? 'next'
+        elsif options[:rel].eql? :next
           index = element_index + 1
         end
         index = index < 0 ? (siblings.length - 1) : (index >= siblings.length ? 0 : index )
@@ -741,7 +534,7 @@ module StatementsHelper
                                          :nl => opts[:nl],
                                          :al => al),
                       :class => "statement_link #{opts[:type]}_link #{opts[:css]}")
-    content += supporter_ratio_bar(statement_node)
+    content += render :partial => "statements/supporters", :locals => {:statement_node => statement_node}
     content
   end
 
@@ -758,12 +551,12 @@ module StatementsHelper
 
   def new_statement_image(statement_node)
     content_tag :div, :class => "image_container editable" do
-      val = ""
-      val << image_tag(statement_node.image.url(:medium), :class => 'image')
-      val << link_to(I18n.t('users.profile.picture.upload_button'),
-             new_statement_image_url(node_type(statement_node)),
-             :class => 'ajax upload_link button button_150')
-      val
+      concat(
+        image_tag(statement_node.image.url(:medium), :class => 'image') +
+        link_to(I18n.t('users.profile.picture.upload_button'),
+                new_statement_image_url(node_type(statement_node)),
+                :class => 'ajax upload_link button button_150')
+      )
     end
   end
 
@@ -818,35 +611,6 @@ module StatementsHelper
                           :class => "statement_type_label")
    end
    content
-  end
-
-  ###############
-  # BREADCRUMBS #
-  ###############
-
-  #
-  # Renders the given breadcrumbs.
-  #
-  def render_breadcrumb(breadcrumbs)
-    breadcrumb_trail = ""
-    breadcrumbs.each_with_index do |b, index| #[key, classes, url, title, label, over, page_co]
-      attrs = {}
-      breadcrumb = content_tag(:a, b.container_attributes) do
-        content = ""
-        content << content_tag(:span, '', :class => 'delimiter') if index != 0
-        content << content_tag(:span, b.label, :class => 'label')
-        content << content_tag(:span, b.over, :class => 'over')
-        content << content_tag(:div, '', :class => b.css) do
-          link = ""
-          link << content_tag(:span, '', :class => 'icon')
-          link << content_tag(:span, h(b.title), :class => 'title')
-          link
-        end
-        content
-      end
-      breadcrumb_trail << breadcrumb
-    end
-    breadcrumb_trail
   end
 
   ################

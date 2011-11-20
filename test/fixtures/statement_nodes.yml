@@ -41,8 +41,8 @@ second-question:
   creator_id: <%= Fixtures.identify(:editor) %>
   statement_id: <%= Fixtures.identify('second-question-statement') %>
   echo_id: <%= Echo.create.id %>
-  #lft: 1
-  #rgt: 4
+  lft: 1
+  rgt: 2
 
 with-german-children-question:
   root_id: <%= Fixtures.identify('with-german-children-question') %>

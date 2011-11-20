@@ -3,7 +3,7 @@
   <%= render :partial => 'statements/alternative_header', :locals => {:statement_node => statement_node} if @node_environment.alternative_mode?(@node_environment.level) %>
   <% content_tag :div, :class => "main_header" do %>
 	  <% content_tag :div, :class => 'header_buttons' do %>
-		 <%= navigation_buttons(statement_node, @type, :classes => "add") %>
+		<%= render :partial => "statements/navigation_buttons", :locals => {:statement_node => statement_node, :klass => @type, :classes => "add"} %>
 		 <%= render :partial => "statements/descendants", 
 	              :locals => {:child_type => @type.to_s.underscore, :display => true,
 	              :children => @children[@type]} if @children and @children[@type] %>

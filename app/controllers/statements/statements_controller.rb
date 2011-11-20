@@ -54,7 +54,7 @@ class StatementsController < ApplicationController
   #
   def show
 
-    begin
+#    begin
       # Get document to show or redirect if not found
       @statement_document ||= @statement_node.document_in_preferred_language(@language_preference_list)
       if @statement_document.nil?
@@ -85,9 +85,9 @@ class StatementsController < ApplicationController
       load_discuss_alternatives_question(@statement_node)
 
       render_template 'statements/show'
-    rescue Exception => e
-      log_error_home(e, "Error showing statement.")
-    end
+#    rescue Exception => e
+#      log_error_home(e, "Error showing statement.")
+#    end
   end
 
   #

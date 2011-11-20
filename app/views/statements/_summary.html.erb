@@ -4,11 +4,15 @@
 <% content_tag :div, :class => 'summary simple_header_block discuss_right_block' do %>
 
   <!-- Function buttons -->
-	<%= function_buttons(statement_node, statement_document) %>
+	<% content_tag :span, :class => 'action_buttons' do %>
+	 <%= edit_statement_node_link(statement_node, statement_document) %>
+   <%= publish_statement_node_link(statement_node, statement_document) if statement_node.publishable? %> 
+   <%= authors_statement_node_link(statement_node) %>
+	<% end %>
 
   <!-- Header -->
   <%= content_tag :h2, I18n.t("discuss.statements.types.#{node_type(statement_node)}") %>
-	<%= render_authors statement_node, current_user, @authors if current_user and @authors %>
+	<%= render :partial => "statements/authors" if current_user and @authors %>
 
   <!-- Motivate people to translate the document -->
 	<%= render :partial => '/statements/translation_link',

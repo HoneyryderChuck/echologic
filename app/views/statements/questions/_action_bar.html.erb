@@ -1,7 +1,11 @@
 <div id="action_bar" class="action_bar">
 	<% create_question_link_for %>
   <% content_tag(:div, :class => "embed_button_container") do %>
-	  <%= render_discuss_search_embed_button %>
+	 <% link_to '#', :id => 'embed_link', :class => 'big_action_button' do %>
+     <%= content_tag(:span, '', :class => "embed_icon") %> 
+     <%= content_tag(:span, I18n.t("discuss.statements.embed_button"), :class => 'label') %>
+   <% end %>
+	 <%= render_embed_panel(discuss_search_url(:mode => :embed, :search_terms => params[:search_terms]), 'search') %> 
   <% end %>
   <%= render :partial => 'statements/questions/featured_topics' %>
 </div>

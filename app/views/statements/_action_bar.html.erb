@@ -2,15 +2,49 @@
 <% only_echo_button ||= false %>
 
 <% content_tag :div, :class => "action_bar" do %>
-  <%= render_echo_button statement_node %>
+  <!-- ECHO BUTTON -->
+  <%= render :partial => "statements/echo_button", :locals => {:statement_node => statement_node} %>
 
   <% if !only_echo_button %>
-    <% if statement_node.class.has_embeddable_data? %>
-			<%= render_statement_actions(statement_node, :class => "toggled_content", :style => "display:none") %>
-			<%= content_tag(:span, '', :class => "hide_button", :style => "display: none;") %>
-      <%= content_tag(:span, '', :class => "more_button") %>
-		<% else %>
-      <%= render_statement_actions(statement_node) %>
-	  <% end %>
-  <% end %>
+	  <% emb = statement_node.class.has_embeddable_data? %>
+
+		<% content_tag :div, :class => "statement_actions #{'toggled_content' if emb}", :style => ("display:none;" if emb) do %>
+		  <!-- ADD NEW BUTTON -->
+		  <% content_tag :div, :class => "add_new_container" do %>
+			<% content_tag(:div, :class => 'new_statement_button big_action_button') do %>
+	      <%= content_tag(:span, '', :class => 'add_new_button_icon') %>
+	      <%= content_tag(:span, I18n.t('discuss.statements.add_new'), :class => 'label') %>
+			<% end %>
+		   <%= render :partial => "statements/add_new_panel", :locals => {:statement_node => statement_node}%>
+		  <% end %>
+		  
+			<% content_tag :div, :class => "actions_container" do %>
+				<!-- EMBED CODE BUTTON -->
+			  <% content_tag :div, :class => "embed_button_container" do %>
+			    <%= link_to(I18n.t("discuss.statements.embed_button"), '#', :class => 'embed_button text_button') %> 
+			    <%= render_embed_panel(statement_node_url(statement_node, :locale => I18n.locale, :mode => :embed), 'statement') %> 
+			  <% end %>
+			  
+				<!-- COPY URL BUTTON -->
+			  <% content_tag :dib, :class => "copy_url_container" do%>
+			   <%= link_to(I18n.t("discuss.statements.copy_url"), '#', :class => 'copy_url_button text_button') %>
+			   <%= render_copy_url_panel(statement_node_url(statement_node, :mode => :platform)) %>
+			  <% end %>
+		  <% end %>
+			
+			<!-- DELETE STATEMENT BUTTON -->
+		  <% if current_user and current_user.may_delete?(statement_node) %>
+		    <%= delete_statement_node_link(statement_node) %>
+		  <% end %>
+			
+		<% end %>
+		
+		
+		
+		<% if emb %>
+		  <!-- TOGGLE BUTTONS -->
+		  <%= content_tag(:span, '', :class => "hide_button", :style => "display: none;") %>
+		  <%= content_tag(:span, '', :class => "more_button") %>
+		<% end %>
+	<% end %>
 <% end %>

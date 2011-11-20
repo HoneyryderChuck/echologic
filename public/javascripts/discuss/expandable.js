@@ -41,8 +41,8 @@
 			var expandable_loading = expandable.parent().find(settings['loading_class']);
 			var expandable_content = expandable_parent.children('.expandable_content');
 
-			var path = expandable.attr('href');
-			expandable.removeAttr('href');
+			var path = expandable.attr('href') || expandable.data('href');
+			expandable.removeAttr('href').removeData('href');
 
       initialise();
 
