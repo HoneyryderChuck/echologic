@@ -441,11 +441,11 @@ module StatementsHelper
     I18n.t("discuss.statements.sibling_labels.#{@node_environment.alternative_mode?(statement_node) ? alternative_type : name}")
   end
   
-  
   # get tooltip for the siblings button
   def siblings_tooltip(statement_node, klass = node_type(statement_node))
     I18n.t("discuss.tooltips.siblings.#{@node_environment.alternative_mode?(statement_node) ? 'alternative' : klass.classify.constantize.name_for_siblings}")
   end
+
 
 
   #
@@ -549,7 +549,7 @@ module StatementsHelper
   end
 
 
-  def new_statement_image(statement_node)
+  def statement_image(statement_node)
     content_tag :div, :class => "image_container editable" do
       concat(
         image_tag(statement_node.image.url(:medium), :class => 'image') +
