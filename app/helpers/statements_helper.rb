@@ -11,72 +11,6 @@ module StatementsHelper
   ##################
 
   #
-  # Renders all the possible children of the current node
-  # (per type, ordering must be defined in the node type definition).
-  #
-  def render_all_children(statement_node, children)
-
-    content = ''
-    content << render_children(statement_node, statement_node.class.children_types, children)
-    content << render_children(statement_node, statement_node.class.default_children_types, children)
-    content
-  end
-
-
-  def render_children(statement_node, children_types, children)
-    return content_tag :div, '', :style => "clear:right" if children_types.blank?
-    content_tag :div, :class => "children header_block discuss_right_block" do
-      content = ''
-
-      # Load variables
-      children_to_render = {}
-      headers = []
-      selected = nil
-      children_types.each_with_index do |child_type, index|
-        dom_child_type = child_type.to_s.underscore
-        arg = children[child_type]
-        if arg.kind_of?(Integer)
-          count = arg
-        else
-          selected = dom_child_type if selected.nil?
-          count = child_type.to_s.constantize.double? ? arg.map(&:total_entries).sum : arg.total_entries
-          children_to_render[dom_child_type] = arg
-        end
-        headers << [dom_child_type, count]
-      end
-      headers
-
-      # Load headers
-      content << content_tag(:div, :class => "headline expandable") do
-        header_content = ''
-        headers.each do |klass, count|
-          header_content << children_heading_title(klass,count,
-                            :path => children_statement_node_url(statement_node, :type => klass),
-                            :selected => klass.eql?(selected))
-        end
-        header_content << content_tag(:span, '', :class => 'loading', :style => 'display: none')
-        header_content << content_tag(:div, '', :class => 'expand_icon')
-        header_content
-      end
-
-      # load children
-      content << content_tag(:div, :class => 'children_content expandable_content') do
-        children_content = ''
-        headers.each do |klass, count|
-          children_content << render(:partial => children.children_list_template(klass),
-                                     :locals => {:child_type => klass,
-                                                 :children => children_to_render[klass],
-                                                 :parent => @statement_node,
-                                                 :display => klass.eql?(selected),
-                                                 :new_level => true}) if children_to_render[klass]
-        end
-        children_content
-      end
-      content
-    end
-  end
-
-  #
   # Renders the embed statement panel to copy the embed code for the currently displayed statement.
   #
   def render_embed_panel(url, mode)
@@ -549,7 +483,7 @@ module StatementsHelper
   end
 
 
-  def statement_image(statement_node)
+  def new_statement_image(statement_node)
     content_tag :div, :class => "image_container editable" do
       concat(
         image_tag(statement_node.image.url(:medium), :class => 'image') +
@@ -616,12 +550,6 @@ module StatementsHelper
   ################
   # ALTERNATIVES #
   ################
-
-  def render_alternatives(statement_node, children)
-    render :partial => 'statements/alternatives',
-             :locals => {:statement_node => statement_node,
-                         :alternatives => children}
-  end
 
   def close_alternative_mode_button(statement_node)
     link_to '', statement_node_url(statement_node, 

@@ -97,6 +97,16 @@ class StatementsContainer < Hash
     end
   end
   
+  def count(klass)
+    elements = self[klass]
+    return elements if elements.kind_of? Integer
+    klass.to_s.classify.constantize.double? ? elements.map(&:total_entries).sum : elements.total_entries
+  end
+  
+  def is_container?(klass)
+    self[klass].kind_of? Array 
+  end
+  
   ## VIEW PARTIALS
   
   %w(children_list more descendants).each do |meth|
@@ -110,7 +120,7 @@ class StatementsContainer < Hash
     end
   end
   
-
+  
   
   ## FALLBACK 
   

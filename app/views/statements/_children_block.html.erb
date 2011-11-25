@@ -1,0 +1,36 @@
+<% statement_node ||= @statement_node %>
+<% children_types ||= nil %>
+<% children ||= @children %>
+<% selected = nil %>
+
+<% if children_types.blank? %>
+  <%= content_tag :div, '', :style => "clear:right" %>
+<% else %>
+	<% content_tag :div, :class => "children header_block discuss_right_block" do %>
+	  <!-- Load headers -->
+	  <% content_tag(:div, :class => "headline expandable") do %>
+	    <% children_types.each_with_index do |klass, index| %>
+			  <% selected ||= klass if children.is_container?(klass) %>
+			  <% dom_type = klass.to_s.underscore %>
+	      <%= children_heading_title(dom_type, children.count(klass),
+					                        :path => children_statement_node_url(statement_node, :type => dom_type),
+					                        :selected => (selected and selected.eql?(klass))) %>
+	    <% end %>
+	    <%= content_tag(:span, '', :class => 'loading', :style => 'display: none') %>
+	    <%= content_tag(:div, '', :class => 'expand_icon') %>
+	  <% end %>
+		
+		<!-- Load containers -->
+	  <% content_tag(:div, :class => 'children_content expandable_content') do %>
+	    <% children_types.each_with_index do |klass, index| %>
+			  <% dom_type = klass.to_s.underscore %>
+	      <%= render(:partial => children.children_list_template(dom_type),
+		               :locals => {:child_type => dom_type,
+		                           :children => children[klass],
+		                           :parent => @statement_node,
+		                           :display => (selected and selected.eql?(klass)),
+		                           :new_level => true}) if children.is_container?(klass) %>
+	    <% end %>
+	  <% end %>
+	<% end %>
+<% end %>  

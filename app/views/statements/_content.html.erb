@@ -2,7 +2,11 @@
 <% hide_content ||= false %>
 
 <% content_tag :div, :class => 'expandable_content content', :style => ('display: none;' if hide_content) do %>
-	 <%= render_alternatives(statement_node, @children.alternatives) if statement_node.class.has_alternatives? and !@node_environment.alternative_mode?(statement_node) %>
+   <% if statement_node.class.has_alternatives? and !@node_environment.alternative_mode?(statement_node) %>
+	   <%= render :partial => 'statements/alternatives',
+	             :locals => {:statement_node => statement_node,
+	                         :alternatives => @children.alternatives} %>
+   <% end %>
 	 <%= render :partial => 'statements/action_bar',
               :locals => {:statement_node => statement_node}%>
 	 <%= render :partial => 'statements/summary',
@@ -10,7 +14,8 @@
                           :statement_document => @statement_document,
                           :approved_node => @approved_node,
                           :approved_document => @approved_document} %>
-	 <%= render_all_children(statement_node, @children) %>
+	 <%= render :partial => "statements/children_block", :locals => {:statement_node => statement_node, :children_types => statement_node.class.children_types} %>
+   <%= render :partial => "statements/children_block", :locals => {:statement_node => statement_node, :children_types => statement_node.class.default_children_types} %>
 	 <%= render_embedded_content(statement_node) if statement_node.class.has_embeddable_data? %>
 
 <% end %>
