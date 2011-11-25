@@ -571,26 +571,6 @@ module StatementsHelper
     create_new_child_statement_link(statement_node, "discuss_alternatives_question", :css => "new_statement", :nl => true, :origin => @node_environment.origin.to_s, :bids => @node_environment.bids.to_s)
   end
   
-  ####################
-  # BACKGROUND INFOS #
-  ####################
-
-
-  def render_embedded_content(background_info)
-    content_tag(:div, :class => 'embed_container') do
-      content = ''
-      content << content_tag(:a, I18n.t('discuss.statements.open_embedded_content'),
-                             :href => background_info.external_url.info_url,
-                             :class => "embedded_content_button",
-                             :target => "_blank")
-      content << content_tag(:span, '', :class => 'loading')
-      content << content_tag(:a, '',
-                             :href => background_info.external_url.info_url,
-                             :class => 'embed_placeholder')
-      content
-    end
-  end
-
   #
   # This class does the heavy lifting of actually building the pagination
   # links. It is used by the <tt>will_paginate</tt> helper internally.
