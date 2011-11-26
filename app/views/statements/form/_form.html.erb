@@ -1,8 +1,7 @@
 <% statement_node ||= @statement_node %>
 <% tags ||= @tags %>
 <% statement_document ||= @statement_document %>
-<% publishable = @statement_node_type ? @statement_node_type.publishable? : statement_node.publishable? %>
-<% has_embeddable_data = @statement_node_type ? @statement_node_type.has_embeddable_data? : statement_node.class.has_embeddable_data? %>
+
 
 <!-- Basic fields: title + text -->
 <%= render :partial => "statements/form/document_form",
@@ -16,7 +15,7 @@
            :locals => {:being_incorporated => true}) unless @approved_node.nil? %>
 
 <% form.semantic_fields_for :statement, statement_node.statement do |stat| %>
-	<% if publishable -%>
+	<% if is_publishable?(statement_node) -%>
 	
 	  <!-- Statement tags (currently only for questions) -->
 	  <% form.inputs :class => 'statement_tags' do %>
@@ -63,16 +62,4 @@
 
 <!-- Embed data -->
 <%= render :partial => 'statements/form/embed_data',
-           :locals => {:form => form, :statement_node => statement_node} if has_embeddable_data %>
-
-<!-- Submit or cancel -->
-<% form.buttons do %>
-  <%= form.commit_button I18n.t('application.general.save'),
-                         :button_html => { :alt => 'save_button' } %>
-  <%= content_tag :span, I18n.t('application.general.or'), :class => "or_cancel" %>
-  <%= statement_node.new_record? ? cancel_new_statement_node : cancel_edit_statement_node(statement_node, statement_document.locked_at) %>
-<% end %>
-
-<!-- Embed data -->
-<%= render :partial => 'statements/form/embed_preview',
-           :locals => {:statement_node => statement_node} if has_embeddable_data %>
+           :locals => {:form => form, :statement_node => statement_node} if has_embeddable_data?(statement_node) %>

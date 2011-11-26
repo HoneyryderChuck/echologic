@@ -184,10 +184,10 @@ module StatementsHelper
                     :type => type.pluralize,
                     :class => "#{type.pluralize} child_header #{'selected' if opts[:selected]}" do
       content_tag :div, :class => "header_content" do
-        title = ''
-        title << content_tag(:span, I18n.t("discuss.statements.headings.#{type}"), :class => 'type')
-        title << content_tag(:span, " (#{count})", :class => 'count')
-        title
+        concat(
+          content_tag(:span, I18n.t("discuss.statements.headings.#{type}"), :class => 'type') +
+          content_tag(:span, " (#{count})", :class => 'count')
+        )
       end
     end
   end
@@ -224,10 +224,10 @@ module StatementsHelper
   end
 
   def summary_hint_text(statement_node)
-    text = ""
-    text << I18n.t("discuss.statements.text_hint.alternative_prefix") if @node_environment.hub?
-    text << I18n.t("discuss.statements.text_hint.#{node_type(statement_node)}")
-    text
+    hint = ""
+    hint << I18n.t("discuss.statements.text_hint.alternative_prefix") if @node_environment.hub?
+    hint << I18n.t("discuss.statements.text_hint.#{node_type(statement_node)}")
+    hint 
   end
 
   ##############
@@ -239,6 +239,15 @@ module StatementsHelper
     @statement_type[statement_node.level] ||= statement_node.new_record? ? @statement_node_type.name.underscore :
                                                                            dom_class(statement_node.target_statement)
   end
+  
+  def has_embeddable_data?(statement_node)
+     @statement_node_type ? @statement_node_type.has_embeddable_data? : statement_node.class.has_embeddable_data?
+  end
+  
+  def is_publishable?(statement_node)
+    @statement_node_type ? @statement_node_type.publishable? : statement_node.publishable?
+  end
+  
 
   # 
   # returns the dom id structure of the statement representing the parent of the statement node in the given context
@@ -260,8 +269,53 @@ module StatementsHelper
       :'data-siblings' => (@siblings.to_session(dom_id(statement_node)).to_json unless @siblings.blank?),
       :'dom-parent' => parent_statement_dom_id(statement_node)
    }
- end
+  end
  
+  def new_statement_element_attributes(klass, statement_node)
+    klasses = %w(ajax_form new wide_form statement)
+    klasses << node_type(statement_node)
+    klasses << 'alternative' if @node_environment.hub?
+    klasses << 'taggable' if klass.taggable?
+    klasses << 'echoable' if klass.echoable?
+    klasses << 'embeddable no_type' if klass.has_embeddable_data? 
+    {
+      :class => klasses.join(" "),
+      :'dom-parent' => statement_node.parent_node ?
+                      "#{dom_class(statement_node.parent_node)}_#{statement_node.parent_node.target_id}" :
+                      @node_environment.origin.to_s
+    }
+  end
+  
+  def edit_statement_element_attributes(statement_node)
+    klasses = %w(ajax_form edit wide_form statement)
+    klasses << 'taggable' if statement_node.taggable?
+    klasses << 'echoable' if statement_node.echoable?
+    klasses << "embeddable #{statement_node.info_type.code}" if statement_node.class.has_embeddable_data? 
+    {
+      :class => klasses.join(" "),
+      :'data-siblings' => @siblings ? @siblings.to_session(dom_id(statement_node)).to_json : ''
+    }
+  end
+  
+  def translate_statement_element_attributes(statement_node)
+    klasses = %w(ajax_form wide_form translation statement)
+    klasses << statement_node.info_type.code if statement_node.class.has_embeddable_data?
+    klasses << 'taggable' if statement_node.taggable?
+    klasses << 'echoable' if statement_node.echoable?
+    { :class => klasses.join(" ") }
+  end
+  
+  def add_statement_element_attributes(klass)
+    klasses = %w(statement add_teaser echoable)
+    klasses << type
+    klasses << 'alternative' if @node_environment.alternative_mode?(@node_environment.level)
+    {
+     :id => "add_#{@type}",
+     :class => klasses.join(" "),
+     :'data-siblings' => (@siblings.to_session("add_#{@type}").to_json if @siblings)
+    }
+  end
+
 
   #
   # Loads the right add statement image.
@@ -316,11 +370,9 @@ module StatementsHelper
   # Render the hint on the edit statement forms to warn about the time the users have to edit it.
   #
   def edit_period_hint
-    content = ''
-    content << content_tag(:li, :class => 'hint') do
+    content_tag(:li, :class => 'hint') do
       content_tag :p, I18n.t('discuss.statements.edit_period_hint', :minutes => 60)
     end
-    content
   end
 
 
@@ -431,8 +483,7 @@ module StatementsHelper
     else
       url = add_teaser_statement_node_path(statement_node)
     end
-    options['data-id'] =
-      teaser ? "#{statement_node.nil? ? '' : "#{statement_node.id}_"}add_#{type}" : statement_node.id
+    options['data-id'] = teaser ? "#{statement_node.nil? ? '' : "#{statement_node.id}_"}add_#{type}" : statement_node.id
     return link_to(title, url, options)
   end
 
@@ -477,9 +528,10 @@ module StatementsHelper
   # Creates a statement link with icon and title.
   #
   def statement_icon_title(title)
-    link = content_tag(:span, '&nbsp;', :class => 'icon')
-    link += content_tag(:span, h(title), :class => 'title')
-    link
+    concat( 
+      content_tag(:span, '&nbsp;', :class => 'icon') +
+      content_tag(:span, h(title), :class => 'title')
+    )
   end
 
 
@@ -539,10 +591,8 @@ module StatementsHelper
    content = ""
    statement_types.each do |statement_type|
 
-     content << radio_button_tag(:type, statement_type, statement_type.eql?(selected),
-                                 :class => "statement_type")
-     content << label_tag(statement_type, I18n.t("discuss.statements.types.#{statement_type}"),
-                          :class => "statement_type_label")
+     content << radio_button_tag(:type, statement_type, statement_type.eql?(selected), :class => "statement_type") +
+                label_tag(statement_type, I18n.t("discuss.statements.types.#{statement_type}"), :class => "statement_type_label")
    end
    content
   end
@@ -553,9 +603,9 @@ module StatementsHelper
 
   def close_alternative_mode_button(statement_node)
     link_to '', statement_node_url(statement_node, 
-                                    :bids => @node_environment.pop_bid.to_s, 
-                                    :origin => @node_environment.origin.to_s, 
-                                    :al => @node_environment.remove_alternative_mode(@node_environment.level).to_s),
+                                   :bids => @node_environment.pop_bid.to_s, 
+                                   :origin => @node_environment.origin.to_s, 
+                                   :al => @node_environment.remove_alternative_mode(@node_environment.level).to_s),
             :class => "alternative_close ttLink no_border",
             :title => I18n.t("discuss.tooltips.close_alternative_mode")
   end

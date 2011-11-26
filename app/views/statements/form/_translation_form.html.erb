@@ -14,11 +14,3 @@
            :locals => { :form => form,
                         :new_statement_document => new_statement_document} %>
 <br/>
-
-<!-- Save and cancel buttons -->
-<% form.buttons do %>
-  <%= form.commit_button I18n.t('application.general.save'),
-                         :button_html => { :alt => 'save_button' } %>
-  <%= content_tag :span, I18n.t('application.general.or'), :class => "or_cancel" %>
-  <%= cancel_edit_statement_node(statement_node, statement_document.locked_at) %>
-<% end %>

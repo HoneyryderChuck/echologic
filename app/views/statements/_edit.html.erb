@@ -2,11 +2,7 @@
 <% statement_document ||= @statement_document %>
 
 <% semantic_form_for statement_node,
-                     :html => {:class => "ajax_form edit wide_form statement
-                                         #{statement_node.taggable? ? 'taggable' : ''}
-                                         #{statement_node.echoable? ? 'echoable' : ''}
-                                         #{statement_node.class.has_embeddable_data? ? ('embeddable ' + statement_node.info_type.code) : ''}",
-                            'data-siblings' => @siblings ? @siblings.to_session(dom_id(statement_node)).to_json : ''} do |form| -%>
+                     :html => edit_statement_element_attributes(statement_node) do |form| -%>
 														
   <%= hidden_field_tag :cs, @node_environment.current_stack.to_s if @node_environment.current_stack? %>
 	
@@ -15,4 +11,14 @@
              :locals => {:form => form, :statement_node => statement_node,
                          :headline => I18n.t("discuss.statements.edit",
                                              :type => I18n.t("discuss.statements.types.#{node_type(statement_node)}"))} %>
+  <!-- Submit or cancel -->
+  <% form.buttons do %>
+    <%= form.commit_button I18n.t('application.general.save'), :button_html => { :alt => 'save_button' } %>
+    <%= content_tag :span, I18n.t('application.general.or'), :class => "or_cancel" %>
+    <%= cancel_edit_statement_node(statement_node, statement_document.locked_at) %>
+  <% end %>
+  
+  <!-- Embed data -->
+  <%= render :partial => 'statements/form/embed_preview',
+             :locals => {:statement_node => statement_node} if has_embeddable_data?(statement_node) %>
 <% end -%>
