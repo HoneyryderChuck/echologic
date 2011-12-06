@@ -8,6 +8,17 @@
                                      :method => :put,
                                      :html => translate_statement_element_attributes(statement_node) do |form| -%>
   <%= render :partial => 'statements/header', :locals => {:statement_node => statement_node} %>
+	
+	
+	<!-- Submit or cancel -->
+  <% content_for :form_buttons do %>
+    <% form.buttons do %>
+      <%= form.commit_button I18n.t('application.general.save'), :button_html => { :alt => 'save_button' } %>
+      <%= content_tag :span, I18n.t('application.general.or'), :class => "or_cancel" %>
+      <%= cancel_edit_statement_node(statement_node, old_statement_document.locked_at) %>
+    <% end %>
+  <% end %>
+	
   <%= render :partial => 'statements/form/form_content',
                          :locals => {:form_partial => 'statements/form/translation_form',
                                      :form => form,
@@ -15,11 +26,6 @@
                                      :headline =>  I18n.t("discuss.statements.types.#{node_type(statement_node)}"),
                                      :no_language_info => true} %>
 	
-	<!-- Submit or cancel -->
-  <% form.buttons do %>
-    <%= form.commit_button I18n.t('application.general.save'), :button_html => { :alt => 'save_button' } %>
-    <%= content_tag :span, I18n.t('application.general.or'), :class => "or_cancel" %>
-    <%= cancel_edit_statement_node(statement_node, statement_document.locked_at) %>
-  <% end %>
+	
 <% end -%>
 

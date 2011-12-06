@@ -1,23 +1,24 @@
 module MyEchoHelper
 
   def social_account_button(provider, token_url)
-    button = ''
     connected = current_user.has_provider? provider
     css_classes = "social_label #{provider.eql?('yahoo!') ? 'yahoo' : provider}#{connected ? ' connected' : ''}"
     if connected
-      button << link_to('', connected.identifier,
-                        :target => "_blank",
-                        :class => css_classes)
-      button << render(:partial => 'users/social_accounts/disconnect',
-                       :locals => {:provider => provider})
+      concat(
+        link_to('', connected.identifier,
+                    :target => "_blank",
+                    :class => css_classes) +
+        render(:partial => 'users/social_accounts/disconnect',
+                           :locals => {:provider => provider})
+      )
     else
-      button << content_tag(:span, '',
-                            :class => css_classes)
-      button << render(:partial => 'users/social_accounts/connect',
-                       :locals => {:provider => provider,
-                                   :token_url => token_url})
+      concat(
+        content_tag(:span, '', :class => css_classes) +
+        render(:partial => 'users/social_accounts/connect',
+                           :locals => {:provider => provider,
+                                       :token_url => token_url})
+      )
     end
-    button
   end
 
   def component_link(method, type, entry)

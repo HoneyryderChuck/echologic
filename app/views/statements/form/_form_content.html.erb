@@ -8,5 +8,6 @@
 
 		<%=content_tag :h2, headline if !headline.nil? %>
 	  <%= render :partial => form_partial, :locals => {:form => form} %>
+		<%= yield :form_buttons %>
 	</div>
 </div>

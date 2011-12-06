@@ -27,13 +27,12 @@ module ConnectHelper
     one_or_many = count == 1 ? 'one' : 'more'
 
     # Assembling the string
-    count_text = count.to_s + ' '
     if !filter
-      count_text << I18n.t("connect.results_count.#{category}.#{filter}.#{one_or_many}")
+      count_text = I18n.t("connect.results_count.#{category}.#{filter}.#{one_or_many}")
     else
-      count_text << I18n.t("connect.results_count.#{category}.#{filter}.#{one_or_many}",
+      count_text = I18n.t("connect.results_count.#{category}.#{filter}.#{one_or_many}",
                            :filter => search_terms)
     end
-    count_text
+    "#{count} #{count_text}"
   end
 end

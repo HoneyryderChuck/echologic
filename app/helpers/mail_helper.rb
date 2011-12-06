@@ -33,12 +33,12 @@ module MailHelper
     content_tag(:li,
                 :class => "statement_link #{event['type']}_link",
                 :style => "list-style: none; margin: 7px 0;") do
-      link = ""
-      link << image_tag(icon_url, :alt => '')
-      link << link_to(document[1],
-                      statement_node_url(event['id'], :locale => Language[document[0].to_i].code),
-                      :style => "color: #21587f; text-decoration: none; font-weight: bold; padding-left: 5px; vertical-align: top;")
-      link
+      concat(
+        image_tag(icon_url, :alt => '') +
+        link_to(document[1],
+                statement_node_url(event['id'], :locale => Language[document[0].to_i].code),
+                :style => "color: #21587f; text-decoration: none; font-weight: bold; padding-left: 5px; vertical-align: top;")
+      )
     end
   end
 

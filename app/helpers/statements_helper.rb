@@ -512,15 +512,14 @@ module StatementsHelper
     level = @node_environment.stack_level(statement_node)
     al = @node_environment.add_alternative_mode(level).to_s if opts[:alternative_link]
 
-    content = link_to(statement_icon_title(title),
-                      statement_node_url(statement_node.target_id,
-                                         :bids => bids.to_s,
-                                         :origin => @node_environment.origin.to_s,
-                                         :nl => opts[:nl],
-                                         :al => al),
-                      :class => "statement_link #{opts[:type]}_link #{opts[:css]}")
-    content += render :partial => "statements/supporters", :locals => {:statement_node => statement_node}
-    content
+    link_to(statement_icon_title(title),
+            statement_node_url(statement_node.target_id,
+                               :bids => bids.to_s,
+                               :origin => @node_environment.origin.to_s,
+                               :nl => opts[:nl],
+                               :al => al),
+           :class => "statement_link #{opts[:type]}_link #{opts[:css]}") +
+    render(:partial => "statements/supporters", :locals => {:statement_node => statement_node})
   end
 
 
@@ -528,10 +527,8 @@ module StatementsHelper
   # Creates a statement link with icon and title.
   #
   def statement_icon_title(title)
-    concat( 
-      content_tag(:span, '&nbsp;', :class => 'icon') +
-      content_tag(:span, h(title), :class => 'title')
-    )
+    content_tag(:span, '&nbsp;', :class => 'icon') +
+    content_tag(:span, h(title), :class => 'title')
   end
 
 

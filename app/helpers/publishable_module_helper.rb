@@ -19,13 +19,13 @@ module PublishableModuleHelper
     link_to(new_question_url(:origin => origin, :bids => origin),
                              :id => 'create_question_link',
                              :class => 'add_new_button big_action_button') do
-      link_content = ''
-      link_content << content_tag(:span, '',
-                                  :class => "add_new_question_icon ttLink no_border",
-                                  :title => I18n.t("discuss.tooltips.create_question"))
-      link_content <<  content_tag(:span, I18n.t("discuss.my_questions.add"),
-                                   :class => 'label')
-      link_content
+      concat(
+        content_tag(:span, '',
+                    :class => "add_new_question_icon ttLink no_border",
+                    :title => I18n.t("discuss.tooltips.create_question")) +
+        content_tag(:span, I18n.t("discuss.my_questions.add"),
+                    :class => 'label')
+      )
     end
   end
 
@@ -70,13 +70,13 @@ module PublishableModuleHelper
   def featured_topic_link(topic, search_terms)
     link_to(discuss_search_url(:search_terms => search_terms),
             :class => 'featured_topic') do
-      content = ''
-      content << image_tag("page/discuss/topics/#{topic}.png",
+      concat(
+        image_tag("page/discuss/topics/#{topic}.png",
                            :class => "featured_topic_picture",
-                           :alt => '')
-      content << content_tag(:span, I18n.t("discuss.topics.#{topic}.name"),
+                           :alt => '') +
+        content_tag(:span, I18n.t("discuss.topics.#{topic}.name"),
                              :class => 'featured_topic_label')
-      content
+      )
     end
   end
 
@@ -91,8 +91,6 @@ module PublishableModuleHelper
                                     :in => :summary),
               :class => 'ajax_put header_button text_button publish_text_button ttLink',
               :title => I18n.t('discuss.tooltips.publish'))
-    else
-      ''
     end
   end
 
@@ -138,13 +136,13 @@ module PublishableModuleHelper
     link_to(new_question_url(:origin => :mi, :bids => :mi),
                        :id => 'create_question_link',
                        :class => 'add_new_button big_action_button') do
-      link_content = ''
-      link_content << content_tag(:span, '',
-                      :class => "add_new_question_icon ttLink no_border",
-                      :title => I18n.t("discuss.tooltips.create_question"))
-      link_content <<  content_tag(:span, I18n.t("discuss.my_questions.add"),
-                                   :class => 'label')
-      link_content
+      concat(
+        content_tag(:span, '',
+                    :class => "add_new_question_icon ttLink no_border",
+                    :title => I18n.t("discuss.tooltips.create_question")) +
+        content_tag(:span, I18n.t("discuss.my_questions.add"),
+                           :class => 'label')
+     )
     end
   end
 

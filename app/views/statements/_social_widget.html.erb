@@ -6,7 +6,7 @@
   <% form_tag share_statement_node_url(statement_node),
               :method => :post,
               :class => 'ajax_form share_form' do -%>
-	 <%= render_social_account_buttons statement_node %>
+	 <%= render :partial => "statements/social_account_buttons", :locals => {:statement_node => statement_node} %>
 	 <%# content_tag :div, :class => 'hint' do %>
 	   <%# content_tag :span, I18n.t("users.social_accounts.share.data_privacy.title"),
                      :class => 'ttLink no_border',

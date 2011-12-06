@@ -41,45 +41,13 @@ module EchoableModuleHelper
     end
   end
 
-  def render_social_account_buttons(statement_node)
-    content_tag(:div,
-                :class => "social_account_list block center",
-                'data-enabled' => I18n.t("users.social_accounts.share.enabled"),
-                'data-disabled' => I18n.t("users.social_accounts.share.disabled")) do
-      content = ''
-      token_url = redirect_from_popup_to(add_remote_url,
-                                         :redirect_url => statement_node_url(statement_node,
-                                                                             :bids => @node_environment.bids.to_s,
-                                                                             :origin => @node_environment.origin.to_s),
-                                         :later_call => social_widget_statement_node_url(statement_node,
-                                                                                         :bids => @node_environment.bids.to_s,
-                                                                                         :origin => @node_environment.origin.to_s))
-      %w(facebook twitter yahoo! linkedin).each do |provider|
-        connected = current_user.has_provider? provider
-        css_provider = provider.eql?('yahoo!') ? 'yahoo' : provider
-        css_classes = "social_label #{css_provider}#{connected ? ' connected' : ''}"
-        content << content_tag(:div, :class => "social_account #{css_provider}") do
-          button = ''
-          if connected
-            button << link_to('', connected.identifier, :target => "_blank", :class => css_classes)
-            button << provider_switch_button(provider, true)
-          else
-            button << content_tag(:span, '', :class => css_classes)
-            button << provider_connect_button(provider, token_url)
-          end
-          button
-        end
-      end
-      content
-    end
-  end
 
   def provider_switch_button(provider, enable = false)
     tag = enable ? 'enabled' : 'disabled'
-    content = ''
-    content << content_tag(:span, '', :class => "button #{tag}")
-    content << hidden_field_tag("providers[#{provider}]", tag)
-    content
+    concat(
+      content_tag(:span, '', :class => "button #{tag}") +
+      hidden_field_tag("providers[#{provider}]", tag)
+    )
   end
 
   def provider_connect_button(provider, token_url)
