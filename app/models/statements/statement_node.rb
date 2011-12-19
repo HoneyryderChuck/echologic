@@ -358,7 +358,7 @@ class StatementNode < ActiveRecord::Base
     opts[:page] ||= 1
     opts[:per_page] ||= TOP_CHILDREN
     children = child_statements(opts)
-    opts[:type].to_s.constantize.paginate_statements(children, opts[:page], opts[:per_page]) 
+    children.kind_of?(Integer) ? children : opts[:type].to_s.constantize.paginate_statements(children, opts[:page], opts[:per_page]) 
   end
 
   #

@@ -557,7 +557,7 @@ class StatementsController < ApplicationController
     @children ||= StatementsContainer.new
     @children[opts[:type]] = @statement_node.paginated_child_statements(opts)
     @children.store_documents(search_statement_documents :language_ids => filter_languages_for_children,
-                                                          :statement_ids => @children[opts[:type]].flatten.map(&:statement_id))
+                                                          :statement_ids => @children[opts[:type]].flatten.map(&:statement_id)) if @children.is_container?(opts[:type])
   end
 
   #
