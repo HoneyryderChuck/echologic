@@ -2,7 +2,7 @@
 <% child_type ||= @type.to_s.downcase %>
 <% no_more ||= false %>
 <% new_level ||= false %>
-<div class="<%= child_type.pluralize %> expandable_content children_container" style="<%= display ? 'display:block' : 'display:none'%>">
+<div class="<%= child_type.pluralize %> double expandable_content children_container" style="<%= display ? 'display:block' : 'display:none'%>">
 	<div class="doubles_list">
 		<% children.each_with_index do |c, index| %>
 		  <% t = child_type.classify.constantize.sub_types[index].to_s.underscore %>

@@ -49,6 +49,8 @@
 			var statementUrl;
 			var embedPlaceholder = statement.find('.embed_placeholder');
 			var statementSiblings;
+			
+			var siblingsButton = statement.find('.show_siblings_button');
 
       // Initialize the statement
       initialise();
@@ -503,8 +505,11 @@
       /*
        * Reinitializes the siblings.
        */
-			function reinitialiseSiblings(siblingsContainerSelector) {
-	      var container = statement.find(siblingsContainerSelector);
+			function reinitialiseSiblings(container) {
+				
+				// initialise scroll plugin
+        var panelHeight = initPanelHeight(container);
+        
         initContainerMoreButton(container);
 				var opts = container.hasClass('alternatives') ? {"nl" : true, "al" : ("al" + statementId)} : {}
         initSiblingsLinks(container, opts);
@@ -513,6 +518,39 @@
         }
 	    }
 
+
+      /*
+       * Calculates height at which a new statement entries container should be initialised and initialises it
+       */
+      function initPanelHeight(container) {
+       if (!container.hasClass('children_container')) container = container.find('.children_container');
+      
+			 var list, height; 
+       if (container.hasClass('double')) {
+			 	 list = container.find('.doubles_list');			 
+         var heights = list.find('.children_list').map(function(){
+           var elementsCount = $(this).data('total-elements');
+           return elementsCount <= 7 ? ((elementsCount + 1) * 44) : 314;
+         }).get();
+				 
+				 height = Math.max.apply(Math, heights);
+       } else {
+         var list = container.find('.children_list');
+         var elementsTotalCount = list.data('total-elements');
+         
+         height = elementsTotalCount <= 10 ? ((elementsTotalCount + 1) * 29) : 290;
+       }  
+       list.height(height).jScrollPane({animateScroll: false});    
+			 
+			 // scroll down
+       var jsp = list.data('jsp');
+       var active = jsp.getContentPane().find('a.active');
+      
+       if(active.length > 0) {
+         var height = active.parent().index('li.' + statementType) * 29;
+	       jsp.scrollToY(height);
+	     }
+      }
 
       /******************/
       /* Handling Links */
@@ -906,6 +944,8 @@
 					statement.find('.content').animate(toggleParams, settings['animation_speed']);
 				}
 			}
+			
+			
 
       /***************************/
       /* Public API of statement */
@@ -925,10 +965,13 @@
 					reinitialiseChildren(siblingsContainerSelector);
 				},
 
-				reinitialiseSiblings: function(siblingsContainerSelector) {
-          reinitialiseSiblings(siblingsContainerSelector);
-        },
-
+        insertSiblings: function(siblings){
+			    siblings.insertAfter(siblingsButton).bind("mouseleave", function() {
+					  $(this).fadeOut();
+					}).fadeIn();
+					
+					reinitialiseSiblings(siblings);
+				},
         insertContent: function(content) {
           statement.append(content);
 					showAnimated();

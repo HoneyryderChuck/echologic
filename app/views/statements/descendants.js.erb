@@ -4,24 +4,4 @@ var siblings_panel = $("<%= escape_javascript(render :partial => "statements/des
                                                                   :children => @children[@type],
                                                                   :hub => @node_environment.hub.to_s})%>");
 var statement = $('#statements > .<%= type_dom_class %>');
-var siblings_button = statement.find('.show_siblings_button');
-
-siblings_panel.insertAfter(siblings_button).bind("mouseleave", function() {
-  $(this).fadeOut();
-}).fadeIn();
-
-var panel_height = <%= @children.get_children_container_height(@type) %>
-var children_list = statement.find('.header .siblings_panel .children_list');
-children_list.height(panel_height).jScrollPane({animateScroll: false});
-
-var jsp = children_list.data('jsp');
-
-
-var active = jsp.getContentPane().find('li a.active');
-
-if(active.length > 0) {
-  var height = jsp.getContentPane().find('li a').index(active) * 29;
-	jsp.scrollTo(0, height);
-}
-
-statement.data('api').reinitialiseSiblings(".siblings_panel");
+statement.data('api').insertSiblings(siblings_panel);
