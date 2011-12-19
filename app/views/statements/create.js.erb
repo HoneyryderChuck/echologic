@@ -17,7 +17,7 @@ if(!window.location.href.match(/\/\d+/)) {
 var session_data =  $('div#statements').data(session_id);
 if (session_data != null) {
 	session_data.unshift(<%= @statement_node.target_id %>);
-	$('div#statements').data(session_id, session_data);
+	$('#statements').data(session_id, session_data);
 } else {
   session_data = [<%= @statement_node.target_id %>, "add/<%= node_type(@statement_node) %>"]
 }
@@ -51,7 +51,7 @@ $.setFragment({ "nl" : '', "origin" : origin, "al" : al.join(',')});
 var element = $("<%= escape_javascript(render :partial => 'statements/show', :locals => {:statement_node => @statement_node.target_statement}) %>").statement({'level' : <%= @statement_node.level %>});
 
 /* Statements' stack */
-var sids = $('div#statements div.statement').map(function(){
+var sids = $('#statements > .statement').map(function(){
   return this.id.replace(/[^0-9]+/, "");
 }).get();
 

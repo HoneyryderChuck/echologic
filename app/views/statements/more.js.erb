@@ -1,5 +1,5 @@
 <% type_plural = @type.to_s.underscore.pluralize %>
-var statement = $('#statements > #<%=dom_id(@statement_node)%>');
+var statement = $('#<%=dom_id(@statement_node)%>');
 var container =  statement.find('.<%=type_plural%>');
 var children_list = container.find('.children_list');
 var more_element = container.find('.more_pagination');

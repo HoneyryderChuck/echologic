@@ -1,4 +1,4 @@
-var index = $("div#<%=dom_id(@statement_node)%>").index();
+var index = $("#<%=dom_id(@statement_node)%>").index();
 
 var element = $("<%= escape_javascript(render :partial => 'statements/translate') %>").statement({'level' : index});
 

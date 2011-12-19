@@ -1,6 +1,6 @@
 var widget = $("<%= escape_javascript(render :partial => "statements/social_widget") %>");
 
-var statement = $('#statements div.<%= node_type(@statement_node) %>');
+var statement = $('#statements > .<%= node_type(@statement_node) %>');
 var social_echo_button = statement.find('.social_echo_button');
 
 widget.insertAfter(social_echo_button).fadeIn();

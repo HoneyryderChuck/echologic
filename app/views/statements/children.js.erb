@@ -2,7 +2,7 @@
 var elements = $("<%= escape_javascript(render :partial => @children.children_list_template(@type), :locals => {:children => @children[@type],
                                                                                                  :child_type => type_dom_class,
                                                                                                  :new_level => true}) %>");
-var statement = $('#statements div.<%=node_type(@statement_node)%>');
+var statement = $('#statements > .<%=node_type(@statement_node)%>');
 
 var headline = statement.find('.children a.<%= type_dom_class.pluralize %>').parent();
 

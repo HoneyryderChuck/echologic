@@ -6,7 +6,7 @@
 <% end %>
 
 
-var element = $('#statements div#<%= dom_id(@statement_node)%>');
+var element = $('#<%= dom_id(@statement_node)%>');
 
 <% href = @statement_node.supported?(current_user) ? unecho_statement_node_url(@statement_node) : echo_statement_node_url(@statement_node)%>
 var new_supporters_bar = "<%= escape_javascript(supporter_ratio_bar(@statement_node)) %>";

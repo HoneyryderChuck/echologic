@@ -30,7 +30,7 @@
 <% if !params[:expand].blank? %>
   var content = "<%= escape_javascript(render :partial => 'statements/content',
                                               :locals => {:hide_content => true}) %>";
-  var statement = $('#statements div#<%= dom_id(@statement_node)%>');
+  var statement = $('#<%= dom_id(@statement_node)%>');
 	statement.data('api').insertContent(content);
 <% else %>
 
