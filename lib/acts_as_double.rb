@@ -38,10 +38,10 @@ module ActsAsDouble
           # Overrides normal behaviour. Delegates to sub_types and merges the results.
           #
           def statements_for_parent(opts)
-            statements = sub_types.each_with_object([]) do |type, arr|
-              next if type.eql?(self.class.name.to_sym)
-              sub_opts = opts.merge(:type => type)
-              sub_statements = children_statements(sub_opts).by_alternatives(sub_opts[:alternative_ids]).by_statement_state(sub_opts[:user]).by_alternatives(sub_opts[:alternative_ids])
+            statements = sub_types.each_with_object([]) do |typ, arr|
+              next if typ.eql?(self.class.name.to_sym)
+              sub_opts = opts.merge(:type => typ)
+              sub_statements = self.base_class.children_statements(sub_opts).by_alternatives(sub_opts[:alternative_ids]).by_statement_state(sub_opts[:user]).by_alternatives(sub_opts[:alternative_ids])
               sub_statements = sub_statements.by_visible_drafting_state(nil) if opts[:filter_drafting_state]
               arr << sub_statements.by_languages(sub_opts).all(:include => opts[:include], :limit => opts[:limit]) 
             end
