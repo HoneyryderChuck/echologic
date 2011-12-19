@@ -43,8 +43,14 @@ module ActsAsDouble
               sub_opts = opts.merge(:type => typ)
               sub_statements = self.base_class.children_statements(sub_opts).by_alternatives(sub_opts[:alternative_ids]).by_statement_state(sub_opts[:user]).by_alternatives(sub_opts[:alternative_ids])
               sub_statements = sub_statements.by_visible_drafting_state(nil) if opts[:filter_drafting_state]
-              arr << sub_statements.by_languages(sub_opts).all(:include => opts[:include], :limit => opts[:limit]) 
+              sub_statements = sub_statements.by_languages(sub_opts)
+              if sub_opts[:count]
+                arr << sub_statements.count(:include => opts[:include])
+              else
+                arr << sub_statements.all(:include => opts[:include], :limit => opts[:limit])
+              end
             end
+            return statements.sum if opts[:count]
             opts[:alternative_output] ? statements.first : statements
           end
 

@@ -378,8 +378,7 @@ class StatementNode < ActiveRecord::Base
     opts[:lft] ||= self.lft
     opts[:rgt] ||= self.rgt
     opts[:filter_drafting_state] ||= self.draftable?
-    statements = opts[:type] ? opts[:type].to_s.constantize.statements_for_parent(opts) : children
-    opts[:count] ? statements.count : statements
+    opts[:type] ? opts[:type].to_s.constantize.statements_for_parent(opts) : children
   end
 
   private
@@ -442,6 +441,7 @@ class StatementNode < ActiveRecord::Base
       statements = StatementNode.children_statements(opts).by_statement_state(opts[:user]).by_alternatives(opts[:alternative_ids])
       statements = statements.by_visible_drafting_state(nil) if opts[:filter_drafting_state]
       statements = statements.by_languages(opts)
+      opts[:count] ? statements.count : statements
     end
 
     public
