@@ -76,10 +76,11 @@ module StatementsHelper
 
 
   def add_create_new_statement_button(statement_node, type, opts={})
+    style = opts.delete(:style)
     if statement_node.nil? # only for siblings; there ain't no child question creation possibility; hence, no new_level param is given
-       content_tag :li, create_new_question_link(opts)
+       content_tag :li, create_new_question_link(opts), :style => style
     else
-       content_tag :li, create_new_child_statement_link(statement_node, type, opts)
+       content_tag :li, create_new_child_statement_link(statement_node, type, opts), :style => style
     end
   end
 

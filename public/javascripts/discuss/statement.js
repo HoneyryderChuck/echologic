@@ -15,7 +15,8 @@
       'animation_speed': 300,
       'embed_delay': 2000,
       'embed_speed': 500,
-      'scroll_speed': 500
+      'scroll_speed': 500,
+			'children_per_page' : 7
     };
 
     // Merging settings with defaults
@@ -466,21 +467,55 @@
        * Initializes the More button for children/sibling/etc. or all containers in the statement.
        */
 			function initContainerMoreButton(container) {
-				container.find(".more_pagination a:Event(!click)").bind("click", function() {
+				// Get total children per column
+				var totalChildren = container.find('.children_list').map(function(){
+          return $(this).data('total-elements');
+        }).get();
+        totalChildren = Math.max.apply(Math, totalChildren);
+				
+				var more = container.find(".more_pagination a:Event(!click)");
+				
+				// loading more button
+				var moreLoading = $('<span class="more_loading"/>').text(more.text());
+				moreLoading.hide().insertAfter(more);
+				
+				
+				
+				more.bind("click", function() {
           var moreButton = $(this);
-					var moreLoading = $('<span/>').text(moreButton.text()).addClass('more_loading');
 					moreButton.hide();
-					moreLoading.insertAfter(moreButton);
+					moreButton.next().css({ 'display': 'inline' });
           var path = moreButton.attr('href');
 					$.ajax({
 				  	url: path,
 				  	type: 'get',
 				  	dataType: 'script',
 				  	success: function(data, status){
-							moreButton.remove();
+							// get longest number of children as column
+							var currentChildren = container.find('.children_list').map(function(){
+								return $(this).find('.statement_link').length;
+							}).get();
+							currentChildren = Math.max.apply(Math, currentChildren);
+							
+							
+							if (totalChildren == currentChildren) {
+								// if at the end, disable more button 
+								 moreButton.next().removeClass('more_loading').addClass('disabled');
+								 moreButton.remove();
+					    }
+						  else {
+								// update the page to load
+								moreButton.next().hide();
+								var currentPage = currentChildren/settings.children_per_page;
+							  container.find('.children_list').data('current-page', currentPage);
+								var moreUrl = moreButton.attr('href').replace(/page\=\d+/, "page="+(currentPage + 1));
+								moreButton.attr('href', moreUrl);
+								moreButton.show();
+					    }
+							
 				  	},
 				  	error: function(){
-				  	 moreLoading.remove();
+				  	 moreButton.next().hide();
 						 moreButton.show();
 				  	}
 				  });
@@ -492,9 +527,7 @@
       /*
        * Reinitializes the children.
        */
-      function reinitialiseChildren(childrenContainerSelector) {
-				var container = statement.find(childrenContainerSelector);
-        initContainerMoreButton(container);
+      function reinitialiseChildren(container) {
         initChildrenLinks(container);
         if (isEchoable) {
           statement.data('echoableApi').loadRatioBars(container);
@@ -508,7 +541,7 @@
 			function reinitialiseSiblings(container) {
 				
 				// initialise scroll plugin
-        var panelHeight = initPanelHeight(container);
+        initChildrenScroll(container);
         
         initContainerMoreButton(container);
 				var opts = container.hasClass('alternatives') ? {"nl" : true, "al" : ("al" + statementId)} : {}
@@ -522,15 +555,25 @@
       /*
        * Calculates height at which a new statement entries container should be initialised and initialises it
        */
-      function initPanelHeight(container) {
+      function initChildrenScroll(container) {
        if (!container.hasClass('children_container')) container = container.find('.children_container');
-      
+       
+			 var animate = arguments.length > 1 ? arguments[1] : false;
+			
+			 var e = {
+			 	'maxPageSingle' : animate ? 7 : 10,
+				'maxPageDouble' : animate ? 5 : 7,
+				'maxHeightSingle' : animate ? 203 : 290,
+				'maxHeightDouble' : animate ? 225 : 314
+			 	
+			 };
+			
 			 var list, height; 
        if (container.hasClass('double')) {
 			 	 list = container.find('.doubles_list');			 
          var heights = list.find('.children_list').map(function(){
            var elementsCount = $(this).data('total-elements');
-           return elementsCount <= 7 ? ((elementsCount + 1) * 44) : 314;
+           return elementsCount <= e.maxPageDouble ? ((elementsCount + 1) * 44) : e.maxHeightDouble;
          }).get();
 				 
 				 height = Math.max.apply(Math, heights);
@@ -538,9 +581,10 @@
          var list = container.find('.children_list');
          var elementsTotalCount = list.data('total-elements');
          
-         height = elementsTotalCount <= 10 ? ((elementsTotalCount + 1) * 29) : 290;
+         height = elementsTotalCount <= e.maxPageSingle ? ((elementsTotalCount + 1) * 29) : e.maxHeightSingle;
        }  
-       list.height(height).jScrollPane({animateScroll: false});    
+			 console.log(height)
+       if (!list.data('jsp')) list.height(height).jScrollPane({animateScroll: animate});    
 			 
 			 // scroll down
        var jsp = list.data('jsp');
@@ -759,7 +803,7 @@
        */
       function initStatementLinks(container, newLevel) {
 				var params = arguments[2] || {};
-				container.find('a.statement_link').bind("click", function() {
+				container.find('a.statement_link:not(.registered)').bind("click", function() {
 					var current_stack = getStatementsStack(null, newLevel);
 					var childId = $(this).parent().attr('statement-id');
 					var key = getTypeKey($(this).parent().attr('class'));
@@ -815,7 +859,7 @@
             }, params)
 				  );
           return false;
-        });
+        }).addClass('registered');
       }
 
 
@@ -956,15 +1000,56 @@
         reinitialise: function(resettings) {
           reinitialise(resettings);
         },
-
-        reinitialiseContainerBlock: function(containerSelector, newLevel) {
-					newLevel ? reinitialiseChildren(containerSelector) : reinitialiseSiblings(containerSelector);
+        insertChildren: function(type, children, page) {
+					var container = statement.find('.children div.'+type);
+					if (container.length > 0) {
+		        if (container.hasClass('double')) {
+							var lists = container.find('.children_list');
+							lists.each(function(index){
+							 var l = $(lists.get(index)),
+							     c = children[index],
+									 total = l.data('total-elements');
+							 if (c.length == 0) return; 
+							 c.insertBefore(l.find('li:last'));	
+							 if (page*7 >= total) l.children(":last").show();
+							});
+							
+							if (page == 1) {
+                initChildrenScroll(container, true);
+              } else {
+								var scrollpane = container.find('.doubles_list').data('jsp');;
+								scrollpane.reinitialise();
+                scrollpane.scrollToBottom();
+							}
+							
+							
+						} else {
+							var list = container.find('.children_list');
+							var total = list.data('total-elements');
+							children.insertBefore(list.find('li:last'));
+							if (page*7 >= total) list.children(":last").show();
+                
+							var scrollpane;
+							if (page == 1) {
+			          initChildrenScroll(container, true);
+						  }
+						  else {
+						  	var scrollpane = container.find('.children_list').data('jsp');
+								scrollpane.reinitialise();
+                scrollpane.scrollToBottom();
+						  }
+						}
+						if (container.parent().hasClass('siblings_panel')) {
+              reinitialiseSiblings(container);
+            } else {
+              reinitialiseChildren(container);
+              }
+				  }
+				  else {
+				  	statement.find('.children a.' + type).parent().next().prepend(children);
+						reinitialiseChildren(container);
+				  }
 				},
-
-				reinitialiseChildren: function(childrenContainerSelector) {
-					reinitialiseChildren(siblingsContainerSelector);
-				},
-
         insertSiblings: function(siblings){
 			    siblings.insertAfter(siblingsButton).bind("mouseleave", function() {
 					  $(this).fadeOut();

@@ -79,24 +79,6 @@ class StatementsContainer < Hash
   
   ## VIEW HELPERS
   
-  def get_children_container_height(klass)
-    elements = self[klass]
-    if klass.to_s.classify.constantize.double?
-      elements.map{|c| c.total_entries <= 7 ? ((c.total_entries + 1) * 44) : 314}.max
-    else
-      elements.total_entries <= 10 ? ((elements.total_entries + 1) * 29) : 290
-    end
-  end
-  
-  def get_more_container_height(klass)
-    elements = self[klass]
-    if klass.to_s.classify.constantize.double?
-      elements.map{|c| c.total_entries <= 5 ? ((c.total_entries + 1) * 44) : 225}.max
-    else
-      elements.total_entries <= 7 ? ((elements.total_entries + 1) * 29) : 203
-    end
-  end
-  
   def count(klass)
     elements = self[klass]
     return elements if elements.kind_of? Integer

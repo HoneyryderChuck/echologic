@@ -188,16 +188,6 @@ function loadSocialSharingMessages() {
 
 
 /*
- * Animates the height of the children list panel and scrolls to the buttom afterwards.
- */
-function resetChildrenList(list, properties) {
-	list.animate(properties, 300, function() {
-    list.jScrollPane({animateScroll: true});
-  });
-}
-
-
-/*
  * Redirects after session expiry.
  */
 function redirectToStatementUrl() {

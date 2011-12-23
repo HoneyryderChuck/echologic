@@ -1,9 +1,8 @@
 <% new_level ||= false %>
 <% label_type ||= child_type %>
 <% hub ||= nil %>
-<% content_tag :ul, :class => "children_list children_pagination", :"data-total-elements" => children.total_entries do %>
+<% visible = ((children.blank? or children.current_page == children.total_pages) ? '' : 'display:none;') %>
+<% content_tag :ul, :class => "children_list children_pagination", :"data-total-elements" => children.total_entries, :"data-current-page" => children.current_page do %>
   <%= render :partial => 'statements/child', :collection => children, :locals => {:new_level => new_level, :child_type => child_type, :label_type => label_type} %>
-  <% if children.blank? or children.current_page == children.total_pages %>
-	  <%= add_create_new_statement_button(@statement_node, child_type, :label_type => label_type, :hub => hub, :nl => new_level, :bids => @node_environment.bids.to_s, :origin => @node_environment.origin.to_s, :css => "new_statement" ) %>
-  <% end %>
+	<%= add_create_new_statement_button(@statement_node, child_type, :label_type => label_type, :hub => hub, :nl => new_level, :bids => @node_environment.bids.to_s, :origin => @node_environment.origin.to_s, :css => "new_statement", :style => visible ) %>
 <% end %> 
