@@ -7,4 +7,4 @@ var elements_list = $("<%= escape_javascript(render :partial => 'statements/chil
 
 
 var statement = $('#<%=dom_id(@statement_node)%>');
-statement.data('api').insertChildren('<%= type_plural %>', elements_list, <%= @page %> );
+statement.data('api').insertChildren('<%= type_plural %>', [elements_list], <%= @page %> );

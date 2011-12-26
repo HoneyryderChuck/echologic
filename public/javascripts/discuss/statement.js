@@ -16,7 +16,29 @@
       'embed_delay': 2000,
       'embed_speed': 500,
       'scroll_speed': 500,
-			'children_per_page' : 7
+			
+			// Children Container Helpers
+			'childrenPerPage' : 7,
+			'maxPage' : {
+				'animate' : {
+					'single' : 7,
+					'double' : 5 
+				},
+				'single' : 10,
+				'double' : 7
+			},
+			'maxHeight' : {
+				'animate' : {
+					'single' : 203,
+					'double' : 225
+				},
+				'single' : 290,
+				'double' : 314
+			},
+			'childHeight' : {
+				'single' : 29,
+				'double' : 44
+			}
     };
 
     // Merging settings with defaults
@@ -506,7 +528,7 @@
 						  else {
 								// update the page to load
 								moreButton.next().hide();
-								var currentPage = currentChildren/settings.children_per_page;
+								var currentPage = currentChildren/settings.childrenPerPage;
 							  container.find('.children_list').data('current-page', currentPage);
 								var moreUrl = moreButton.attr('href').replace(/page\=\d+/, "page="+(currentPage + 1));
 								moreButton.attr('href', moreUrl);
@@ -560,40 +582,47 @@
        
 			 var animate = arguments.length > 1 ? arguments[1] : false;
 			
-			 var e = {
-			 	'maxPageSingle' : animate ? 7 : 10,
-				'maxPageDouble' : animate ? 5 : 7,
-				'maxHeightSingle' : animate ? 203 : 290,
-				'maxHeightDouble' : animate ? 225 : 314
-			 	
-			 };
-			
-			 var list, height; 
-       if (container.hasClass('double')) {
-			 	 list = container.find('.doubles_list');			 
-         var heights = list.find('.children_list').map(function(){
-           var elementsCount = $(this).data('total-elements');
-           return elementsCount <= e.maxPageDouble ? ((elementsCount + 1) * 44) : e.maxHeightDouble;
-         }).get();
-				 
-				 height = Math.max.apply(Math, heights);
-       } else {
-         var list = container.find('.children_list');
-         var elementsTotalCount = list.data('total-elements');
-         
-         height = elementsTotalCount <= e.maxPageSingle ? ((elementsTotalCount + 1) * 29) : e.maxHeightSingle;
-       }  
-			 console.log(height)
-       if (!list.data('jsp')) list.height(height).jScrollPane({animateScroll: animate});    
 			 
-			 // scroll down
-       var jsp = list.data('jsp');
-       var active = jsp.getContentPane().find('a.active');
-      
-       if(active.length > 0) {
-         var height = active.parent().index('li.' + statementType) * 29;
-	       jsp.scrollToY(height);
-	     }
+			 var maxPage = settings.maxPage,
+			     maxHeight = settings.maxHeight,
+			     elemHeight = settings.childHeight;
+		  
+			 if (animate) {
+			 	maxPage = maxPage.animate;
+				maxHeight = maxHeight.animate;
+			 }
+			 
+			 if (container.hasClass('double')) {
+			 	maxPage = maxPage.double;
+				maxHeight = maxHeight.double;
+				elemHeight = elemHeight.double;
+			 } else {
+			 	maxPage = maxPage.single;
+				maxHeight = maxHeight.single;
+				elemHeight = elemHeight.single;
+			 }
+			
+			 var list = container.children(':first');
+			 var heights = list.find('.children_list').map(function(){
+         var elementsCount = $(this).data('total-elements');
+         return elementsCount <= maxPage ? ((elementsCount + 1) * elemHeight) : maxHeight;
+       }).get();
+			 var height = Math.max.apply(Math, heights);
+			 if (!list.data('jsp'))
+			  list.animate({ 'height': height }, 300, function(){
+			    list.height(height).jScrollPane({animateScroll: animate});	
+			  });
+			 else {
+       
+	       // scroll down
+	       var jsp = list.data('jsp');
+	       var active = jsp.getContentPane().find('a.active');
+	      
+	       if(active.length > 0) {
+	         var activeHeight = active.parent().index('li.' + statementType) * elemHeight;
+	         jsp.scrollToY(activeHeight);
+	       }
+			 }
       }
 
       /******************/
@@ -990,6 +1019,40 @@
 			}
 			
 			
+			function insertChildren(type, children, page) {
+				var container = statement.find('.children div.'+type);
+        if (container.length > 0) {
+          var lists = container.find('.children_list');
+          lists.each(function(index){
+            var l = $(lists.get(index)),
+                c = children[index],
+                total = l.data('total-elements');
+            if (c.length == 0) return; 
+            c.insertBefore(l.find('li:last')); 
+            if (page*settings.childrenPerPage >= total) l.children(":last").show();
+            
+          });
+          
+          if (page == 1) {
+            initChildrenScroll(container, true);
+          } else {
+            var scrollpane = container.children(':first').data('jsp');
+            scrollpane.reinitialise();
+            scrollpane.scrollToBottom();
+          }
+          
+          if (container.parent().hasClass('siblings_panel')) {
+            reinitialiseSiblings(container);
+          } else {
+            reinitialiseChildren(container);
+            }
+        }
+        else {
+          statement.find('.children a.' + type).parent().next().prepend(children);
+          reinitialiseChildren(container);
+        }
+			}
+			
 
       /***************************/
       /* Public API of statement */
@@ -1001,54 +1064,7 @@
           reinitialise(resettings);
         },
         insertChildren: function(type, children, page) {
-					var container = statement.find('.children div.'+type);
-					if (container.length > 0) {
-		        if (container.hasClass('double')) {
-							var lists = container.find('.children_list');
-							lists.each(function(index){
-							 var l = $(lists.get(index)),
-							     c = children[index],
-									 total = l.data('total-elements');
-							 if (c.length == 0) return; 
-							 c.insertBefore(l.find('li:last'));	
-							 if (page*7 >= total) l.children(":last").show();
-							});
-							
-							if (page == 1) {
-                initChildrenScroll(container, true);
-              } else {
-								var scrollpane = container.find('.doubles_list').data('jsp');;
-								scrollpane.reinitialise();
-                scrollpane.scrollToBottom();
-							}
-							
-							
-						} else {
-							var list = container.find('.children_list');
-							var total = list.data('total-elements');
-							children.insertBefore(list.find('li:last'));
-							if (page*7 >= total) list.children(":last").show();
-                
-							var scrollpane;
-							if (page == 1) {
-			          initChildrenScroll(container, true);
-						  }
-						  else {
-						  	var scrollpane = container.find('.children_list').data('jsp');
-								scrollpane.reinitialise();
-                scrollpane.scrollToBottom();
-						  }
-						}
-						if (container.parent().hasClass('siblings_panel')) {
-              reinitialiseSiblings(container);
-            } else {
-              reinitialiseChildren(container);
-              }
-				  }
-				  else {
-				  	statement.find('.children a.' + type).parent().next().prepend(children);
-						reinitialiseChildren(container);
-				  }
+				  insertChildren(type, children, page);	
 				},
         insertSiblings: function(siblings){
 			    siblings.insertAfter(siblingsButton).bind("mouseleave", function() {
