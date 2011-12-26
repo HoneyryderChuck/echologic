@@ -95,6 +95,9 @@
 					loadSiblings();
 					initNavigationButton(statement.find(".header a.prev"), -1); /* Prev */
 	        initNavigationButton(statement.find(".header a.next"),  1); /* Next */
+			     
+					loadMessage(settings.message);
+					delete settings.message;
 				}
 
         // echo mechanism
@@ -136,6 +139,11 @@
       function reinitialise(resettings) {
 				settings = $.extend({}, resettings, settings, {'load' : false});
         initialise();
+			}
+
+      function loadMessage(message) {
+				if (!$.isEmptyObject(message))
+          info(message);
 			}
 
 
@@ -1094,6 +1102,9 @@
 				  $('#breadcrumbs').data('breadcrumbApi').deleteBreadcrumb(key);
 				},
 
+        loadMessage: function(message) {
+					loadMessage(message);
+				},
 		    loadAuthors: function (authors) {
 		      authors.insertAfter(statement.find('.summary h2')).animate(toggleParams, settings['animation_speed']);
 					var length = authors.find('.author').length;

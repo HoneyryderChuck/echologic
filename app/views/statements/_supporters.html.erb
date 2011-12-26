@@ -4,7 +4,7 @@
 <% label = supporters_number(statement_node) # TODO: THIS LINE TRIGGERS A QUERY!!! WRONG!!! %>
 <% has_supporters = (!statement_node.nil? and (statement_node.new_record? or statement_node.ratio(previous_statement,klass) > 1)) %>
 <% show_label ||= false %>
-<% only_bar ||= false%>
+<% only_bar ||= false %>
 
 <!-- SUPPORTERS BAR -->
 <%= content_tag :span, '', :class => "#{'no_' unless has_supporters}echo_indicator supporters_bar ttLink", 

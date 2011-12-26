@@ -1,22 +1,15 @@
-<% if defined? @info %>
-  info('<%=@info%>');
-<% end %>
-<% if defined? @error %>
-  info('<%=@error%>');
-<% end %>
-
 /* history handling */
 <% if @node_environment.sids? and @ancestors %>
   <% inc = @node_environment.level - @ancestors.length %>
-  var stack = <%= @node_environment.sids.to_json %>;
+  <% stack = @node_environment.sids %>
   <% @ancestors.keys.length.times do |index| %>
-    var ancestor = stack[<%= index %>];
     var ancestor_element = $('#statements .statement').eq(<%= index %>);
     /* if not rendered, than render */
-    if(ancestor_element.length == 0 || !ancestor_element.attr('id').match(ancestor)) {
-		  var new_ancestor = $("<%= escape_javascript(render :partial => 'statements/show', 
-              :locals => {:statement_node => @ancestors[index], :statement_document => @ancestors.get_document(@ancestors[index]), :only_header => true}) %>");
-      new_ancestor.statement({'level': <%= inc + index %>});
+    if(ancestor_element.length == 0 || !ancestor_element.attr('id').match(<%= stack[index] %>)) {
+		  $("<%= escape_javascript(render :partial => 'statements/show', 
+             :locals => {:statement_node => @ancestors[index], 
+                         :statement_document => @ancestors.get_document(@ancestors[index]), 
+                         :only_header => true}) %>").statement({'level': <%= inc + index %>});
     } else {
       ancestor_element.data('api').hide();
     }
@@ -33,4 +26,5 @@ $('#breadcrumbs').data('breadcrumbApi').deleteBreadcrumbs();
 <% end %>
 
 var add_teaser = $("<%= escape_javascript(render :partial => 'statements/add',
-                                                 :locals => {:hide_content => true}) %>").statement({'level' : <%= @node_environment.level %>});
+                                                 :locals => {:hide_content => true}) %>").statement({'level' : <%= @node_environment.level %>,
+																								                                                     'message' : "<%= @info || @error %>"});

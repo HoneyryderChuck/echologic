@@ -368,11 +368,13 @@
 				reinitialize: function() {
           initialize();
         },
-				updateState: function(href, supporters_bar, supporters_number) {
+				updateState: function(href, supporters) {
           echo_button.attr('href', href);
-          echoable.find('.header .supporters_bar').replaceWith(supporters_bar);
-          echoable.find('.header .supporters_label').text(supporters_number);
-					initEchoIndicators(echoable.find('.header'));
+					var header = echoable.find('.header'); 
+          header.find('.supporters_bar').remove();
+          header.find('.supporters_label').remove();
+					header.find('.header_link').append(supporters);
+					initEchoIndicators(header);
           return this;
         },
 				loadEchoLabelMessages: function(messages) {

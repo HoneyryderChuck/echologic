@@ -1,7 +1,3 @@
-<% if defined? @info %>
-  info('<%=@info%>')
-<% end %>
-
 /* if we came directly from one of the new statement links in search or my questions, then html response */
 if(!window.location.href.match(/\/\d+/)) {
   window.location.replace("<%= escape_javascript(statement_node_url(@statement_node, :origin => @node_environment.origin.to_s, :bids => @node_environment.bids.to_s, :escape => false)) %>");
@@ -48,7 +44,10 @@ al = al.length > 0 ? al.split(',') : [];
 
 $.setFragment({ "nl" : '', "origin" : origin, "al" : al.join(',')});
 
-var element = $("<%= escape_javascript(render :partial => 'statements/show', :locals => {:statement_node => @statement_node.target_statement}) %>").statement({'level' : <%= @statement_node.level %>});
+var element = $("<%= escape_javascript(render :partial => 'statements/show', 
+                                              :locals => {:statement_node => @statement_node.target_statement}) %>").
+						 statement({'level' : <%= @statement_node.level %>,
+                        'message' : "<%= @info %>"});
 
 /* Statements' stack */
 var sids = $('#statements > .statement').map(function(){
