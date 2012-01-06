@@ -2,8 +2,7 @@ var element = $('#<%= dom_id(@statement_node)%>');
 
 element.data('api').loadMessage("<%= @info || @error %>");
 
-<% href = @statement_node.supported?(current_user) ? unecho_statement_node_url(@statement_node) : echo_statement_node_url(@statement_node)%>
 var supporters = "<%= escape_javascript(render :partial => 'statements/supporters', :locals => {:statement_node => @statement_node, :show_label => true})%>";
 
-element.data('echoableApi').updateState('<%= href %>', supporters);
+element.data('echoableApi').updateState('<%= @statement_node.supported?(current_user) ? unecho_statement_node_url(@statement_node) : echo_statement_node_url(@statement_node) %>', supporters);
 

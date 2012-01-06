@@ -1,10 +1,9 @@
-<% type_plural = @type.to_s.underscore.pluralize %>
 var elements_list = $("<%= escape_javascript(render :partial => 'statements/child',
-                                                  :locals => {:child_type => @type.to_s.underscore,
-                                                              :new_level => (true if @node_environment.new_level?),
-                                                              :hub => @node_environment.hub.to_s},
-                                                  :collection => @children[@type][@offset, @per_page]) %>");
+                                                    :locals  => {:child_type => @type.to_s.underscore,
+                                                                 :new_level => @node_environment.new_level?,
+                                                                 :hub => @node_environment.hub.to_s},
+                                                    :collection => @children[@type][@offset, @per_page]) %>");
 
 
 var statement = $('#<%=dom_id(@statement_node)%>');
-statement.data('api').insertChildren('<%= type_plural %>', [elements_list], <%= @page %> );
+statement.data('api').insertChildren('<%= @type.to_s.underscore.pluralize %>', [elements_list], <%= @page %> );

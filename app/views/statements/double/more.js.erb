@@ -1,15 +1,13 @@
-<% type_plural = @type.to_s.underscore.pluralize %>
-
 var elements_list = [];
 <% @children[@type].each_with_index do |children_group, index| %>
   <% typ = @type.to_s.constantize.sub_types[index].to_s.underscore %>
 
-  elements_list.push($("<%=  escape_javascript(render :partial => 'statements/child',
-                                                    :locals => {:child_type => typ,
-                                                                :new_level => (true if @node_environment.new_level?)},
-                                                                :collection => children_group[@offset, @per_page]) %>"));
+  elements_list.push($("<%= escape_javascript(render :partial => 'statements/child',
+                                                     :locals => {:child_type => typ,
+                                                                 :new_level => @node_environment.new_level?},
+                                                     :collection => children_group[@offset, @per_page]) %>"));
 <% end %>
 var statement = $('#<%=dom_id(@statement_node)%>');
 
-statement.data('api').insertChildren('<%= type_plural %>', elements_list, <%= @page %> );
+statement.data('api').insertChildren('<%= @type.to_s.underscore.pluralize %>', elements_list, <%= @page %> );
 

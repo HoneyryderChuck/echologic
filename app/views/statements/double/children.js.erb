@@ -1,4 +1,3 @@
-<% type_dom_class = @type.to_s.underscore %>
 var elements = $("<%= escape_javascript(render :partial => "statements/double/children_list", :locals => {:children => @children[@type],
                                                                                                           :new_level => true}) %>");
 var statement = $('#statements div.<%=dom_class(@statement_node)%>');
