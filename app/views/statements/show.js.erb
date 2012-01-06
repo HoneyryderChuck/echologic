@@ -3,27 +3,28 @@
   <% inc = @node_environment.level - @ancestors.length %>
   <% stack = @node_environment.sids %>
 	<% @ancestors.keys.length.times do |index| %>
-		var ancestor_element = $('#statements .statement').eq(<%= index %>);
+		var ancestor_element = $('#statements > .statement').eq(<%= index %>);
 		/* If not rendered, then render now */
-    if(ancestor_element.length == 0 || !ancestor_element.attr('id').match(<%= stack[index] %>)) {
+		if(ancestor_element.length == 0 || !ancestor_element.attr('id').match(<%= stack[index] %>)) {
 		  var new_ancestor = $("<%= escape_javascript(render :partial => 'statements/show', 
-              :locals => {:statement_node => @ancestors[index], :statement_document => @ancestors.get_document(@ancestors[index]), :only_header => true}) %>");
+	          												 :locals => {:statement_node => @ancestors[index], 
+	          												 			 :statement_document => @ancestors.get_document(@ancestors[index]), 
+	          												 			 :only_header => true}) %>");
 		  new_ancestor.statement({'level' : <%= inc + index %>});
-    } else {
-      ancestor_element.data('api').hide();
-    }
+	    } else {
+	      ancestor_element.data('api').hide();
+	    }
   <% end %>
 <% end %>
 
 
 
-/* Expand mode - render content only */
-<% if !params[:expand].blank? %>
-  var content = "<%= escape_javascript(render :partial => 'statements/content',
-                                              :locals => {:hide_content => true}) %>";
-  var statement = $('#<%= dom_id(@statement_node)%>');
-	statement.data('api').insertContent(content);
-<% else %>
+
+
+var element = $("<%= escape_javascript(render :partial => 'statements/show',
+                                              :locals => {:hide_content => true}) %>").statement({'level'   : <%= @node_environment.level %>,
+									         													  'message' : "<%= @info || @error %>",
+									         													  'expand'	: <%= params[:expand].present? %>});
 
 // Breadcrumbs
 $('#breadcrumbs').data('breadcrumbApi').deleteBreadcrumbs();
@@ -31,11 +32,4 @@ $('#breadcrumbs').data('breadcrumbApi').deleteBreadcrumbs();
   $('#breadcrumbs').data('breadcrumbApi').addBreadcrumbs(<%= @breadcrumbs.map(&:to_hash).to_json %>);
 <% else %>
   $('#breadcrumbs').data('breadcrumbApi').hideContainer();
-<% end %>
-
-
-/* Show new statement */
-  var element = $("<%= escape_javascript(render :partial => 'statements/show',
-                                                :locals => {:hide_content => true}) %>").statement({'level' : <%= @node_environment.level %>,
-																								                                                    'message' : "<%= @info || @error %>"});
 <% end %>

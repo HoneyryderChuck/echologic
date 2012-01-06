@@ -4,8 +4,9 @@
 
     $.fn.statement.defaults = {
       'level' : 0,
-			'insertStatement' : true,
-			'load' : true,
+	  'insertStatement' : true,
+	  'load' : true,
+	  'expand' : false,
       'echoableClass' : 'echoable',
       'hide_animation_params' : {
         'height' : 'hide',
@@ -63,17 +64,16 @@
 
     function Statement(statement) {
       var domId = statement.attr('id');
-			var domParent = statement.attr('dom-parent');
-			var parentId = domParent ? domParent.replace(/[^0-9]+/, '') : '';
-			var statementType = statement.attr('id').match("new") ? $.trim(statement.find('input#type').val()) :
-                                                              $.trim(domId.match(/[^(add_|new_)]\w+[^_\d+]/));
+	  var domParent = statement.attr('dom-parent');
+	  var parentId = domParent ? domParent.replace(/[^0-9]+/, '') : '';
+	  var statementType = statement.attr('id').match("new") ? $.trim(statement.find('input#type').val()) :
+                                                      $.trim(domId.match(/[^(add_|new_)]\w+[^_\d+]/));
       var statementId = getStatementId(domId);
-			var parentStatement, statementLevel;
-			var statementUrl;
-			var embedPlaceholder = statement.find('.embed_placeholder');
-			var statementSiblings;
-			
-			var siblingsButton = statement.find('.show_siblings_button');
+ 	  var parentStatement, statementLevel;
+ 	  var statementUrl;
+ 	  var embedPlaceholder = statement.find('.embed_placeholder');
+	  var statementSiblings;
+      var siblingsButton = statement.find('.show_siblings_button');
 
       // Initialize the statement
       initialise();
@@ -84,11 +84,11 @@
 
         // A new statement is loaded for the first time
         if (settings['load']) {
-					insertStatement();
+		  insertStatement();
 
           // Initialise the level and the parent of the current statement
           statementLevel = $('#statements .statement').index(statement);
-					parentStatement = statement.prev();
+		  parentStatement = statement.prev();
 
 					// Navigation through siblings
 	        storeSiblings();
@@ -263,40 +263,44 @@
       /*
        * Inserts the statement in the stack
        */
-			function insertStatement() {
-				if (!settings['insertStatement']) {return;}
+		function insertStatement() {
+	   		if (!settings['insertStatement']) {return;}
 
-				collapseStatements();
+		 	if (!settings.expand) collapseStatements();
+		 
+		 	var element = $('div#statements .statement').eq(settings['level']);
 
-        var element = $('div#statements .statement').eq(settings['level']);
-
-				// if the statement is going to replace a statement already existing in the stack
-				if(element.length > 0) {
-					// if statement this statement is going to replace is from a different type
-					if (domId.match('new') && element.data('api').getType() != statementType) {
-						if (domParent && domParent.length > 0) {
-							var key = $.inArray(domParent.substring(0,2),['ds','sr']) == -1 ?
-							          $("#statements div#" + domParent).data('api').getBreadcrumbKey() :
-												domParent.substring(0,2);
-							var parentBreadcrumb = $("#breadcrumbs").data('breadcrumbApi').getBreadcrumb(key);
-							if (parentBreadcrumb.length > 0) {
-								parentBreadcrumb.nextAll().remove();
-							}
+		 	// if the statement is going to replace a statement already existing in the stack
+		 	if(element.length > 0) {
+				// if statement this statement is going to replace is from a different type
+				if (domId.match('new') && element.data('api').getType() != statementType) {
+					if (domParent && domParent.length > 0) {	
+						var key = $.inArray(domParent.substring(0,2),['ds','sr']) == -1 ?
+					          	  $("#statements div#" + domParent).data('api').getBreadcrumbKey() :
+								  domParent.substring(0,2);
+						var parentBreadcrumb = $("#breadcrumbs").data('breadcrumbApi').getBreadcrumb(key);
+						if (parentBreadcrumb.length > 0) {
+							parentBreadcrumb.nextAll().remove();
 						}
-						else {
-							element.data('api').deleteBreadcrumb();
-						}
-				  }
-					statement.find('.content').show();
-          element.replaceWith(statement);
-        }
-        else // no statement on this level of the stack, so insert at the bottom
-        {
-          $('div#statements').append(statement);
-					showAnimated();
-        }
-			  removeBelow();
+					} else {
+						element.data('api').deleteBreadcrumb();
+					}
+			  	}
+		  		if (!settings.expand) statement.find('.content').show();
+	      	 	element.replaceWith(statement);
+    		} 
+    		else // no statement on this level of the stack, so insert at the bottom
+	    	{
+			  $('div#statements').append(statement);
+			  showAnimated();
+	        }
+			if (settings.expand) {
+				showAnimated();
+				reinitialise();
 			}
+			else 
+				removeBelow();
+		}
 
 
 			/*
