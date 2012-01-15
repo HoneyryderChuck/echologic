@@ -1,3 +1,64 @@
+(function( $ ) {
+	$.widget("echo.statement", {
+		options: {
+			/**
+			 * level at which the statement is placed
+			 */
+			level : 0,
+			/**
+			 * tells whether this statement is supposed to be inserted
+			 */
+	  		insertStatement : true,
+	  		load : true,
+	   		expand  : false,
+	   		
+       		echoableClass  :  'echoable',
+       		
+       		// animation metrics
+       		hide_animation_params  : {
+         		height  : 'hide',
+         		opacity : 'hide'
+      		},
+       		hide_animation_speed : 500,
+       		animation_speed : 300,
+       		embed_delay : 2000,
+       		embed_speed : 500,
+       		scroll_speed : 500,
+			
+			// Children Container Helpers
+			childrenPerPage  : 7,
+		 	maxPage  : {
+		 		animate  : {
+			 		single  : 7,
+			 		"double"  : 5 
+				},
+		 		single  : 10,
+	 			"double"  : 7
+			},
+ 			maxHeight  : {
+	 			animate  : {
+		 			single  : 203,
+		 			"double"  : 225
+				},
+	 			single  : 290,
+	 			"double"  : 314
+			},
+ 			childHeight  : {
+	 			single  : 29,
+	 			"double"  : 44
+			}
+		}, 
+		
+		_create: function() {
+			
+		}
+		
+	});
+	
+}( jQuery ) );
+
+
+/*
 (function($) {
 
   $.fn.statement = function(currentSettings) {
@@ -58,9 +119,7 @@
 		});
 
 
-    /*************************/
-    /* The statement handler */
-    /*************************/
+    // The statement handler
 
     function Statement(statement) {
       var domId = statement.attr('id');
@@ -93,8 +152,8 @@
 					// Navigation through siblings
 	        storeSiblings();
 					loadSiblings();
-					initNavigationButton(statement.find(".header a.prev"), -1); /* Prev */
-	        initNavigationButton(statement.find(".header a.next"),  1); /* Next */
+					initNavigationButton(statement.find(".header a.prev"), -1); // Prev 
+	        initNavigationButton(statement.find(".header a.next"),  1); // Next 
 			     
 					loadMessage(settings.message);
 					delete settings.message;
@@ -105,7 +164,7 @@
           statement.echoable();
         }
 
-        /* Statement form and statement show */
+        // Statement form and statement show 
         if(statement.is('form')) {
 					statement.statementForm();
         } else {
@@ -133,9 +192,7 @@
         }
       }
 
-      /*
-       * Reinitialises the statement content without reinserting the whole statement again.
-       */
+      // Reinitialises the statement content without reinserting the whole statement again.
       function reinitialise(resettings) {
 				settings = $.extend({}, resettings, settings, {'load' : false});
         initialise();
@@ -147,28 +204,20 @@
 			}
 
 
-      /*
-       * Returns true if the statement is echoable.
-       */
+      // Returns true if the statement is echoable.
       function isEchoable() {
         return statement.hasClass(settings['echoableClass']);
       }
 
-      /*
-       * Returns true if the statement has embeddable content (currently true for Background Infos).
-       */
+      // Returns true if the statement has embeddable content (currently true for Background Infos).
       function hasEmbeddableContent() {
         return embedPlaceholder.length > 0;
       }
 
 
-      /******************/
-      /* Stack handling */
-      /******************/
+      // Stack handling 
 
-      /*
-		   * Gets the siblings of the statement and stores them in the client for navigation.
-		   */
+      // Gets the siblings of the statement and stores them in the client for navigation.
 		  function storeSiblings() {
 		    var siblings = eval(statement.data("siblings"));
         if (!siblings) {return;}
@@ -189,9 +238,7 @@
 		  }
 
 
-			/*
-       * Loads the siblings from the current statement being loaded.
-       */
+	// Loads the siblings from the current statement being loaded.
 			function loadSiblings() {
 				// Get parent element (statement)
         var parent = statement.prev();
@@ -216,7 +263,7 @@
 		   * button: the prev or next button
 		   * inc: the statement index relative to the current statement (-1 for prev, 1 for next)
 		   */
-		  function initNavigationButton(button, inc) {
+/*		  function initNavigationButton(button, inc) {
 		    if (!button || button.length == 0) {return;}
 				if (button.attr('href').length == 0) {
 					button.attr('href', window.location.pathname);
@@ -245,11 +292,11 @@
 				var buttonUrl;
 				if (targetStatementId.match('add')) {
           // Add (teaser) link
-					buttonUrl = button.attr('href').replace(/statement\/.*/, "statement" + targetStatementId);
-		    }
-		    else {
-					buttonUrl = button.attr('href').replace(/statement\/.*/, "statement/" + targetStatementId);
-		    }
+	*/	//			buttonUrl = button.attr('href').replace(/statement\/.*/, "statement" + targetStatementId);
+		  //  }
+//		    else {
+	//				buttonUrl = button.attr('href').replace(/statement\/.*/, "statement/" + targetStatementId);
+	/*	    }
 
         button.attr('href', buttonUrl);
 
@@ -259,11 +306,11 @@
 		    button.removeAttr('data-id');
 		  }
 
-
+*/
       /*
        * Inserts the statement in the stack
        */
-		function insertStatement() {
+	/*	function insertStatement() {
 	   		if (!settings['insertStatement']) {return;}
 
 		 	if (!settings.expand) collapseStatements();
@@ -302,22 +349,22 @@
 				removeBelow();
 		}
 
-
+*/
 			/*
 			 * Removes the statements from the lower levels of this statement's stack
 			 */
-			function removeBelow(){
+	/*		function removeBelow(){
 	  	  statement.nextAll().each(function(){
 	  		  // Delete the session data relative to this statement first
 					$('div#statements').removeData(this.id);
 					$(this).remove();
 				});
 			}
-
+*/
       /*
 		   * Collapses all visible statements to focus on the one appearing on new level.
 		   */
-		  function collapseStatements() {
+	/*	  function collapseStatements() {
 				$('#statements .statement .header:Event(!click)').expandable();
 				$('#statements .statement .header').removeClass('active').addClass('expandable');
 		    $('#statements .statement .content').animate(settings['hide_animation_params'],
@@ -325,7 +372,7 @@
 		    $('#statements .statement .header .supporters_label').animate(settings['hide_animation_params'],
                                                                       settings['hide_animation_speed']);
 		  }
-
+*/
 
       /**************************/
       /* Action panel functions */
@@ -334,7 +381,7 @@
       /*
 		   * Initializes the button for the New Statement function in the action panel.
 		   */
-		  function initNewStatementButton() {
+/*		  function initNewStatementButton() {
 		    statement.find(".action_bar .new_statement_button").bind("click", function() {
 					$(this).next().animate({'opacity' : 'toggle'}, settings['animation_speed']);
 		      return false;
@@ -345,12 +392,12 @@
           return false;
 		    });
 		  }
-
+*/
 
       /*
        * Initializes the Embed echo button and panel.
        */
-      function initEmbedButton() {
+ /*     function initEmbedButton() {
         var embed_code = statement.find('.action_bar .embed_code');
         statement.find('.action_bar a.embed_button').bind("click", function() {
           $(this).next().animate({'opacity' : 'toggle'}, settings['animation_speed']);
@@ -362,12 +409,12 @@
           return false;
         });
       }
-
+*/
 
       /*
        * Initializes the button for the Copy URL function in the action panel.
        */
-	    function initCopyURLButton() {
+	/*    function initCopyURLButton() {
 				var statement_url = statement.find('.action_bar .statement_url');
 				statement.find('.action_bar a.copy_url_button').bind("click", function() {
           $(this).next().animate({'opacity' : 'toggle'}, settings['animation_speed']);
@@ -380,7 +427,7 @@
         });
 			}
 
-
+*/
       /**************/
       /* Navigation */
       /**************/
@@ -388,7 +435,7 @@
       /*
        * Initializes all expandable/collapsable elements.
        */
-      function initExpandables() {
+      /*function initExpandables() {
 				statement.find(".expandable:Event(!click)").each(function() {
           var expandableElement = $(this);
 					if (expandableElement.hasClass('social_echo_button')) {
@@ -419,12 +466,12 @@
 				  }
 			  });
 			}
-
+*/
 
 			/*
        * Handles the children tabbar header their tabs and their content panels.
        */
-      function initChildrenTabbars() {
+    /*  function initChildrenTabbars() {
 				statement.find(".children").each(function(){
 					var container = $(this);
 					var tabbar = container.find('.headline');
@@ -468,12 +515,12 @@
 					});
 				});
 			}
-
+*/
 
       /*
        * Switches the tabs in the Children Tabbars.
        */
-      function switchTabs(oldTab, newTab, childrenContent, oldChildrenPanel, newChildrenPanel, animate) {
+   /*   function switchTabs(oldTab, newTab, childrenContent, oldChildrenPanel, newChildrenPanel, animate) {
         oldTab.removeClass('selected');
         newTab.addClass('selected');
         oldChildrenPanel.hide();
@@ -487,20 +534,20 @@
           newChildrenPanel.show();
         }
       }
-
+*/
 
       /*
 		   * Handles the click on the more Button event (replaces it with an element of class 'more_loading')
 		   */
-		  function initMoreButton() {
+	/*	  function initMoreButton() {
 				initContainerMoreButton(statement);
 		  }
-
+*/
 
       /*
        * Initializes the More button for children/sibling/etc. or all containers in the statement.
        */
-			function initContainerMoreButton(container) {
+	/*		function initContainerMoreButton(container) {
 				// Get total children per column
 				var totalChildren = container.find('.children_list').map(function(){
           return $(this).data('total-elements');
@@ -557,22 +604,22 @@
 		    });
 			}
 
-
+*/
       /*
        * Reinitializes the children.
        */
-      function reinitialiseChildren(container) {
+    /*  function reinitialiseChildren(container) {
         initChildrenLinks(container);
         if (isEchoable) {
           statement.data('echoableApi').loadRatioBars(container);
         }
 			}
-
+*/
 
       /*
        * Reinitializes the siblings.
        */
-			function reinitialiseSiblings(container) {
+	/*		function reinitialiseSiblings(container) {
 				
 				// initialise scroll plugin
         initChildrenScroll(container);
@@ -584,12 +631,12 @@
           statement.data('echoableApi').loadRatioBars(container);
         }
 	    }
-
+*/
 
       /*
        * Calculates height at which a new statement entries container should be initialised and initialises it
        */
-      function initChildrenScroll(container) {
+ /*     function initChildrenScroll(container) {
        if (!container.hasClass('children_container')) container = container.find('.children_container');
        
 			 var animate = arguments.length > 1 ? arguments[1] : false;
@@ -636,7 +683,7 @@
 	       }
 			 }
       }
-
+*/
       /******************/
       /* Handling Links */
       /******************/
@@ -644,7 +691,7 @@
       /*
        * Initilizes all external URLs and internal echo links in the statement content (text) area.
        */
-      function initContentLinks() {
+  /*    function initContentLinks() {
         statement.find(".statement_content a:not(.upload_link)").each(function() {
           var link = $(this);
 
@@ -660,12 +707,12 @@
           link.attr('href', url);
         });
       }
-
+*/
 
       /*
        * Initiates a link for the statement with the dorrect breadcrumbs and a new JUMP breadcrumb in the end.
        */
-      function initJumpLink(link, url) {
+   /*   function initJumpLink(link, url) {
 				var anchor_index = url.indexOf("#");
         if (anchor_index != -1) {
           url = url.substring(0, anchor_index);
@@ -701,12 +748,12 @@
           return false;
 				});
 			}
-
+*/
 
       /*
 		   * Sets the different links on the statement UI, after the user clicked on them.
 		   */
-      function getTargetBids(key) {
+  /*    function getTargetBids(key) {
         var currentBids = $('#breadcrumbs').data('breadcrumbApi').getBreadcrumbStack(null);
         var targetBids = currentBids;
 
@@ -727,11 +774,11 @@
         }
         return targetBids;
       }
-
+*/
 			/*
        * Loads the new set of Als
        */
-			function getTargetAls(inclusive) {
+	/*		function getTargetAls(inclusive) {
 				var al = $.fragment().al || '';
         al = al.length > 0 ? al.split(',') : [];
         // eliminate levels below the one we're returning to
@@ -740,12 +787,12 @@
         });
 				return al;
 			}
-
+*/
 
       /*
        * Initializes all statement link apart from the inline content (jump) links handled separately.
        */
-      function initAllStatementLinks() {
+   /*   function initAllStatementLinks() {
         statement.find('.header .main_header a.statement_link').bind("click", function() {
 
           // SIDS
@@ -820,29 +867,29 @@
 				});
 			}
 		
-
+*/
       /*
        * Initializes links for all statements but Follow-up Questions.
        * new_level = false
        */
-      function initSiblingsLinks(container) {
+/*      function initSiblingsLinks(container) {
 				initStatementLinks(container, false, arguments[1]);
 	    }
 
-
+*/
       /*
        * Initializes links for all statements but Follow-up Questions.
        * new_level = true
        */
-			function initChildrenLinks(container) {
+	/*		function initChildrenLinks(container) {
         initStatementLinks(container, true)
 			}
-
+*/
 
       /*
        * Initializes links for all statements but Follow-up Questions.
        */
-      function initStatementLinks(container, newLevel) {
+    /*  function initStatementLinks(container, newLevel) {
 				var params = arguments[2] || {};
 				container.find('a.statement_link:not(.registered)').bind("click", function() {
 					var current_stack = getStatementsStack(null, newLevel);
@@ -902,12 +949,12 @@
           return false;
         }).addClass('registered');
       }
-
+*/
 
       /*
        * Generates a bid for the parent statement.
        */
-      function getParentKey() {
+  /*    function getParentKey() {
 				if (parentStatement.length > 0) {
 					if (statement.hasClass('alternative')) {
 	          var breadcrumbs = $('#breadcrumbs').data('breadcrumbApi').getBreadcrumbStack(null);
@@ -930,7 +977,7 @@
           return $.fragment().origin;
         }
 			}
-
+*/
 
 		  /*
 		   * Returns an array of statement ids that should be loaded to the stack after 'statementLink' was clicked
@@ -939,7 +986,7 @@
 		   * - statementLink: HTML element that was clicked
 		   * - newLevel: true or false (child statement link)
 		   */
-		  function getStatementsStack(statementLink, newLevel) {
+	/*	  function getStatementsStack(statementLink, newLevel) {
 				if (statementLink) {
 					// Get soon to be visible statement
 					var path = statementLink.href.split("/");
@@ -981,12 +1028,12 @@
 				return current_stack;
 		  }
 
-
+*/
 			/*****************************/
 			/* Embedded external content */
 			/*****************************/
 
-			function initEmbeddedContent() {
+	/*		function initEmbeddedContent() {
 		  	embedPlaceholder.embedly({
           key: 'ccb0f6aaad5111e0a7ce4040d3dc5c07',
           maxWidth: 990,
@@ -1069,7 +1116,7 @@
       /***************************/
       /* Public API of statement */
       /***************************/
-
+/*
       $.extend(this,
       {
         reinitialise: function(resettings) {
@@ -1168,4 +1215,4 @@
 
 })(jQuery);
 
-
+*/
