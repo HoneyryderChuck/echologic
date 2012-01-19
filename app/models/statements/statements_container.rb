@@ -46,19 +46,19 @@ class StatementsContainer < Hash
     
     if klass.eql?("question")
       session_elements = elements.map(&:target_statement).map(&:root_id) rescue elements.map(&:target_id)
-      session_elements << "/add/question"
+      session_elements << "add/question"
     else
       
       # if double, two teaser must be added to the two arrays, which is transposed afterwards
       if (klass = klass.classify.constantize).double?
         session_elements = elements.map{|sub| sub.map(&:target_id) }
-        klass.sub_types.each_with_index{|typ, index| session_elements[index] << "/#{@parents[key]}/add/#{typ.to_s.underscore}"}
+        klass.sub_types.each_with_index{|typ, index| session_elements[index] << "#{@parents[key]}/add/#{typ.to_s.underscore}"}
         min = session_elements.map(&:length).min
         session_elements.map!{|s|s.slice(0,min)}.transpose + session_elements.map{|s|s[min..-1]}
         session_elements.flatten!
       else
         session_elements = elements.map(&:target_id)
-        session_elements << "/#{@parents[key]}/add/#{$1}"
+        session_elements << "#{@parents[key]}/add/#{$1}"
       end
     end
     

@@ -4,13 +4,13 @@
  */
 $(document).ready(function () {
 	if ($('#echo_discuss').length > 0) {
-  	if ($('#statements').length > 0) {
-	    initBreadcrumbs();
+	  	if ($('#statements').length > 0) {
+		    initBreadcrumbs();
 			initStatements();
-      initFragmentChangeHandling();
-	    loadSocialSharingMessages();
-	  }
-  }
+	      	initFragmentChangeHandling();
+		    loadSocialSharingMessages();
+		}
+	}
 });
 
 
@@ -19,9 +19,9 @@ $(document).ready(function () {
  */
 function initBreadcrumbs() {
 	var breadcrumbs = $('#breadcrumbs');
-  if (breadcrumbs.length > 0) {
-   breadcrumbs.breadcrumbs();
-  }
+ 	if (breadcrumbs.length > 0) {
+   		breadcrumbs.breadcrumbs();
+	}
 }
 
 
@@ -58,7 +58,7 @@ function initFragmentChangeHandling() {
 			var last_sid = new_sids.pop();
 
 			var visible_sids = $("#statements .statement").map(function(){
-				return getStatementId(this.id);
+				return $(this).data('statement').statementId;
 			}).get();
 
 
@@ -121,14 +121,6 @@ function initFragmentChangeHandling() {
 	if ($.fragment().bids) {
 		$(document).trigger("fragmentChange.bids");
 	}
-}
-
-
-/*
- * Extracts the statement node Id from the statement DOM Id.
- */
-function getStatementId(domId) {
-  return domId.replace(/[^0-9]+/, '');
 }
 
 

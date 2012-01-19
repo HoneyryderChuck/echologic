@@ -7,7 +7,7 @@
   alternative_link ||= (label_type.present? and label_type.eql?('alternative')) ? true : false
 %>
 
-<% content_tag :li, :class => child_type, 'statement-id' => child.target_id do %>
+<% content_tag :li, :class => child_type do %>
 	<%= link_to_child(statement_document.title,
 	                  child,
 	                  :css => extra_classes,

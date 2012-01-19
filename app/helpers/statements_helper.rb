@@ -519,7 +519,8 @@ module StatementsHelper
                                :origin => @node_environment.origin.to_s,
                                :nl => opts[:nl],
                                :al => al),
-           :class => "statement_link #{opts[:type]}_link #{opts[:css]}") +
+           :class => "statement_link #{opts[:type]}_link #{opts[:css]}",
+           :'data-statement-id' => statement_node.target_id ) +
     render(:partial => "statements/supporters", :locals => {:statement_node => statement_node})
   end
 
