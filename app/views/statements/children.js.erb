@@ -3,5 +3,5 @@ var elements = $("<%= escape_javascript(render :partial => @children.children_li
                                                                                                  :child_type => type_dom_class,
                                                                                                  :new_level => true}) %>");
 var statement = $('#statements > .<%=node_type(@statement_node)%>');
-statement.data('api').insertChildren('<%= type_dom_class.pluralize %>', elements);
+statement.data('statement').insertChildren('<%= type_dom_class.pluralize %>', elements);
 

@@ -11,7 +11,7 @@
 						                          :statement_document => @ancestors.get_document(@ancestors[index]), 
 						                          :only_header => true}) %>").statement({'level': <%= inc + index %>});
     } else {
-      ancestor_element.data('api').hide();
+      ancestor_element.data('statement').hide();
     }
   <% end %>
 <% end %>

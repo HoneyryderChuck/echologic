@@ -1,6 +1,6 @@
 var element = $('#<%= dom_id(@statement_node)%>');
 
-element.data('api').loadMessage("<%= @info || @error %>");
+element.data('statement').loadMessage("<%= @info || @error %>");
 
 var supporters = "<%= escape_javascript(render :partial => 'statements/supporters', :locals => {:statement_node => @statement_node, :show_label => true})%>";
 

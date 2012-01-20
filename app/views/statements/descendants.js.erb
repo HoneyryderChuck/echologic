@@ -4,4 +4,4 @@ var siblings_panel = $("<%= escape_javascript(render :partial => "statements/des
                                                                   :children => @children[@type],
                                                                   :hub => @node_environment.hub.to_s})%>");
 var statement = $('#statements > .<%= type_dom_class %>');
-statement.data('api').insertSiblings(siblings_panel);
+statement.data('statement').insertSiblings(siblings_panel);
