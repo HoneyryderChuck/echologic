@@ -255,7 +255,8 @@
 		},
 		// Initializes the button for the New Statement function in the action panel.
 		_initNewStatementButton: function() {
-			var statement = this.element;
+			var that = this;
+			var statement = that.element;
 		    statement.find(".action_bar .new_statement_button").bind("click", function(e) { 
 		    	e.preventDefault(); 
 		    	$(this).next().animate({'opacity' : 'toggle'}, that.options.animation_speed); 
@@ -264,7 +265,8 @@
 		},
 		// Initializes the Embed echo button and panel.
       	_initEmbedButton: function() {
-      		var statement = this.element;
+      		var that = this;
+      		var statement = that.element;
         	var embed_code = statement.find('.action_bar .embed_code');
         	statement.find('.action_bar .embed_button').bind("click", function(e) {
         		e.preventDefault();
@@ -275,7 +277,8 @@
         },
         // Initializes the button for the Copy URL function in the action panel.
 	    _initCopyURLButton: function() {
-	    	var statement = this.element;
+	    	var that = this;
+	    	var statement = that.element;
 			var statement_url = statement.find('.action_bar .statement_url');
 			statement.find('.action_bar a.copy_url_button').bind("click", function(e) {
 				e.preventDefault();
