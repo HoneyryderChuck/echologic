@@ -44,7 +44,7 @@ class Statement < ActiveRecord::Base
   end
   
   def info_code=(val)
-    self.info_type = InfoType[val]
+    self.info_type = InfoType[val] if val.present?
   end
 
   def update_pending_image

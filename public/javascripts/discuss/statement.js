@@ -101,7 +101,7 @@
 
         	// Statement form and statement show 
         	if(statement.is('form'))
-				statement.statementForm();
+				statement.statement_form();
         	else
 				that.statementUrl = $.trim(statement.find('.statement_url').text());
 
@@ -137,11 +137,11 @@
 		 	// if the statement is going to replace a statement already existing in the stack
 		 	if(element.length > 0) {
 				// if statement this statement is going to replace is from a different type
-				if (that.domId.match('new') && element.data('echo.statement').getType() != that.statementType)
+				if (that.domId.match('new') && element.data('statement').statementType != that.statementType)
 					if (that.domParent && that.domParent.length > 0) {	
-						var key = $.inArray(domParent.substring(0,2),['ds','sr']) == -1 ?
-					          	  $("#" + domParent).data('echo.statement').getBreadcrumbKey() :
-								  domParent.substring(0,2);
+						var key = $.inArray(that.domParent.substring(0,2),['ds','sr']) == -1 ?
+					          	  $("#" + that.domParent).data('statement').breadcrumbKey :
+								  that.domParent.substring(0,2);
 						var parentBreadcrumb = that.breadcrumbApi.getBreadcrumb(key);
 						if (parentBreadcrumb.length > 0) {
 							parentBreadcrumb.nextAll().remove();
@@ -818,8 +818,9 @@
         	if (that.isEchoable) 
           		statement.data('echoableApi').loadRatioBars(container);
 	   	},
-		reinitialise: function(settings) {
-			that.options = $.extend(that.options, settings, {load : false})
+		reinitialise: function(options) {
+			var that = this;
+			that.options = $.extend(that.options, options, {load : false})
         	that.refresh();
 		},
 		loadMessage: function(message) {

@@ -146,6 +146,7 @@ class StatementsController < ApplicationController
     attrs[:new_permission_tags] = filter_permission_tags(form_tags.split(","), :read_write)
     
     if attrs[:statement_id].present? # linked statement
+      attrs[:statement] = Statement.find(attrs.delete(:statement_id))
       doc_attrs.clear
     else
       # add default parameters
