@@ -42,8 +42,9 @@
 				that._unlinkStatement();
 				
 				// Taggable Form Helpers (taggable plugin)
-			    if (that.isTaggable) 
+			    if (that.isTaggable)
 			    	form.taggable();
+			    	
 			    	
       		}
       		that.refresh();
@@ -248,7 +249,7 @@
 	        // fill in tags
 	        if (form.isTaggable) {
 	          that.linkedTags = statementTags;
-	          form.data('taggableApi').removeAllTags().addTags(statementTags);
+	          form.data('taggable').removeAllTags().addTags(statementTags);
 	        }
 
 	        // check right editorial state and disable the radio buttons

@@ -1,166 +1,143 @@
-(function($, window, undefined){
-
-  $.fn.taggable = function(settings) {
-
-    function Taggable(taggable){
-      var loadedTags = taggable.find('input.question_tags');
-			var container = taggable.find('.tag_container');
+(function( $ ) {
+	
+	$.widget("echo.taggable", {
+		options: {
+			animation_speed: 500,
+			hidden_selector: '.question_tags',
+			input_selector: '#tag_topic_id',
+			add_button_selector: '.addTag'
+		},
+		_create: function() {
+			var that = this,
+				taggable = that.element;
 			
-			initialise();
+			that.loadedTags = taggable.find(that.options.hidden_selector);
+			that.tagInput = taggable.find(that.options.input_selector);
+			that.container = taggable.find('.tag_container');
+			that.addButton = taggable.find(that.options.add_button_selector);
+			
+			that._loadTags(that.loadedTags.val());
+			that._loadTagEvents();
+			that._loadStatementAutoComplete();			
+		},
+		// load this current statement's already existing tags into the tags input box
+		_loadTags: function(tags) {
+			var that = this,
+				tagsToLoad = $.trim(tags).split(','),
+				i;
+			for (i = 0; i < tagsToLoad.length; i++) {
+          		var tag = $.trim(tagsToLoad[i]);
+          		if (tag.localeCompare(' ') > 0) 
+            		container.append(createTagButton(tag));
+        	}
+		},
+		// adds event handling to all the possible interactions with the tags box
+      	_loadTagEvents: function() {
+      		var that = this,
+      			taggable = that.element;
+        	/* Pressing 'enter' button */
+        	that.tagInput.bind('keypress', (function(e) {
+	          	if (e && e.keyCode == $.ui.keyCode.ENTER) { /* check if enter was pressed */
+		            if (that.tagInput.val().length != 0)
+	    	          that.addButton.click();
+	            	return false;
+	          	}
+        	}));
 
-			function initialise(){
-			  loadTags(loadedTags.val());
-				loadTagEvents();
-				loadStatementAutoComplete();
-			}
+        	/* Clicking 'add tag' button */
+        	that.addButton.bind('click', (function(e) {
+        		e.preventDefault();
+          		var enteredTags = $.trim(that.tagInput.val());
+          		
+	          	if (enteredTags.length != 0) {
+	          		enteredTags = enteredTags.split(",");
+	            	/* Trimming all tags */
+	            	enteredTags = $.map(enteredTags, function(tag) { return $.trim(tag); });
+	            
+            		var existingTags = that.loadedTags.val();
+            		existingTags = existingTags.length == 0 ? [] : existingTags.split(',');
+            		
+            		existingTags = $.map(existingTags, function(q) {return $.trim(q); });
 
-			// Auxiliary Functions
+            		var newTags = new Array(0), i;
+            		for (i = 0; i < enteredTags.length; i++) {
+            			var tag = $.trim(enteredTags[i]);
+              			if ($.inArray(tag,existingTags) == -1 && $.inArray(tag,newTags) == -1) {
+                			if (tag.localeCompare(' ') > 0) {
+	                  			var element = that._createTagButton(tag);
+	                  			that.container.append(element);
+	                  			newTags.push(tag);
+                			}
+              			}
+            		}
+            		
+					if (newTags.length > 0) {
+						$.merge(existingTags, newTags)
+						that.loadedTags.val(existingTags);
+					}
+						
 
-			/*
-       * load this current statement's already existing tags into the tags input box
-       */
-      function loadTags(tags) {
-        var tags_to_load = tags;
-        tags_to_load = $.trim(tags_to_load);
-        tags_to_load = tags_to_load.split(',');
-				while (tags_to_load.length > 0) {
-          var tag = $.trim(tags_to_load.shift());
-          if (tag.localeCompare(' ') > 0) {
-            var element = createTagButton(tag, ".question_tags");
-            container.append(element);
-          }
-        }
-      }
-
-			/*
-       * adds event handling to all the possible interactions with the tags box
-       */
-      function loadTagEvents() {
-        /* Pressing 'enter' button */
-        taggable.find('#tag_topic_id').bind('keypress', (function(event) {
-          if (event && event.keyCode == 13) { /* check if enter was pressed */
-            if (taggable.find('#tag_topic_id').val().length != 0) {
-              taggable.find('.addTag').click();
-            }
-            return false;
-          }
-        }));
-
-        /* Clicking 'add tag' button */
-        taggable.find('.addTag').bind('click', (function() {
-          var entered_tags = $.trim(taggable.find('#tag_topic_id').val()).split(",");
-          if (entered_tags.length != 0) {
-            /* Trimming all tags */
-            entered_tags = jQuery.map(entered_tags, function(tag) {
-              return $.trim(tag);
-            });
-            var existing_tags = taggable.find('.question_tags').val();
-            existing_tags = existing_tags.split(',');
-            existing_tags = $.map(existing_tags, function(q) {return $.trim(q)});
-
-            var new_tags = new Array(0);
-            while (entered_tags.length > 0) {
-              var tag = $.trim(entered_tags.shift());
-              if ($.inArray(tag,existing_tags) < 0 && $.inArray(tag,entered_tags) < 0) {
-                if (tag.localeCompare(' ') > 0) {
-                  var element = createTagButton(tag, ".question_tags");
-                  container.append(element);
-                  new_tags.push(tag);
-                }
-              }
-            }
-						var question_tags = taggable.find('.question_tags').val();
-						if (new_tags.length > 0) {
-              question_tags = (($.trim(question_tags).length > 0) ? question_tags + ',' : '') + new_tags.join(',');
-              taggable.find('.question_tags').val(question_tags);
-            }
-						taggable.find('#tag_topic_id').val('');
-            taggable.find('#tag_topic_id').focus();
-          }
-        }));
-      }
-
-			/*
-       * Aux: Creates the statement tag HTML Element
-       * text: tag text ; tags_class: css class of the tags hidden input container
-       */
-      function createTagButton(text, tags_class) {
-        var element = $('<span/>').addClass('tag');
-        element.text(text);
-        var deleteButton = $('<span class="delete_tag_button"></span>');
-        deleteButton.click(function(){
-          $(this).parent().remove();
-          var tag_to_delete = $(this).parent().text();
-					var form_tags = taggable.find(tags_class).val();
-					form_tags = form_tags.split(',');
-          form_tags = $.map(form_tags, function(q) {return $.trim(q)});
-          var index_to_delete = $.inArray(tag_to_delete,form_tags);
-          if (index_to_delete >= 0) {
-            form_tags.splice(index_to_delete, 1);
-          }
-          taggable.find(tags_class).val(form_tags.join(','));
-					taggable.trigger('tagremoved', [tag_to_delete]);
-        });
-        element.append(deleteButton);
-        return element;
-      }
-
-			/*
-       * Initializes auto_complete property for the tags text input
-       */
-      function loadStatementAutoComplete() {
-        taggable.find('.tag_value_autocomplete').autocompletes('../../discuss/auto_complete_for_tag_value',
-                                                              {minChars: 3, selectFirst: false, multiple: true});
-      }
+					that.tagInput.val('');
+            		that.tagInput.focus();
+          		}
+        	}));
+      	},
+      	// Aux: Creates the statement tag HTML Element 
+      	_createTagButton: function(text) {
+      		var that = this,
+      			taggable = that.element, 
+      			element = $('<span class="tag"/>').text(text),
+        		deleteButton = $('<span class="delete_tag_button"/>');
+        		
+        	deleteButton.bind('click', function(e){
+        		e.preventDefault();
+        		var button = $(this),
+        			parent = button.parent(),
+        			tagToDelete = parent.text();
+					formTags = that.loadedTags.val().split(',');   
+					     				
+	          	parent.remove();
+	          	
+	          	formTags = $.map(formTags, function(q) {return $.trim(q)});
+	          	
+	          	var indexToDelete = $.inArray(tagToDelete,formTags);
+	          	if (indexToDelete >= 0) 
+		            formTags.splice(indexToDelete, 1);
+		            
+	          	that.loadedTags.val(formTags.join(','));
+				taggable.trigger('tagremoved', [tagToDelete]);
+        	});
+        	element.append(deleteButton);
+        	return element;
+      },
+      // Initializes auto_complete property for the tags text input
+      _loadStatementAutoComplete: function() {
+      		var taggable = this.element;
+        	taggable.find('.tag_value_autocomplete').autocompletes('../../discuss/auto_complete_for_tag_value',
+                                                              		{minChars: 3, selectFirst: false, multiple: true});
+      },
+      addTags: function(tags) {
+      	var loadedTags = $.trim(that.loadedTags.val());
+		loadedTags = !loadedTags ? [] : loadedTags.split(',');
+		$.merge(loadedTags,tags);
+		
+		//update internally on the hidden field
+		that.loadedTags.val(loadedTags.join(','));
+		
+		//create the visual buttons
+		that._loadTags(tags.join(','));
+		return this;
+	},
+	removeAllTags: function() 
+	{
+	  	that.loadedTags.val('');
+	  	that.container.children().remove();
+	  	return this;
+	}
 
 
-		  // API Functions
+	});
+}( jQuery ) ); 
+	
+	
 
-		  $.extend(this,
-      {
-				reinitialise: function()
-        {
-          initialise();
-					return this;
-        },
-				addTags: function(tags) // Array of new tags
-				{
-					var oldTags = $.trim(loadedTags.val());
-					oldTags = !oldTags ? [] : oldTags.split(',');
-					var newTags = oldTags;
-					$.merge(newTags,tags);
-					
-					//update internally on the hidden field
-					loadedTags.val(newTags.join(','));
-					
-					//create the visual buttons
-					loadTags(tags.join(','));
-					return this;
-				},
-				removeAllTags: function() 
-				{
-				  loadedTags.val('');
-				  container.children().remove();
-					return this;
-				}
-			});
-		}
-
-    $.fn.taggable.defaults = {
-      'animation_speed': 500
-    };
-
-    // Pluginifying code...
-    var settings = $.extend({}, $.fn.taggable.defaults, settings);
-
-    return this.each(function() {
-	    var elem = $(this), taggableApi = elem.data('taggableApi');
-	    if (taggableApi) {
-	      taggableApi.reinitialise();
-	    } else {
-	    taggableApi = new Taggable(elem);
-	      elem.data('taggableApi', taggableApi);
-	    }
-    });
-  };
-})(jQuery,this);
