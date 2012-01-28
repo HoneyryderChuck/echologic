@@ -18,10 +18,10 @@
 	                                      'data-default' => title_hint_text(statement_node)} %>
 					<% if linking_enabled %>
 						<%= content_tag :span, I18n.t('discuss.statements.linking.disabled'),
-	                          :class => "link_button off ttLink no_border",
-		                        :title => I18n.t('discuss.tooltips.link_statement'),
-								            :linking_on => I18n.t('discuss.statements.linking.enabled'),
-								            :linking_off => I18n.t('discuss.statements.linking.disabled') %>
+	                          			:class => "link_button off ttLink no_border",
+		                        		:title => I18n.t('discuss.tooltips.link_statement'),
+								        :'data-linking-on' => I18n.t('discuss.statements.linking.enabled'),
+								        :'data-linking-off' => I18n.t('discuss.statements.linking.disabled') %>
 		      <% end %>
 				<% end %>
 			<% end %>
