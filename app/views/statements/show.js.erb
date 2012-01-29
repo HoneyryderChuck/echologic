@@ -20,16 +20,15 @@
 
 
 
-
 var element = $("<%= escape_javascript(render :partial => 'statements/show',
                                               :locals => {:hide_content => true}) %>").statement({'level'   : <%= @node_environment.level %>,
 									         													  'message' : "<%= @info || @error %>",
 									         													  'expand'	: <%= params[:expand].present? %>});
 
 // Breadcrumbs
-$('#breadcrumbs').data('breadcrumbApi').deleteBreadcrumbs();
+$('#breadcrumbs').data('breadcrumbs').deleteBreadcrumbs();
 <% if @breadcrumbs %>
-  $('#breadcrumbs').data('breadcrumbApi').addBreadcrumbs(<%= @breadcrumbs.map(&:to_hash).to_json %>);
+  $('#breadcrumbs').data('breadcrumbs').addBreadcrumbs(<%= @breadcrumbs.map(&:to_hash).to_json %>);
 <% else %>
-  $('#breadcrumbs').data('breadcrumbApi').hideContainer();
+  $('#breadcrumbs').data('breadcrumbs').hideContainer();
 <% end %>

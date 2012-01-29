@@ -106,7 +106,7 @@
 
 				var bids = $.fragment().bids;
 				bids = bids ? bids.split(',') : [];
-				var current_bids = $('#breadcrumbs').data('breadcrumbApi').getBreadcrumbStack(null);
+				var current_bids = $('#breadcrumbs').data('breadcrumbs').getBreadcrumbStack(null);
 
 				var i = -1;
 				for(j = 0; j < bids.length ; j++) {

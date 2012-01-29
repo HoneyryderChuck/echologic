@@ -67,7 +67,7 @@
 			that.siblingsButton = statement.find('.show_siblings_button');
 			that.isEchoable = statement.hasClass(that.options.echoableClass);
 			that.hasEmbeddableContent = that.embedPlaceholder.length;
-			that.breadcrumbApi = $('#breadcrumbs').data('breadcrumbApi');
+			that.breadcrumbApi = $('#breadcrumbs').data('breadcrumbs');
 			that.refresh();
 			
 			statement.removeAttr('dom-parent');
@@ -85,13 +85,11 @@
           		// Initialise the level and the parent of the current statement
           		that.statementLevel = $('#statements .statement').index(statement);
 		  		that.parentStatement = statement.prev();
-
 				// Navigation through siblings
 	        	that._storeSiblings();
 				that._loadSiblings();
 				that._initNavigationButton(statement.find(".header a.prev"), -1); // Prev 
 	        	that._initNavigationButton(statement.find(".header a.next"),  1); // Next 
-			     
 				that._loadMessage(that.options.message);
 				delete that.options.message;
 			}
@@ -133,6 +131,7 @@
 		 	if (!that.options.expand) that._collapseStatements();
 		 
 		 	var element = $('#statements .statement').eq(that.options.level);
+
 
 		 	// if the statement is going to replace a statement already existing in the stack
 		 	if(element.length > 0) {
@@ -231,12 +230,12 @@
 			
 			var that = this,
 				statement = that.element;
+				
 		    // default
 			if (button.attr('href').length == 0) button.attr('href', window.location.pathname);
 
         	// Get statement node id to link to
 			var currentStatementId = button.data('id');
-			
 			
 		    if (typeof(currentStatementId)=='string' && currentStatementId.match('add')) {
 		    	var m = /(\d+)?_?add_([a-z_]+)/.exec(currentStatementId);
