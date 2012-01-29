@@ -3,8 +3,9 @@
 <% statement_type = statement_node.class.name %>
 <% only_header ||= false %>
 <% hide_content ||= false %>
+
 <% content_tag :div,
-               :class => "header #{only_header ? (hide_content ? 'expandable active' : 'expandable') : 'active'}",
+               :class => "header #{(only_header or @node_environment.expand?) ? (hide_content ? 'expandable active' : 'expandable') : 'active'}",
                :'data-href' =>  (statement_node_url(statement_node, :origin => @node_environment.origin.to_s, :expand => true) if only_header) do %>
   <!-- Alternatives -->
   <%= render :partial => 'statements/alternative_header', :locals => {:statement_node => statement_node} if statement_node.class.has_alternatives? and @node_environment.alternative_mode?(statement_node) %>

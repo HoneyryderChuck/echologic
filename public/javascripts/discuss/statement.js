@@ -327,10 +327,10 @@
 
             		// Switching tabs
             		var tabbarVisible = childrenContent.is(":visible");
-            		if (newChildrenPanel.length > 0)
-							if (!newChildrenPanel.is(':visible'))
+            		if (newChildrenPanel.length > 0) {
+						if (!newChildrenPanel.is(':visible'))
                 			that._switchTabs(oldTab, newTab, childrenContent, oldChildrenPanel, newChildrenPanel, tabbarVisible);
-					else {
+                	} else {
 						loading.show();
 						$.ajax({
 				        	url:      newTab.attr('href'),
@@ -349,7 +349,7 @@
 				      	});
 					}
             		// Expanding the content if the headline is closed
-            		if (!tabbarVisible) { tabbar.data('expandableApi').toggle(); }
+            		if (!tabbarVisible) { tabbar.data('expandable').toggle(); }
 					return false;
 				});
 			});

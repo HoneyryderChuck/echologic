@@ -7,7 +7,7 @@
                :locals => {:form => form} if !no_language_info %>
 
 		<%=content_tag :h2, headline if !headline.nil? %>
-	  <%= render :partial => form_partial, :locals => {:form => form} %>
+	  	<%= render :partial => form_partial, :locals => {:form => form} %>
 		<%= yield :form_buttons %>
 	</div>
 </div>
