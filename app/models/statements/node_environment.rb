@@ -11,7 +11,8 @@
 #    current_stack:     Container(Integer): stores the statement node identifiers of the currently display statement stack
 #    sids:              Container(Integer): stores the identifiers of the statement nodes to render
 #    level:             Integer:            level at which the current statement (or teaser) will be displayed
-class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, :alternative_modes, :hub, :current_stack, :sids, :level)
+#    expand:            boolean:            whether the statement is an expansion of a previous closed one
+class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, :alternative_modes, :hub, :current_stack, :sids, :level, :expand)
   
   include ActionController::UrlWriter
   
@@ -72,31 +73,31 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
   
   
   
-  def initialize(statement_node, node_type, new_level, bids, origin, alternative_modes, hub, current_stack, sids)
+  def initialize(statement_node, node_type, options)
     
     self.statement_node = statement_node
     @node_type = node_type 
     
     # new level
-    self.new_level = true if !new_level.blank?
+    self.new_level = true if !options[:new_level].blank?
     
     # breadcrumb ids
-    self.bids = bids.blank? ? [] : Container.new(bids.split(",").map{|bid| Pair.new(bid[0,2], CGI.unescape(bid[2..-1]))})
+    self.bids = options[:bids].blank? ? [] : Container.new(options[:bids].split(",").map{|bid| Pair.new(bid[0,2], CGI.unescape(bid[2..-1]))})
     
     # origin
-    self.origin = origin.blank? ? nil : Pair.new(origin[0,2], CGI.unescape(origin[2..-1]))
+    self.origin = options[:origin].blank? ? nil : Pair.new(options[:origin][0,2], CGI.unescape(options[:origin][2..-1]))
     
     # alternative_levels
-    self.alternative_modes =  alternative_modes.blank? ? [] : Container.new(alternative_modes)
+    self.alternative_modes =  options[:alternative_modes].blank? ? [] : Container.new(options[:alternative_modes])
     
     # hub (important for the creation of alternatives)
-    self.hub = Pair.new(hub[0,2], hub[2..-1]) if !hub.blank?
+    self.hub = Pair.new(options[:hub][0,2], options[:hub][2..-1]) if !options[:hub].blank?
     
     # current stack (visible statements)
-    self.current_stack = current_stack.blank? ? [] : current_stack.split(",").map(&:to_i)
+    self.current_stack = options[:current_stack].blank? ? [] : options[:current_stack].split(",").map(&:to_i)
     
     # sids (statements to render)
-    self.sids = sids.blank? ? [] : sids.split(",").map(&:to_i)
+    self.sids = options[:sids].blank? ? [] : options[:sids].split(",").map(&:to_i)
     
     # level
     if statement_node.present? and statement_node.new_record?
@@ -105,6 +106,9 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
     else
       self.level = self.current_stack? ? self.current_stack.length - 1 : nil
     end
+    
+    # expand
+    self.expand = options[:expand].present?
   end
 
   # CHECKERS
@@ -116,7 +120,7 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
   def hub? ; self.hub.present? ; end
   def current_stack? ; !self.current_stack.blank? ; end
   def sids? ; !self.sids.blank? ; end
-  
+  def expand? ; self.expand ; end
   
   
   def add_bid(bid)

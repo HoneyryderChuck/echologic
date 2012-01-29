@@ -582,7 +582,7 @@ class StatementsController < ApplicationController
   end
 
   def load_node_environment
-    @node_environment = NodeEnvironment.new(@statement_node, @statement_node_type, params[:nl], params[:bids], params[:origin], params[:al], params[:hub], params[:cs], params[:sids])  
+    @node_environment = NodeEnvironment.new(@statement_node, @statement_node_type, params)  
   end
 
 
