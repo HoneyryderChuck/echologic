@@ -805,7 +805,7 @@
       			statement = that.element;
         	that._initChildrenLinks(container);
         	if (that.isEchoable)
-          		statement.data('echoableApi').loadRatioBars(container);
+          		statement.data('echoable').loadRatioBars(container);
 		},
 		_reinitialiseSiblings: function(container) {
 			var that = this;	
@@ -816,7 +816,7 @@
 			var opts = container.hasClass('alternatives') ? {"nl" : true, "al" : ("al" + that.statementId)} : {} ;
         	that._initSiblingsLinks(container, opts);
         	if (that.isEchoable) 
-          		statement.data('echoableApi').loadRatioBars(container);
+          		statement.data('echoable').loadRatioBars(container);
 	   	},
 		reinitialise: function(options) {
 			var that = this;

@@ -4,5 +4,5 @@ element.data('statement').loadMessage("<%= @info || @error %>");
 
 var supporters = "<%= escape_javascript(render :partial => 'statements/supporters', :locals => {:statement_node => @statement_node, :show_label => true})%>";
 
-element.data('echoableApi').updateState('<%= @statement_node.supported?(current_user) ? unecho_statement_node_url(@statement_node) : echo_statement_node_url(@statement_node) %>', supporters);
+element.data('echoable').updateState('<%= @statement_node.supported?(current_user) ? unecho_statement_node_url(@statement_node) : echo_statement_node_url(@statement_node) %>', supporters);
 
