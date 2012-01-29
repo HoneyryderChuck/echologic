@@ -79,7 +79,7 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
     @node_type = node_type 
     
     # new level
-    self.new_level = true if !options[:new_level].blank?
+    self.new_level = true if !options[:nl].blank?
     
     # breadcrumb ids
     self.bids = options[:bids].blank? ? [] : Container.new(options[:bids].split(",").map{|bid| Pair.new(bid[0,2], CGI.unescape(bid[2..-1]))})
