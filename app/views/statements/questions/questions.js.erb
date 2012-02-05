@@ -5,7 +5,7 @@ var pagination_buttons = $("<%= escape_javascript(more_questions(@statement_node
 
 $("#questions_container .header .label").text("<%= questions_count_text(@count, @value) %>");
 
-var api = $("#questions_container").data('searchApi');
+var api = $("#questions_container").data('statement_search');
 
 api.insertContent(content, <%= @page || 1 %>);
 
