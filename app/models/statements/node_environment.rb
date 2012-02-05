@@ -88,13 +88,13 @@ class NodeEnvironment < Struct.new(:statement_node, :new_level, :bids, :origin, 
     self.origin = options[:origin].blank? ? nil : Pair.new(options[:origin][0,2], CGI.unescape(options[:origin][2..-1]))
     
     # alternative_levels
-    self.alternative_modes =  options[:alternative_modes].blank? ? [] : Container.new(options[:alternative_modes])
+    self.alternative_modes =  options[:al].blank? ? [] : Container.new(options[:al])
     
     # hub (important for the creation of alternatives)
     self.hub = Pair.new(options[:hub][0,2], options[:hub][2..-1]) if !options[:hub].blank?
     
     # current stack (visible statements)
-    self.current_stack = options[:current_stack].blank? ? [] : options[:current_stack].split(",").map(&:to_i)
+    self.current_stack = options[:cs].blank? ? [] : options[:cs].split(",").map(&:to_i)
     
     # sids (statements to render)
     self.sids = options[:sids].blank? ? [] : options[:sids].split(",").map(&:to_i)

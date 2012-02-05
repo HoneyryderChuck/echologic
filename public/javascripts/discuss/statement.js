@@ -603,14 +603,14 @@
 					}
 	
 	          		$('#breadcrumbs').data('element_clicked', that._getParentKey());
-	
 					// so we have the possibility of adding possible breadcrumb entries
-					if (params['al']) {
-						bids.push(params['al']);
-						if ($.inArray(that._statementLevel, altStack) == -1) {
-							altStack.push(that._statementLevel);
+					if (params.al) {
+						bids.push(params.al);
+						if ($.inArray(that.statementLevel, altStack) == -1) {
+							altStack.push(that.statementLevel);
 						}
-						params['al'] = altStack.join(',');
+						params.al = altStack.join(',');
+						
 					}
 	          		$.setFragment(
 						$.extend({

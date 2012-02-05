@@ -45,11 +45,6 @@ module ActiveRecord
 
 #          after_create :create_mirror_alternative 
           
-          named_scope :by_alternatives, lambda { |ids|
-            return {} if ids.blank?
-            { :conditions => ["statement_nodes.id IN (?) ", ids] }
-          }
-          
           class_eval do
             
             def initialize(*attrs)

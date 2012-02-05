@@ -159,7 +159,10 @@ class StatementNode < ActiveRecord::Base
   
   # overwritten on sub classes
   named_scope :by_statement_state, lambda {|opts| {} } 
-  named_scope :by_alternatives, lambda {|ids| {}}
+  named_scope :by_alternatives, lambda { |ids|
+    return {} if ids.blank?
+    { :conditions => ["statement_nodes.id IN (?) ", ids] }
+  }
   
   
   def target_statement
