@@ -40,13 +40,14 @@ class Breadcrumb < Struct.new(:code, :key, :css, :url, :title, :page_count, :lab
   end
   
   def container_attributes
-    {:id => self.key,
-     :class => "breadcrumb #{self.code}",
-     :page_count => self.page_count}
+    attrs = {:id => self.key,
+             :class => "breadcrumb #{self.code}"}
+    attrs[:page_count] = self.page_count if self.page_count.present?
+    attrs 
   end
   
   def to_hash
-    Hash[self.members.map{|m|[m.to_sym, send(m)]}]
+    Hash[self.members.map{|m|[m.to_sym, send(m)] if send(m)}.compact]
   end
   
   

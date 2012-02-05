@@ -184,9 +184,8 @@
         	var breadcrumb = $('<a/>').addClass('breadcrumb').
                              attr('id', data.key).
                              attr('href', data.url).
-                             attr('page_count', data.page_count).
                              addClass(breadcrumbKey);
-          		
+			if (data['page_count']) breadcrumb.attr('page_count', data.page_count);          		
           	// delimiter
         	if (index != 0 || breadcrumbsLength != 0) 
           		breadcrumb.append($("<span/>").addClass('delimiter'));
