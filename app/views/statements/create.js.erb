@@ -3,55 +3,10 @@ if(!window.location.href.match(/\/\d+/)) {
   window.location.replace("<%= escape_javascript(statement_node_url(@statement_node, :origin => @node_environment.origin.to_s, :bids => @node_environment.bids.to_s, :escape => false)) %>");
 }
 
-/* load new statement to session */
-<% if @statement_node.class.is_top_statement? or @statement_node.level == 0 %>
-  var session_id = 'roots';
-<% else %>
-  var session_id = '<%= dom_class(@statement_node.parent_node) %>';
-<% end %>
-
-var session_data =  $('div#statements').data(session_id);
-if (session_data != null) {
-	session_data.unshift(<%= @statement_node.target_id %>);
-	$('#statements').data(session_id, session_data);
-} else {
-  session_data = [<%= @statement_node.target_id %>, "add/<%= node_type(@statement_node) %>"]
-}
-
-
-
-// BIDS
-var bids = $('#breadcrumbs').data('breadcrumbs').getBreadcrumbStack(null);
-
-// ORIGIN
-var origin_bids = getOriginKeys(bids);
-var origin = origin_bids[origin_bids.length-1];
-if (origin == null || origin == "undefined"){origin = '';}
-
-// AL
-var al = $.fragment().al || '';
-al = al.length > 0 ? al.split(',') : [];
-
-<% if @statement_node.class.is_top_statement? %>
-  al = [];
-<% end %>
-
-<% if @node_environment.hub? %>
-  if($.inArray(<%= @statement_node.level %>, al) == -1) {
-    al.push(<%= @statement_node.level %>);
-	}
-<% end %>
-
-$.setFragment({ "nl" : '', "origin" : origin, "al" : al.join(',')});
 
 var element = $("<%= escape_javascript(render :partial => 'statements/show', 
                                               :locals => {:statement_node => @statement_node.target_statement}) %>").
-						 statement({'level' : <%= @statement_node.level %>,
-                        'message' : "<%= @info %>"});
+						 statement({level : <%= @statement_node.level %>, 
+						 			new_statement : true,
+                        			message : "<%= @info %>"});
 
-/* Statements' stack */
-var sids = $('#statements > .statement').map(function(){
-  return this.id.replace(/[^0-9]+/, "");
-}).get();
-
-$.setFragment({ "sids": sids.join(','), "bids" : bids.join(',') });

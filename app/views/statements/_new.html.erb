@@ -5,11 +5,11 @@
           :html => new_statement_element_attributes(@statement_node_type, statement_node) do |form| -%>
 
 	<%= hidden_field_tag :origin, @previous_node ? "#{@previous_type}#{@previous_node.id}" : (@node_environment.origin.to_s||"") %>
-  <%= hidden_field_tag :bids, (!@bids.blank? ? @bids.join(",") : @node_environment.bids.to_s) %>
+  	<%= hidden_field_tag :bids, (!@bids.blank? ? @bids.join(",") : @node_environment.bids.to_s) %>
 	<%= hidden_field_tag :sids, params[:sids] if params[:sids] %>
 	<%= hidden_field_tag :al, @node_environment.alternative_modes.to_s %>
-  <%= hidden_field_tag :hub, @node_environment.hub.to_s if @node_environment.hub? %>
-  <%= hidden_field_tag "statement_node[init_alternative]", 1 if @node_environment.hub? %>
+  	<%= hidden_field_tag :hub, @node_environment.hub.to_s if @node_environment.hub? %>
+  	<%= hidden_field_tag "statement_node[init_alternative]", 1 if @node_environment.hub? %>
 
 
 	<%= render :partial => 'statements/form/form_header', :locals => {:form => form, :statement_node => statement_node} %>

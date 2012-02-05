@@ -11,6 +11,7 @@
 	  		insertStatement : true,
 	  		load : true,
 	   		expand  : false,
+	   		new_statement : false,
 	   		message: null,
 	   		
        		echoableClass  :  'echoable',
@@ -56,7 +57,7 @@
 			var that = this;
 			var statement = that.element;
 			that.domId = statement.attr('id');
-			that.domParent = statement.attr('dom-parent');
+			that.domParent = statement.data('dom-parent');
 			that.parentId = that.domParent? that.domParent.replace(/[^0-9]+/, '') : '';
 			that.statementType = that.domId.match("new") ? $.trim(statement.find('input#type').val()) : $.trim(that.domId.match(/[^(add_|new_)]\w+[^_\d+]/)[0]); 
 			that.statementId = that.domId.replace(/[^0-9]+/, '');
@@ -70,7 +71,8 @@
 			that.breadcrumbApi = $('#breadcrumbs').data('breadcrumbs');
 			that.refresh();
 			
-			statement.removeAttr('dom-parent');
+			if (that.options.new_statement) that._handleStateAfterFormSubmit();
+			
 		},
 		/*
 		 * reinitialises the widget for the current statement
@@ -488,6 +490,7 @@
       		// initialise main header title link
         	statement.find('.header .main_header .statement_link').bind("click", function(e) {
         		e.preventDefault();
+        		e.stopPropagation();
 				var stat = $(this);
 	          	// SIDS
 				var currentStack = $.fragment().sids;
@@ -816,6 +819,54 @@
         	that._initSiblingsLinks(container, opts);
         	if (that.isEchoable) 
           		statement.data('echoable').loadRatioBars(container);
+	   	},
+	   	_handleStateAfterFormSubmit: function() {
+	   		var that = this,
+	   			statement = that.element;
+				
+			/* load new statement to siblings in session */
+			var sessionId = that.statementLevel == 0 ? 'roots' : that.domParent,
+				siblingsData = $('#statements').data(sessionId);
+				
+				if (siblingsData) 
+					siblingsData.unshift(that.statementId);
+				else 
+  					siblingsData = [that.statementId, "add/"+that.statementType]
+  					
+				$('#statements').data(sessionId, siblingsData);
+				
+				// BIDS
+				var bids = that.breadcrumbApi.getBreadcrumbStack(null);
+				
+				// ORIGIN
+				var originBids = getOriginKeys(bids);
+				var origin = originBids[originBids.length-1];
+				if (!origin) origin = '';
+				
+				// AL
+				var al;
+				if (that.statementLevel == 0)
+  					al = [];
+  				else {
+  					al = $.fragment().al || '';
+					al = al.length > 0 ? al.split(',') : [];
+  				}
+  				
+  				if (statement.hasClass('alternative') && $.inArray(that.statementLevel, al) == -1) 
+    				al.push(that.statementLevel);
+    				
+    			
+    			
+				/* Statements' stack */
+				var sids = $('#statements > .statement').map(function(){
+  					return this.id.replace(/[^0-9]+/, "");
+				}).get();
+
+				$.setFragment({ "sids": sids.join(','), 
+								"bids" : bids.join(','),
+								"nl" : '', 
+								"origin" : origin, 
+								"al" : al.join(',') });
 	   	},
 		reinitialise: function(options) {
 			var that = this;

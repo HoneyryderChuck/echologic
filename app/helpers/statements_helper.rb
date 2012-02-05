@@ -268,7 +268,7 @@ module StatementsHelper
       :id => dom_id(statement_node), 
       :class => klasses.join(" "),
       :'data-siblings' => (@siblings.to_session(dom_id(statement_node)).to_json unless @siblings.blank?),
-      :'dom-parent' => parent_statement_dom_id(statement_node)
+      :'data-dom-parent' => parent_statement_dom_id(statement_node)
    }
   end
  
@@ -281,7 +281,7 @@ module StatementsHelper
     klasses << 'embeddable no_type' if klass.has_embeddable_data? 
     {
       :class => klasses.join(" "),
-      :'dom-parent' => statement_node.parent_node ?
+      :'data-dom-parent' => statement_node.parent_node ?
                       "#{dom_class(statement_node.parent_node)}_#{statement_node.parent_node.target_id}" :
                       @node_environment.origin.to_s
     }
