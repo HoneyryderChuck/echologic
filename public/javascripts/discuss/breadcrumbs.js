@@ -223,7 +223,7 @@
 				
 			if (breadcrumbsData) {
 				if(breadcrumbs.is(":hidden")) 
-	            	toggleContainer();
+	            	that._toggleContainer();
 
 				var breadcrumbsLength = that.container.find(".breadcrumb").length;
 				// Assemble new breadcrumb entries
