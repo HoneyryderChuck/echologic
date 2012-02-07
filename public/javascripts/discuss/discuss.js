@@ -68,22 +68,22 @@ function initFragmentChangeHandling() {
 			sids = $.grep(new_sids, function (a) {
 				return $.inArray(a, visible_sids) == -1 ;});
 
-      // Breadcrumb logic
-      var bids = $("#breadcrumbs").data('breadcrumbs').breadcrumbsToLoad($.fragment().bids);
+		      // Breadcrumb logic
+		      var bids = $("#breadcrumbs").data('breadcrumbs').breadcrumbsToLoad($.fragment().bids);
 
-			path = $.queryString(document.location.href.replace(/\/\d+/, path), {
-        "sids": sids.join(","),
+			path = $.param.querystring(document.location.href.replace(/\/\d+/, path), {
+        		"sids": sids.join(","),
 				"bids": bids.join(","),
-        "nl": $.fragment().nl,
+        		"nl": $.fragment().nl,
 				"origin": $.fragment().origin,
 				"al" : $.fragment().al,
 				"cs": $.fragment().sids
-      });
+      		});
 
 			$.ajax({
-				url:      path,
-	      type:     'get',
-	      dataType: 'script'
+					url:      path,
+			      type:     'get',
+			      dataType: 'script'
 			});
 		}
   });

@@ -118,7 +118,7 @@
 
 				var bidsToLoad = i > -1 ? bids.splice(i, bids.length) : [];
 
-				var href = $.queryString(cancelButton.attr('href').replace(/statement\/.*/, "statement/" + lastStatementId), {
+				var href = $.param.querystring(cancelButton.attr('href').replace(/statement\/.*/, "statement/" + lastStatementId), {
 					"sids": sids.join(","),
 					"bids": bidsToLoad.join(','),
 					"origin": $.fragment().origin,
@@ -195,7 +195,7 @@
 			var that = this,
 				form = that.element,
 				path = '../../statement/' + nodeId + '/link_statement_node/' + type;
-    		path = $.queryString(path, {
+    		path = $.param.querystring(path, {
       			"code" : chosenLanguage.val(),
 				"parent_id": statementParentId
     		});
@@ -209,7 +209,7 @@
 			var that = this,
 				form = that.element,
 				path = '../../statement/' + statementId + '/link_statement';
-			path = $.queryString(path, {
+			path = $.param.querystring(path, {
 				"code" : that.chosenLanguage.val()
 			});
 			$.getJSON(path, function(data) {

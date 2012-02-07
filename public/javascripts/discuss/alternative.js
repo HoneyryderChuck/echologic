@@ -58,7 +58,7 @@
 				  	"origin": origin,
 					"al": al.join(',')
 				});
-				var path = $.queryString(statementApi.getStatementUrl(), {
+				var path = $.param.querystring(statementApi.getStatementUrl(), {
 					"current_stack" : targetStack.join(','), 
 					"nl" : true, 
 					"al" : al.join(',')
