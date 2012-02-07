@@ -99,12 +99,13 @@
       	_initFormCancelButton: function() {
       		var that = this,
       			form = that.element,
-        		cancelButton = form.find('.buttons a.cancel');
-        	if ($.fragment().sids) {
-	          	var sids = $.fragment().sids.split(","),
+        		cancelButton = form.find('.buttons a.cancel'),
+        		state = $.bbq.getState();
+        	if (state.sids) {
+	          	var sids = state.sids.split(","),
 	          		lastStatementId = sids.pop();
 
-				var bids = $.fragment().bids;
+				var bids = state.bids;
 				bids = bids ? bids.split(',') : [];
 				var current_bids = $('#breadcrumbs').data('breadcrumbs').getBreadcrumbStack(null);
 
@@ -121,9 +122,9 @@
 				var href = $.param.querystring(cancelButton.attr('href').replace(/statement\/.*/, "statement/" + lastStatementId), {
 					"sids": sids.join(","),
 					"bids": bidsToLoad.join(','),
-					"origin": $.fragment().origin,
-					"al": $.fragment().al,
-					"cs": $.fragment().sids
+					"origin": state.origin,
+					"al": state.al,
+					"cs": state.sids
           		});
 
           		cancelButton.addClass("ajax").attr('href', href);

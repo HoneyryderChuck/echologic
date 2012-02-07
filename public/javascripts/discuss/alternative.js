@@ -48,10 +48,10 @@
 				// save element after which the breadcrumbs will be deleted while processing the response
       			$('#breadcrumbs').data('element_clicked', targetBids[targetBids.length-1]);
 				// ORIGIN
-				origin = $.fragment().origin;
+				origin = $.bbq.getState("origin");
 				// AL
       			var al = statement.data('api').getTargetAls(false);
-				$.setFragment({
+				$.bbq.pushState({
 					"sids": targetStack.join(','),
 				  	"nl": true,
 				  	"bids": targetBids.join(','),

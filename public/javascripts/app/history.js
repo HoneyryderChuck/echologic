@@ -3,7 +3,7 @@ $(document).ready(function () {
 		$("#search_form").placeholder();
   	initHistoryEvents();
   	initPaginationButtons();
-  	initFragmentChange();
+  	initHashChange();
 		loadSearchAutoComplete();
 		$('#questions_container').statement_search();
   }
@@ -52,9 +52,9 @@ function setSearchHistory() {
   }
   if ($(':input[id=sort]').length > 0) {
     var sort = $(':input[id=sort]').val();
-	  $.setFragment({ "search_terms": search_terms, "sort" : sort, "page": "1", "page_count" : "", "page_count" : ""});
+	  $.bbq.pushState({ "search_terms": search_terms, "sort" : sort, "page": "1", "page_count" : "", "page_count" : ""});
   } else {
-    $.setFragment({ "search_terms": search_terms, "page": "1", "page_count" : ""});
+    $.bbq.pushState({ "search_terms": search_terms, "page": "1", "page_count" : ""});
   }
 }
 
@@ -64,33 +64,34 @@ function setSearchHistory() {
 
 function initPaginationButtons() {
 	$(".pagination a").live("click", function() {
-    $.setFragment({ "page" : $.deparam.querystring(this.href).page })
+    $.bbq.pushState({ "page" : $.deparam.querystring(this.href).page })
     return false;
   });
 }
 
 
-function initFragmentChange() {
-  $(document).bind("fragmentChange.page", function() {
-	  if ($.fragment().page) {triggerSearchQuery();}
+function initHashChange() {
+  $(document).bind("hashchange", function() {
+	  if ($.bbq.getState("page")) {triggerSearchQuery();}
   });
 
-  if ($.fragment().page_count) {
-    $.setFragment({"page": "1"});
+  if ($.bbq.getState("page_count")) {
+    $.bbq.pushState({"page": "1"});
   }
 
-  if ($.fragment().page) {
-    $(document).trigger("fragmentChange.page");
+  if ($.bbq.getState("page")) {
+    $(document).trigger("hashchange");
   }
 
 }
 
 function triggerSearchQuery(){
+	var state = $.bbq.getState();
   $.getScript($.param.querystring(document.location.href.split('?')[0], {
-    "page_count": $.fragment().page_count,
-    "page": $.fragment().page,
-    "sort": $.fragment().sort,
-    "search_terms": $.fragment().search_terms
+    "page_count": state.page_count,
+    "page": state.page,
+    "sort": state.sort,
+    "search_terms": state.search_terms
   }));
 }
 

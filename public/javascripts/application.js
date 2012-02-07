@@ -4,7 +4,6 @@
   /* Do init stuff. */
   $(function() {
 
-    $.fragmentChange(true);
     initMainMenu();
     initStaticMenu();
 

@@ -15,7 +15,7 @@
 			that.pagination = searchContainer.find('.more_pagination');
 			that.actionBar = $('#action_bar');
 			
-				that._initEchoIndicators(searchContainer);
+			that._initEchoIndicators(searchContainer);
 			that._initMoreButton();
 			that._initEmbedButton();
 			//that._initScrollPane();
@@ -43,7 +43,7 @@
 					loadingMoreButton = $('<span class="more_loading"/>').text(moreButton.text()),
 					pageCount = elementsCount / that.options.per_page + 1;
           		moreButton.replaceWith(loadingMoreButton);
-				$.setFragment({"page_count" : pageCount, "page" : ""});
+				$.bbq.pushState({"page_count" : pageCount, "page" : ""});
 
 				// load elements that have to be updated on the page count parameter
 				var elementsToUpdate = searchContainer.find('a.statement_link, a.avatar_holder, a.add_new_button');

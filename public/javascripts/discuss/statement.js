@@ -251,8 +251,8 @@
 
         	button.attr('href', buttonUrl);
 
-			if ($.fragment().al && $.fragment().al.length > 0)
-				button.attr('al', $.fragment().al);
+			if ($.bbq.getState("al") && $.bbq.getState("al").length > 0)
+				button.attr('al', $.bbq.getState("al"));
 		    button.removeData('id');
 		},
 		// Initializes the button for the New Statement function in the action panel.
@@ -474,7 +474,7 @@
       	// Loads the new set of Als
 		_getTargetAls: function(inclusive) {
 			var that = this,
-				al = $.fragment().al || '';
+				al = $.bbq.getState("al") || '';
         	al = al.length > 0 ? al.split(',') : [];
         	// eliminate levels below the one we're returning to
         	al = $.grep(al, function(a){
@@ -493,7 +493,7 @@
         		e.stopPropagation();
 				var stat = $(this);
 	          	// SIDS
-				var currentStack = $.fragment().sids;
+				var currentStack = $.bbq.getState("sids");
 			    var targetStack = that._getStatementsStack(stat, false);
 	
 	          	// BIDS
@@ -504,7 +504,7 @@
 	          	$('#breadcrumbs').data('element_clicked', parentKey);
 	
 	          	// ORIGIN
-				var origin = $.fragment().origin;
+				var origin = $.bbq.getState("origin");
 	
 				// AL: get alternative level if this link is for an alternative level
 				var altStack = that._getTargetAls(true);
@@ -512,7 +512,7 @@
 				if (statAl && $.inArray(statAl,altStack) == -1) 
 					altStack.push(statAl);
 
-		    	$.setFragment({
+		    	$.bbq.pushState({
 		        	"sids": targetStack.join(','),
 		        	"nl": '',
 					"bids": targetBids.join(','),
@@ -528,7 +528,7 @@
 
 				// if this is the parent of a form, then it must be triggered a request to render it
           		if (triggerRequest) 
-            		$(document).trigger("fragmentChange.sids");
+            		$(document).trigger("hashchange");
 		    });
 
 			// DAQ Link
@@ -547,7 +547,7 @@
 			// it triggers one request instead of two.
 			statement.find('.add_new_button').each(function() {
 				$(this).bind('click', function(){
-					$.setFragment({ "nl" : '' });
+					$.bbq.removeState("nl");
 				});
 			})
 		},
@@ -571,7 +571,7 @@
 					var childId = stat.data('statement-id');
 					var key = that._getTypeKey(stat.parent().attr('class'));
 					var bids = that.breadcrumbApi.getBreadcrumbStack(null);
-					var altStack = $.fragment().al || '';
+					var altStack = $.bbq.getState("al") || '';
 					var altStack = altStack.length > 0 ? altStack.split(',') : [];
 	          		var parentKey = that._getParentKey();
 	          		
@@ -598,7 +598,7 @@
 						  	break;
 						default:
 						  	stack.push(childId);
-							origin = $.fragment().origin;
+							origin = $.bbq.getState("origin");
 							break;
 					}
 	
@@ -612,7 +612,7 @@
 						params.al = altStack.join(',');
 						
 					}
-	          		$.setFragment(
+	          		$.bbq.pushState(
 						$.extend({
 		            		"sids": stack.join(','),
 		            		"nl": (newLevel ? newLevel : ''),
@@ -710,7 +710,7 @@
 					targetBids.push(bid);
 					$.merge(targetBids, bids);
 	
-					$.setFragment({
+					$.bbq.pushState({
 	              		"bids": targetBids.join(","),
 	              		"sids": sids.join(","),
 	              		"nl": true,
@@ -745,7 +745,7 @@
 				} else
 					return that.statementTypeKey + that.parentStatement.data('statement').statementId;
         	else
-          		return $.fragment().origin;
+          		return $.bbq.getState("origin");
 		},
 		// gets a two-letter code for the type of statement
 		_getTypeKey: function(type) {
@@ -848,7 +848,7 @@
 				if (that.statementLevel == 0)
   					al = [];
   				else {
-  					al = $.fragment().al || '';
+  					al = $.bbq.getState("al") || '';
 					al = al.length > 0 ? al.split(',') : [];
   				}
   				
@@ -862,7 +862,7 @@
   					return this.id.replace(/[^0-9]+/, "");
 				}).get();
 
-				$.setFragment({ "sids": sids.join(','), 
+				$.bbq.pushState({"sids": sids.join(','), 
 								"bids" : bids.join(','),
 								"nl" : '', 
 								"origin" : origin, 

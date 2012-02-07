@@ -7,7 +7,7 @@ $(document).ready(function () {
 	  	if ($('#statements').length > 0) {
 		    initBreadcrumbs();
 			initStatements();
-	      	initFragmentChangeHandling();
+	      	initHashChangeHandling();
 		    loadSocialSharingMessages();
 		}
 	}
@@ -37,8 +37,8 @@ function initStatements() {
 			sids.push($(this).attr('id').match(/\d+/));
 		}
 	});
-	if (sids.length > 0 && (!$.fragment().sids || $.fragment().sids.length == 0)) {
-  	$.setFragment({
+	if (sids.length > 0 && (!$.bbq.getState("sids") || $.bbq.getState("sids").length == 0)) {
+  	$.bbq.pushState({
   		"sids": sids.join(",")
   	});
   }
@@ -48,11 +48,12 @@ function initStatements() {
 /*
  * Initializes handlers to react on fragement (SIDS - statement Ids) change events.
  */
-function initFragmentChangeHandling() {
+function initHashChangeHandling() {
 
-	$(document).bind("fragmentChange.sids", function() {
-		if ($.fragment().sids) {
-			var sids = $.fragment().sids;
+	$(window).bind("hashchange", function(e) {
+		var state = $.bbq.getState();
+		if (state.sids) {
+			var sids = state.sids;
 			var new_sids = sids.split(",");
 			var path = "/" + new_sids[new_sids.length-1];
 			var last_sid = new_sids.pop();
@@ -66,18 +67,22 @@ function initFragmentChangeHandling() {
 			if ($.inArray(last_sid, visible_sids) != -1 && visible_sids[visible_sids.length-1]==last_sid) {return;}
 
 			sids = $.grep(new_sids, function (a) {
-				return $.inArray(a, visible_sids) == -1 ;});
+				return $.inArray(a, visible_sids) == -1 ;
+			});
+			
+			var state = $.bbq.getState();
 
-		      // Breadcrumb logic
-		      var bids = $("#breadcrumbs").data('breadcrumbs').breadcrumbsToLoad($.fragment().bids);
+		    // Breadcrumb logic
+		    var bids = $("#breadcrumbs").data('breadcrumbs').breadcrumbsToLoad(state.bids);
 
+						
 			path = $.param.querystring(document.location.href.replace(/\/\d+/, path), {
         		"sids": sids.join(","),
 				"bids": bids.join(","),
-        		"nl": $.fragment().nl,
-				"origin": $.fragment().origin,
-				"al" : $.fragment().al,
-				"cs": $.fragment().sids
+        		"nl": state.nl,
+				"origin": state.origin,
+				"al" : state.al,
+				"cs": state.sids
       		});
 
 			$.ajax({
@@ -86,16 +91,17 @@ function initFragmentChangeHandling() {
 			      dataType: 'script'
 			});
 		}
-  });
+  	});
 
 	// Statement stack
   var bids;
-  if ($.fragment().sids) {
-		if (!$.fragment().bids || $.fragment().bids == 'undefined') {
+  var state = $.bbq.getState();
+  if (state.sids) {
+		if (!state.bids || state.bids == 'undefined') {
 			bids = $("#breadcrumbs").data('breadcrumbs').getBreadcrumbStack(null);
 			}
 		else {
-			bids = $.fragment().bids;
+			bids = state.bids;
 			bids = bids ? bids.split(',') : [];
 		}
 
@@ -103,23 +109,23 @@ function initFragmentChangeHandling() {
 			return $.inArray(a.substring(0,2), ['ds','sr','fq']) != -1;
 		});
     var origin;
-		if (!$.fragment().origin || $.fragment().origin == 'undefined') {
+		if (!state.origin || state.origin == 'undefined') {
       origin = origin_bids.length == 0 ? "" : origin_bids.pop();
     } else {
-      origin = $.fragment().origin;
+      origin = state.origin;
     }
 
-    $.setFragment({
+    $.bbq.pushState({
       "nl" : true,
-			"al" : $.fragment().al || '',
+	  "al" : state.al || '',
       "bids" : bids.join(','),
       "origin" : origin });
-	  $(document).trigger("fragmentChange.sids");
+	  $(document).trigger("hashchange");
   }
 
 	// Breadcrumbs
-	if ($.fragment().bids) {
-		$(document).trigger("fragmentChange.bids");
+	if (state.bids) {
+		$(document).trigger("hashchange");
 	}
 }
 
@@ -188,7 +194,7 @@ function redirectToStatementUrl() {
 		var fragment = url.pop();
 		if (fragment.length > 0) {
 			var path = url[0].split('?');
-			var sids = $.fragment().sids;
+			var sids = $.bbq.getState("sids");
 			if (sids) {
 				var current_statement = sids.split(',').pop();
 				path[0] = path[0].replace(/\/\d+/, '/' + current_statement);

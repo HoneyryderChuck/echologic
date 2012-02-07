@@ -62,7 +62,7 @@
 				e.preventDefault();
 				
 				var b = $(this);
-	          	// Getting bids from fragment
+	          	// Getting bids from hash state
 	          	var bidsStack = b.prevAll().map(function() {
 					return that._truncateBreadcrumbKey($(this));
 	          	}).get().reverse();
@@ -82,14 +82,14 @@
 				var originBids = getOriginKeys(newBids);
 	          	var origin = originBids.length > 0 ? originBids[originBids.length -1] : '';
 	
-				if (sids.join(",") == $.fragment().sids) {
+				if (sids.join(",") == $.bbq.getState("sids")) {
 					sids.pop();
 			       // Sids won't change, we are inside a new form, and we press the breadcrumb to go back
 					var path = $.param.querystring(b.attr('href'), {"sids" : sids.join(","), "bids" : ''});
 					$.getScript(path);
 				}
 				else {
-					$.setFragment({
+					$.bbq.pushState({
 						"bids": newBids.join(","),
 						"sids": sids.join(","),
 						"nl": true,
@@ -134,7 +134,7 @@
 			}
 			return key;
 		},
-		// Deletes Breadcrumbs that are not defined on the bids fragment (and after the last element clicked).
+		// Deletes Breadcrumbs that are not defined on the bids state (and after the last element clicked).
 	    _cleanBreadcrumbs: function() {
 	    	var that = this,
 	    		breadcrumbs = that.element,
@@ -155,9 +155,9 @@
           		removeLength = toRemoveElements.length;
           		toRemoveElements.remove();
 	
-    	    } else { // delete all breadcrumbs that are not in the fragment bids
+    	    } else { // delete all breadcrumbs that are not in the state bids
 	
-    	      	var bids = $.fragment().bids;
+    	      	var bids = $.bbq.getState("bids");
         	  	bids = bids ? bids.split(',') : [];
           		// No origin, that means first breadcrumb pressed, no predecessor, so delete everything
           		that.container.find('.breadcrumb').each(function() {
@@ -210,7 +210,7 @@
 		deleteBreadcrumb: function(key) { // Removes the breadcrumb ONLY VISUALLY
 			var that = this;
 			if (key && key.length > 0) {
-				var origin = $.fragment().origin;
+				var origin = $.bbq.getState("origin");
 				if ($.inArray(origin.substring(0,2),['ds','sr']) != -1) origin = origin.substring(0,2);
 				var topBreadcrumb = origin.length > 0 ? breadcrumbs.find('#' + origin) : breadcrumbs.find('.breadcrumb:first');
 				var breadcrumb = topBreadcrumb.nextAll('#' + key).remove();
