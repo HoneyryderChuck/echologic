@@ -33,15 +33,7 @@ function initStatements() {
 	var sids = [];
 	$('#statements .statement').each(function() {
 		$(this).statement({'insertStatement': false});
-		if ($(this).is("div")) {
-			sids.push($(this).attr('id').match(/\d+/));
-		}
 	});
-	if (sids.length > 0 && (!$.bbq.getState("sids") || $.bbq.getState("sids").length == 0)) {
-  	$.bbq.pushState({
-  		"sids": sids.join(",")
-  	});
-  }
 }
 
 
@@ -92,41 +84,7 @@ function initHashChangeHandling() {
 			});
 		}
   	});
-
-	// Statement stack
-  var bids;
-  var state = $.bbq.getState();
-  if (state.sids) {
-		if (!state.bids || state.bids == 'undefined') {
-			bids = $("#breadcrumbs").data('breadcrumbs').getBreadcrumbStack(null);
-			}
-		else {
-			bids = state.bids;
-			bids = bids ? bids.split(',') : [];
-		}
-
-		var origin_bids = $.grep(bids, function(a){
-			return $.inArray(a.substring(0,2), ['ds','sr','fq']) != -1;
-		});
-    var origin;
-		if (!state.origin || state.origin == 'undefined') {
-      origin = origin_bids.length == 0 ? "" : origin_bids.pop();
-    } else {
-      origin = state.origin;
-    }
-
-    $.bbq.pushState({
-      "nl" : true,
-	  "al" : state.al || '',
-      "bids" : bids.join(','),
-      "origin" : origin });
-	  $(document).trigger("hashchange");
-  }
-
-	// Breadcrumbs
-	if (state.bids) {
-		$(document).trigger("hashchange");
-	}
+	$(window).trigger( 'hashchange' );
 }
 
 

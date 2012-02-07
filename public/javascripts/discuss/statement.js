@@ -514,8 +514,8 @@
 
 		    	$.bbq.pushState({
 		        	"sids": targetStack.join(','),
-		        	"nl": '',
 					"bids": targetBids.join(','),
+					"nl" : '', 
 					"origin": origin,
 					"al": altStack.join(',')
 		      	});
