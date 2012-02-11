@@ -111,7 +111,8 @@
 			that._initEchoIndicators(childrenList);
 		},
 		updateMoreButton: function(content, toInsert) {
-			var that = this;
+			var that = this,
+				searchContainer = that.element;
         	if (toInsert) {
 				if (that.pagination && that.pagination.length > 0) {
 					that.pagination.replaceWith(content);
@@ -119,8 +120,8 @@
 				else {
 					content.insertAfter(elements_list);
 				}
-				pagination = content;
-				that.initMoreButton();
+				that.pagination = searchContainer.find('.more_pagination');
+				that._initMoreButton();
 			} else {
 				if (that.pagination) {
 					that.pagination.remove();
