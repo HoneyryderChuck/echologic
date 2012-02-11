@@ -513,7 +513,7 @@
           		targetBids = targetBids.splice(0, index + 1);
         	else { // if parent breadcrumb doesn't exist, it means top stack statement
           		//find all origin breadcrumbs
-				var originBids = getOriginKeys(currentBids);
+				var originBids = that.breadcrumbApi.getOriginKeys(currentBids);
 				// get last of them, if it exists
 				if (originBids.length > 0) {
 					var lastOriginBid = originBids.pop();
@@ -733,7 +733,7 @@
           		if (url.substring(0,7) != "http://" && url.substring(0,8) != "https://")
             		url =  "http://" + url;
 					
-				if (isEchoStatementUrl(url)) // if this link goes to another echo statement => add a jump bid
+				if (that._isEchoStatementUrl(url)) // if this link goes to another echo statement => add a jump bid
 					that._initJumpLink(link,url);
 				else
 	            	link.attr("target", "_blank");
@@ -893,7 +893,7 @@
 				var bids = that.breadcrumbApi.getBreadcrumbStack(null);
 				
 				// ORIGIN
-				var originBids = getOriginKeys(bids);
+				var originBids = that.breadcrumbApi.getOriginKeys(bids);
 				var origin = originBids[originBids.length-1];
 				if (!origin) origin = '';
 				
@@ -922,6 +922,10 @@
 								"origin" : origin, 
 								"al" : al.join(',') });
 	   	},
+		// Returns true if the URL matches the pattern of an echo statement link.
+		_isEchoStatementUrl: function(url) {
+			return url.match(/^http:\/\/(www\.)?echo\..+\/statement\/(\d+)/);
+		},
 		reinitialise: function(options) {
 			var that = this;
 			that.options = $.extend(that.options, options, {load : false})

@@ -17,7 +17,7 @@
 			that.publishRadios = form.find('.publish_radios');
 			that.isEmbeddable = form.hasClass(that.options.embeddableClass);
 			that.isTaggable = form.hasClass(that.options.taggableClass);
-			
+			that.statementApi = form.data('statement');
 			
 			that._loadRTEEditor();
 			
@@ -171,7 +171,7 @@
           		else {
             		if (button.hasClass('off')) {
               			var titleValue = that.title.val();
-              			if (isEchoStatementUrl(titleValue)) {
+              			if (that.statementApi._isEchoStatementUrl(titleValue)) {
                 			var statementNodeId = titleValue.match(/statement\/(\d+)/)[1];
                 			that._linkStatementNode(statementNodeId);
               			} else {

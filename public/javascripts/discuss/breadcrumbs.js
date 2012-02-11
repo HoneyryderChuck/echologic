@@ -42,8 +42,8 @@
 			while (bGen.length > 0) {
 				var breadcrumbId = bGen.attr("id");
 				// if it's an origin breadcrumb, stack is done
-				if (getOriginKeys([breadcrumbId]).length == 0) 
-					getHubKeys([breadcrumbId]).length == 0 ?
+				if (that.getOriginKeys([breadcrumbId]).length == 0) 
+					that._getHubKeys([breadcrumbId]).length == 0 ?
 					sids.unshift(breadcrumbId.match(/\d+/)[0]) : // get id to the stack list
 					alternativeLevels.push(bGen.prev().attr("id").match(/\d+/)[0]); // get id of the previous breadcrumb to the al list
 					
@@ -199,6 +199,18 @@
         	breadcrumb.hide();
         	return breadcrumb;
       	},
+      	// Returns breadcrumb keys representing a new hub (being outside of the scope of a given stack).
+		_getHubKeys: function(array) {
+		  return $.grep(array, function(a, index) {
+		    return $.inArray(a.substring(0,2), ['al']) != -1;
+		  });
+		},
+		// Returns breadcrumb keys representing a new origin (being outside of the scope of a given stack).
+		getOriginKeys: function(array) {
+		  return $.grep(array, function(a, index) {
+		    return $.inArray(a.substring(0,2), ['sr','ds','mi','fq','jp','dq']) != -1;
+		  });
+		},
       	getBreadcrumb: function(key) {
 			return this.container.find('#'+key);
 		},
