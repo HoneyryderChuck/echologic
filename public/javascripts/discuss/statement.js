@@ -73,6 +73,8 @@
 			
 			if (that.options.new_statement) that._handleStateAfterFormSubmit();
 			
+			that._initHashChangeHandling();
+			
 		},
 		/*
 		 * reinitialises the widget for the current statement
@@ -166,6 +168,58 @@
 			}
 			else 
 				that._removeBelow();
+		},
+		// initialises handling of hash change events
+		_initHashChangeHandling: function() {
+			
+			if (window.statementHashHandling) return;
+			
+			$(window).bind("hashchange", function(e) {
+				var state = $.bbq.getState();
+				if (state.sids) {
+					var sids = state.sids,
+						newSids = sids.split(","),
+						lastSid = newSids.pop(),
+						path = "/" + lastSid,
+
+						visibleSids = $("#statements > .statement").map(function(){
+						return $(this).data('statement').statementId;
+					}).get();
+
+
+					// After new statement was created and added to the stack, we needn't load again
+					if (visibleSids[visibleSids.length-1] == lastSid) return;
+
+					sids = $.grep(newSids, function(sid) {
+						return $.inArray(sid, visibleSids) == -1 ;
+					});
+			
+					var state = $.bbq.getState();
+
+		    		// Breadcrumb logic
+		    		var bids = $("#breadcrumbs").data('breadcrumbs').breadcrumbsToLoad(state.bids);
+
+						
+					path = $.param.querystring(document.location.href.replace(/\/\d+/, path), {
+		        		"sids": sids.join(","),
+						"bids": bids.join(","),
+		        		"nl": state.nl,
+						"origin": state.origin,
+						"al" : state.al,
+						"cs": state.sids
+		      		});
+
+					$.ajax({
+						url:      path,
+					    type:     'get',
+					    dataType: 'script'
+					});
+				}
+			});
+			
+			$(window).trigger( 'hashchange' );
+			
+			window.statementHashHandling = true;
 		},
 		// Collapses all visible statements to focus on the one appearing on new level.
 		_collapseStatements: function() {

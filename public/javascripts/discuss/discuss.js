@@ -7,7 +7,6 @@ $(document).ready(function () {
 	  	if ($('#statements').length > 0) {
 		    initBreadcrumbs();
 			initStatements();
-	      	initHashChangeHandling();
 		    loadSocialSharingMessages();
 		}
 	}
@@ -36,56 +35,6 @@ function initStatements() {
 	});
 }
 
-
-/*
- * Initializes handlers to react on fragement (SIDS - statement Ids) change events.
- */
-function initHashChangeHandling() {
-
-	$(window).bind("hashchange", function(e) {
-		var state = $.bbq.getState();
-		if (state.sids) {
-			var sids = state.sids;
-			var new_sids = sids.split(",");
-			var path = "/" + new_sids[new_sids.length-1];
-			var last_sid = new_sids.pop();
-
-			var visible_sids = $("#statements .statement").map(function(){
-				return $(this).data('statement').statementId;
-			}).get();
-
-
-			// After new statement was created and added to the stack, we needn't load again
-			if ($.inArray(last_sid, visible_sids) != -1 && visible_sids[visible_sids.length-1]==last_sid) {return;}
-
-			sids = $.grep(new_sids, function (a) {
-				return $.inArray(a, visible_sids) == -1 ;
-			});
-			
-			var state = $.bbq.getState();
-
-		    // Breadcrumb logic
-		    var bids = $("#breadcrumbs").data('breadcrumbs').breadcrumbsToLoad(state.bids);
-
-						
-			path = $.param.querystring(document.location.href.replace(/\/\d+/, path), {
-        		"sids": sids.join(","),
-				"bids": bids.join(","),
-        		"nl": state.nl,
-				"origin": state.origin,
-				"al" : state.al,
-				"cs": state.sids
-      		});
-
-			$.ajax({
-					url:      path,
-			      type:     'get',
-			      dataType: 'script'
-			});
-		}
-  	});
-	$(window).trigger( 'hashchange' );
-}
 
 
 /*
