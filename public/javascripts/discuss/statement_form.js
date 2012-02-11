@@ -218,7 +218,7 @@
 
 	      		// Embedded Data
 				if (that.isEmbeddable) 
-					form.data('embeddableApi').linkEmbeddedContent(data);
+					form.data('embeddable').linkEmbeddedContent(data);
 			});
 		},
 		
@@ -322,7 +322,7 @@
 
 	        // Unlink event to be fired by the embeddable part and cathed again here
 	        if (form.isEmbeddable) {
-				form.data('embeddableApi').handleContentChange('unlink');
+				form.data('embeddable').handleContentChange('unlink');
 			}
 			form.bind('unlink', function() {
 				if (that.statementLinked.val()) 
