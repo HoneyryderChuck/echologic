@@ -89,7 +89,7 @@
 		},
 		_setSearchHistory: function() {
 			var that = this;
-			that.form.data('placeholderApi').cleanDefaultValues();
+			that.form.data('placeholder').cleanDefaultValues();
 			
   			var searchTerms = $.trim(that.termsInput.val());
   			
