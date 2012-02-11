@@ -30,8 +30,8 @@
 			var that = this,
 			searchForm = that.element;
 			
-			that.sortTypeButtons = $("a.ajax_sort, a.ajax_no_sort");
-			that.paginationButtons = $('.pagination a');
+			that.sortTypeButtons = searchForm.parent().find("a.ajax_sort, a.ajax_no_sort");
+			that.paginationButtons = searchForm.parent().find('.pagination a');
 			
 			that._initHistoryEvents();
 			that._paginationButtons();
