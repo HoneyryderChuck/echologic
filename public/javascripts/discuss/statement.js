@@ -174,6 +174,8 @@
 			
 			if (window.statementHashHandling) return;
 			
+			var firstTime = true;
+			
 			$(window).bind("hashchange", function(e) {
 				var state = getState();
 				if (state.sids) {
@@ -183,7 +185,8 @@
 						path = "/" + lastSid,
 
 						visibleSids = $("#statements > .statement").map(function(){
-						return $(this).data('statement').statementId;
+							var st = $(this);
+							return (st.data('statement')) ? st.data('statement').statementId : st.attr('id').match(/\d+/)[0];
 					}).get();
 
 
@@ -214,11 +217,16 @@
 					    type:     'get',
 					    dataType: 'script'
 					});
+				} else {
+					if (firstTime)
+						firstTime = false;
+					else
+						$.getScript(document.location.href);
 				}
 			});
 			
 			$(window).trigger( 'hashchange' );
-			
+			firstTime = false;
 			window.statementHashHandling = true;
 		},
 		// Collapses all visible statements to focus on the one appearing on new level.
