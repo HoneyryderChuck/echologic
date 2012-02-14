@@ -44,7 +44,7 @@
 					loadingMoreButton = $('<span class="more_loading"/>').text(moreButton.text()),
 					pageCount = elementsCount / that.options.per_page + 1;
           		moreButton.replaceWith(loadingMoreButton);
-				$.bbq.pushState({"page_count" : pageCount, "page" : ""});
+				pushState({"page_count" : pageCount, "page" : ""});
 
 				// load elements that have to be updated on the page count parameter
 				var elementsToUpdate = searchContainer.find('a.statement_link, a.avatar_holder, a.add_new_button');

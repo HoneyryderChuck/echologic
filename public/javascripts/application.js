@@ -531,3 +531,15 @@
     }
     return this;
   };
+  
+
+
+function getState() {
+	return arguments.length > 0 ? $.bbq.getState(arguments[0]) : $.bbq.getState();
+}
+function pushState(args) {
+	$.bbq.pushState(args);
+}
+function removeState() {
+	$.bbq.removeState.apply(null, arguments);
+}

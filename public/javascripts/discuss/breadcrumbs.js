@@ -82,14 +82,14 @@
 				var originBids = getOriginKeys(newBids);
 	          	var origin = originBids.length > 0 ? originBids[originBids.length -1] : '';
 	
-				if (sids.join(",") == $.bbq.getState("sids")) {
+				if (sids.join(",") == getState("sids")) {
 					sids.pop();
 			       // Sids won't change, we are inside a new form, and we press the breadcrumb to go back
 					var path = $.param.querystring(b.attr('href'), {"sids" : sids.join(","), "bids" : ''});
 					$.getScript(path);
 				}
 				else {
-					$.bbq.pushState({
+					pushState({
 						"bids": newBids.join(","),
 						"sids": sids.join(","),
 						"nl": true,
@@ -157,7 +157,7 @@
 	
     	    } else { // delete all breadcrumbs that are not in the state bids
 	
-    	      	var bids = $.bbq.getState("bids");
+    	      	var bids = getState("bids");
         	  	bids = bids ? bids.split(',') : [];
           		// No origin, that means first breadcrumb pressed, no predecessor, so delete everything
           		that.container.find('.breadcrumb').each(function() {
@@ -222,7 +222,7 @@
 		deleteBreadcrumb: function(key) { // Removes the breadcrumb ONLY VISUALLY
 			var that = this;
 			if (key && key.length > 0) {
-				var origin = $.bbq.getState("origin");
+				var origin = getState("origin");
 				if ($.inArray(origin.substring(0,2),['ds','sr']) != -1) origin = origin.substring(0,2);
 				var topBreadcrumb = origin.length > 0 ? breadcrumbs.find('#' + origin) : breadcrumbs.find('.breadcrumb:first');
 				var breadcrumb = topBreadcrumb.nextAll('#' + key).remove();

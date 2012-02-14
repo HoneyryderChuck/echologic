@@ -100,7 +100,7 @@
       		var that = this,
       			form = that.element,
         		cancelButton = form.find('.buttons a.cancel'),
-        		state = $.bbq.getState();
+        		state = getState();
         	if (state.sids) {
 	          	var sids = state.sids.split(","),
 	          		lastStatementId = sids.pop();

@@ -27,7 +27,7 @@ function redirectToStatementUrl() {
 		var fragment = url.pop();
 		if (fragment.length > 0) {
 			var path = url[0].split('?');
-			var sids = $.bbq.getState("sids");
+			var sids = getState("sids");
 			if (sids) {
 				var current_statement = sids.split(',').pop();
 				path[0] = path[0].replace(/\/\d+/, '/' + current_statement);

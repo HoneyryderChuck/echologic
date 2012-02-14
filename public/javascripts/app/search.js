@@ -71,7 +71,7 @@
 			that.paginationButtons.bind("click", function(e) {
 				e.preventDefault();
 				e.stopPropagation();
-			    $.bbq.pushState({ "page" : $.deparam.querystring(this.href).page })
+			    pushState({ "page" : $.deparam.querystring(this.href).page })
 			});
 		},
 		_initHashChange: function() {
@@ -79,11 +79,11 @@
 			if (window.searchHashHandling) return;
 			
 			$(window).bind("hashchange", function() {
-	  			if ($.bbq.getState("page")) that._triggerSearchQuery();
+	  			if (getState("page")) that._triggerSearchQuery();
 			});
 				
-			if ($.bbq.getState("page_count")) 
-			    $.bbq.pushState({"page": "1"});
+			if (getState("page_count")) 
+			    pushState({"page": "1"});
 				
 			window.searchHashHandling = true;
 		},
@@ -101,7 +101,7 @@
   			if (that.sortTypeInput.length > 0) 
     			data["sort"] = that.sortTypeInput.val();
     		
-	  		$.bbq.pushState(data);
+	  		pushState(data);
 		},
 		// Initialises auto_complete property for the tags text input
 		_loadSearchAutoComplete: function() {
@@ -116,8 +116,8 @@
 		},
 		_triggerSearchQuery: function() {
 			var that = this;
-			var state = $.bbq.getState();
-  			$.getScript($.param.querystring(that.searchPath, $.bbq.getState()), function() {
+			var state = getState();
+  			$.getScript($.param.querystring(that.searchPath, state), function() {
   				that._refresh();
   			});
 		}

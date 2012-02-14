@@ -175,7 +175,7 @@
 			if (window.statementHashHandling) return;
 			
 			$(window).bind("hashchange", function(e) {
-				var state = $.bbq.getState();
+				var state = getState();
 				if (state.sids) {
 					var sids = state.sids,
 						newSids = sids.split(","),
@@ -194,7 +194,7 @@
 						return $.inArray(sid, visibleSids) == -1 ;
 					});
 			
-					var state = $.bbq.getState();
+					var state = getState();
 
 		    		// Breadcrumb logic
 		    		var bids = $("#breadcrumbs").data('breadcrumbs').breadcrumbsToLoad(state.bids);
@@ -305,8 +305,8 @@
 
         	button.attr('href', buttonUrl);
 
-			if ($.bbq.getState("al") && $.bbq.getState("al").length > 0)
-				button.attr('al', $.bbq.getState("al"));
+			if (getState("al") && getState("al").length > 0)
+				button.attr('al', getState("al"));
 		    button.removeData('id');
 		},
 		// Initializes the button for the New Statement function in the action panel.
@@ -528,7 +528,7 @@
       	// Loads the new set of Als
 		_getTargetAls: function(inclusive) {
 			var that = this,
-				al = $.bbq.getState("al") || '';
+				al = getState("al") || '';
         	al = al.length > 0 ? al.split(',') : [];
         	// eliminate levels below the one we're returning to
         	al = $.grep(al, function(a){
@@ -547,7 +547,7 @@
         		e.stopPropagation();
 				var stat = $(this);
 	          	// SIDS
-				var currentStack = $.bbq.getState("sids");
+				var currentStack = getState("sids");
 			    var targetStack = that._getStatementsStack(stat, false);
 	
 	          	// BIDS
@@ -558,7 +558,7 @@
 	          	$('#breadcrumbs').data('element_clicked', parentKey);
 	
 	          	// ORIGIN
-				var origin = $.bbq.getState("origin");
+				var origin = getState("origin");
 	
 				// AL: get alternative level if this link is for an alternative level
 				var altStack = that._getTargetAls(true);
@@ -566,7 +566,7 @@
 				if (statAl && $.inArray(statAl,altStack) == -1) 
 					altStack.push(statAl);
 
-		    	$.bbq.pushState({
+		    	pushState({
 		        	"sids": targetStack.join(','),
 					"bids": targetBids.join(','),
 					"nl" : '', 
@@ -600,8 +600,9 @@
 			// All form requests must nullify the new_level, so that when one clicks the parent button
 			// it triggers one request instead of two.
 			statement.find('.add_new_button').each(function() {
-				$(this).bind('click', function(){
-					$.bbq.removeState("nl");
+				$(this).bind('click', function(e){
+					e.preventDefault();
+					removeState("nl");
 				});
 			})
 		},
@@ -625,7 +626,7 @@
 					var childId = stat.data('statement-id');
 					var key = that._getTypeKey(stat.parent().attr('class'));
 					var bids = that.breadcrumbApi.getBreadcrumbStack(null);
-					var altStack = $.bbq.getState("al") || '';
+					var altStack = getState("al") || '';
 					var altStack = altStack.length > 0 ? altStack.split(',') : [];
 	          		var parentKey = that._getParentKey();
 	          		
@@ -652,7 +653,7 @@
 						  	break;
 						default:
 						  	stack.push(childId);
-							origin = $.bbq.getState("origin");
+							origin = getState("origin");
 							break;
 					}
 	
@@ -666,7 +667,7 @@
 						params.al = altStack.join(',');
 						
 					}
-	          		$.bbq.pushState(
+	          		pushState(
 						$.extend({
 		            		"sids": stack.join(','),
 		            		"nl": (newLevel ? newLevel : ''),
@@ -764,7 +765,7 @@
 					targetBids.push(bid);
 					$.merge(targetBids, bids);
 	
-					$.bbq.pushState({
+					pushState({
 	              		"bids": targetBids.join(","),
 	              		"sids": sids.join(","),
 	              		"nl": true,
@@ -799,7 +800,7 @@
 				} else
 					return that.statementTypeKey + that.parentStatement.data('statement').statementId;
         	else
-          		return $.bbq.getState("origin");
+          		return getState("origin");
 		},
 		// gets a two-letter code for the type of statement
 		_getTypeKey: function(type) {
@@ -902,7 +903,7 @@
 				if (that.statementLevel == 0)
   					al = [];
   				else {
-  					al = $.bbq.getState("al") || '';
+  					al = getState("al") || '';
 					al = al.length > 0 ? al.split(',') : [];
   				}
   				
@@ -916,7 +917,7 @@
   					return this.id.replace(/[^0-9]+/, "");
 				}).get();
 
-				$.bbq.pushState({"sids": sids.join(','), 
+				pushState({"sids": sids.join(','), 
 								"bids" : bids.join(','),
 								"nl" : '', 
 								"origin" : origin, 
