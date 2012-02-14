@@ -535,7 +535,7 @@
 
 
 function getState() {
-	return arguments.length > 0 ? $.bbq.getState(arguments[0]) : $.bbq.getState();
+	return arguments.length > 0 ? $.bbq.getState.apply(null, arguments) : $.bbq.getState();
 }
 function pushState(args) {
 	$.bbq.pushState(args);
