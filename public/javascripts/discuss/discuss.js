@@ -8,9 +8,7 @@ $(document).ready(function () {
 	  		// breadcrumbs
 		    $('#breadcrumbs').breadcrumbs();
 		    // statements
-			$('#statements > .statement').each(function() {
-				$(this).statement({'insertStatement': false});
-			});
+			$('#statements > .statement').statement({'insertStatement': false});
 			
 		}
 	}
