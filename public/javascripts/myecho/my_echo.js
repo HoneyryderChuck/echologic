@@ -2,12 +2,12 @@
 /* Initializes the different My echo functions. */
 $(document).ready(function () {
 	if ($('#echo_my_profile').length > 0) {
-  	loadComponentAutoComplete();
-  	loadProfileEditForm();
-  }
-  if ($('#echo_my_settings').length > 0) {
-    initEchoAccountButtons();
-  }
+		loadComponentAutoComplete();
+	  	loadProfileEditForm();
+	}
+	if ($('#echo_my_settings').length > 0) {
+	    initEchoAccountButtons();
+	}
 });
 
 
