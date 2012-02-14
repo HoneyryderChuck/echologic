@@ -18,7 +18,6 @@
 			that._initEchoIndicators(searchContainer);
 			that._initMoreButton();
 			that._initEmbedButton();
-			that._initFragmentOnLinks();
 			//that._initScrollPane();
 			
 		},
@@ -63,23 +62,8 @@
 				});
         	});
        	},
-       	_initFragmentOnLinks: function() {
-       		var that = this,
-       			searchContainer = that.element;
-       			
-       		searchContainer.find('a.statement_link, a.avatar_holder').each(function(){
-       			that._initFragmentOnLink($(this));
-       		});
-       	},
-       	_initFragmentOnLink: function(button) {
-   			var params = $.deparam.querystring(button.attr('href'));
-   			params.sids = button.attr('href').match(/statement\/(\d+)/)[1];
-   			button.fragment(params);
-   			return button;
-       	},
        	_updateUrlCount: function(element, pageCount) {
 			element.attr('href',encodeURI(decodeURI(element.attr('href')).replace(/\|\d+/g, "|" + pageCount)));
-			if (element.hasClass('statement_link')) this._initFragmentOnLink(element);
 		},
 		// Initialises the Embed echo button and panel.
       	_initEmbedButton: function() {

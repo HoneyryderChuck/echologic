@@ -172,61 +172,73 @@
 		// initialises handling of hash change events
 		_initHashChangeHandling: function() {
 			
+			var that = this;
+			
 			if (window.statementHashHandling) return;
 			
 			var firstTime = true;
 			
 			$(window).bind("hashchange", function(e) {
-				var state = getState();
-				if (state.sids) {
-					var sids = state.sids,
-						newSids = sids.split(","),
-						lastSid = newSids.pop(),
-						path = "/" + lastSid,
-
-						visibleSids = $("#statements > .statement").map(function(){
+				var path = null,
+					params = {},
+					state = getState()
+					
+					visibleSids = $("#statements > .statement").map(function(){
 							var st = $(this);
 							return (st.data('statement')) ? st.data('statement').statementId : st.attr('id').match(/\d+/)[0];
 					}).get();
+				
+				if (state.sids) {
+					var sids = state.sids,
+						newSids = sids.split(","),
+						lastSid = newSids.pop();
+						
 
+						
+
+					path = document.location.href.replace(/\/\d+/, "/" + lastSid);
 
 					// After new statement was created and added to the stack, we needn't load again
 					if (visibleSids[visibleSids.length-1] == lastSid) return;
 
-					sids = $.grep(newSids, function(sid) {
+					params.sids = $.grep(newSids, function(sid) {
 						return $.inArray(sid, visibleSids) == -1 ;
-					});
-			
-					var state = getState();
-
-		    		// Breadcrumb logic
-		    		var bids = $("#breadcrumbs").data('breadcrumbs').breadcrumbsToLoad(state.bids);
-
-						
-					path = $.param.querystring(document.location.href.replace(/\/\d+/, path), {
-		        		"sids": sids.join(","),
-						"bids": bids.join(","),
-		        		"nl": state.nl,
-						"origin": state.origin,
-						"al" : state.al,
-						"cs": state.sids
-		      		});
-
-					$.ajax({
-						url:      path,
-					    type:     'get',
-					    dataType: 'script'
-					});
+					}).join(",");
+					
+					params.cs = state.sids;
 				} else {
-					if (firstTime)
+					if (firstTime) {
 						firstTime = false;
-					else
-						$.getScript(document.location.href);
+						return;
+					}
+					else {
+						path = document.location.href;
+					}
+						
 				}
+			
+	    		// Breadcrumb logic
+	    		var bids = $("#breadcrumbs").data('breadcrumbs').breadcrumbsToLoad(state.bids);
+
+				$.extend(params,{
+					"bids": bids.join(","),
+	        		"nl": state.nl,
+					"origin": state.origin,
+					"al" : state.al
+	      		});
+						
+				path = $.param.querystring(path, params);
+
+				$.ajax({
+					url:      path,
+				    type:     'get',
+				    dataType: 'script'
+				});
 			});
 			
 			$(window).trigger( 'hashchange' );
 			firstTime = false;
+			
 			window.statementHashHandling = true;
 		},
 		// Collapses all visible statements to focus on the one appearing on new level.

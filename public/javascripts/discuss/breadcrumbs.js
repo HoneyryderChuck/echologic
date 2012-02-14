@@ -15,7 +15,7 @@
 		},
 		_create: function() {
 			var that = this,
-				breadcrumbs = that.element
+				breadcrumbs = that.element;
 			breadcrumbs.find('.breadcrumb').each(function() {
 				that._initBreadcrumb($(this));
 			});
@@ -79,7 +79,7 @@
 	          	});
 	
 	          	// Getting previous breadcrumb entry, in order to load the proper siblings to session
-				var originBids = getOriginKeys(newBids);
+				var originBids = that.getOriginKeys(newBids);
 	          	var origin = originBids.length > 0 ? originBids[originBids.length -1] : '';
 	
 				if (sids.join(",") == getState("sids")) {
@@ -158,15 +158,37 @@
     	    } else { // delete all breadcrumbs that are not in the state bids
 	
     	      	var bids = getState("bids");
-        	  	bids = bids ? bids.split(',') : [];
-          		// No origin, that means first breadcrumb pressed, no predecessor, so delete everything
-          		that.container.find('.breadcrumb').each(function() {
-	          		var breadcrumb = $(this);
-    	        	if($.inArray(that._truncateBreadcrumbKey(breadcrumb), bids) == -1) {
-        	      		removeLength += breadcrumb.length;
-            	  		breadcrumb.remove();
-            		}
-          		});
+    	      	
+    	      	if ($.param.fragment().length > 0) {
+	        	  	bids = bids.length > 0 ? bids.split(',') : [];
+	          		// No origin, that means first breadcrumb pressed, no predecessor, so delete everything
+	          		that.container.find('.breadcrumb').each(function() {
+		          		var breadcrumb = $(this);
+	    	        	if($.inArray(that._truncateBreadcrumbKey(breadcrumb), bids) == -1) {
+	        	      		removeLength += breadcrumb.length;
+	            	  		breadcrumb.remove();
+	            		}
+	          		});
+	          	} else {
+	          		var statement = $('#statements > .statement:last').data('statement');
+	          		if (statement.domParent) {
+		          		var breadcrumbId = $.inArray(statement.domParent.substring(0,2), ['ds', 'sr']) != -1 ? 
+		          						   statement.domParent.substring(0,2) : 
+		          						   statement.statementTypeKey + statement.domParent.match(/\d+/)[0];
+		          		var parentBreadcrumb = breadcrumbs.find('#' + breadcrumbId);
+		          		parentBreadcrumb.nextAll().each(function(){
+		          			var b = $(this);
+		          			removeLength += b.length;
+		          			b.remove();
+		          		});
+	          		} else {
+	          			breadcrumbs.find('.breadcrumb').each(function(){
+	          				var b = $(this);
+		          			removeLength += b.length;
+		          			b.remove();
+	          			});
+	          		}
+	          	}
         	}
 
         	breadcrumbs.removeData('element_clicked');
