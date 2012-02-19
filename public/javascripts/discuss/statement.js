@@ -181,7 +181,7 @@
 			$(window).bind("hashchange", function(e) {
 				var path = null,
 					params = {},
-					state = getState()
+					state = getState(),
 					
 					visibleSids = $("#statements > .statement").map(function(){
 							var st = $(this);
@@ -192,9 +192,6 @@
 					var sids = state.sids,
 						newSids = sids.split(","),
 						lastSid = newSids.pop();
-						
-
-						
 
 					path = document.location.href.replace(/\/\d+/, "/" + lastSid);
 
@@ -236,8 +233,23 @@
 				});
 			});
 			
-			$(window).trigger( 'hashchange' );
+			if (!hashHistoryState()) 
+				$(window).trigger( 'hashchange' );
+			else {
+				$(window).bind("popstate", function() {
+					var params = $.deparam.querystring(location.href),
+						sid = location.href.match(/statement\/([^?]+)/)[1],
+						sids = params.sids ? params.sids.split(",") : [];
+						
+					sids.push(sid);
+					params.sids = sids.join(",");
+					echoApp.hash_state = params;
+					$(window).trigger( 'hashchange' );					
+			    });
+			}
 			firstTime = false;
+			
+			
 			
 			window.statementHashHandling = true;
 		},
@@ -592,7 +604,7 @@
 					"nl" : '', 
 					"origin": origin,
 					"al": altStack.join(',')
-		      	});
+		      	}, that);
 
 				var nextStatement = statement.next();
 				var triggerRequest = (nextStatement.length > 0 && nextStatement.is("form"));
@@ -694,8 +706,7 @@
 							"bids": bids.join(','),
 							"origin": origin,
 							"al" : altStack.join(',')
-	            		}, 
-	            		params));
+	            		}, params), that);
 	        	}).addClass('registered');
 	        });
      	},
@@ -791,7 +802,7 @@
 	              		"nl": true,
 	              		"origin": bid,
 						"al" : ''
-	            	});
+	            	}, that);
 				});
 			});
 		},
@@ -938,10 +949,10 @@
 				}).get();
 
 				pushState({"sids": sids.join(','), 
-								"bids" : bids.join(','),
-								"nl" : '', 
-								"origin" : origin, 
-								"al" : al.join(',') });
+						   "bids" : bids.join(','),
+						   "nl" : '', 
+						   "origin" : origin, 
+						   "al" : al.join(',') }, that);
 	   	},
 		// Returns true if the URL matches the pattern of an echo statement link.
 		_isEchoStatementUrl: function(url) {
@@ -1009,9 +1020,22 @@
 	        	buttonPrevHTML: "<div class='prev_button'></div>",
 	        	size: length
 	      	});
-	    }
-		
-	
+	  	},
+	    // ONLY WITH HISTORY PUSH STATE ACTIVE!
+		historyStateUrl: function() {
+			if (!hashHistoryState()) return;
+			
+			var that = this,
+				params = $.extend({}, echoApp.hash_state),
+				sids = params.sids.split(","),
+				sid = sids.pop();
+				
+			params.sids = sids.join(",");
+			
+			var url = document.location.href.match(/.+\/statement\//) + sid;
+			
+			return $.param.querystring(url, params);
+		}	
 		
 	});
 	

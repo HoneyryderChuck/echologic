@@ -79,12 +79,21 @@
 			if (window.searchHashHandling) return;
 			
 			$(window).bind("hashchange", function() {
-	  			if (getState("page")) that._triggerSearchQuery();
+				// page_count is for the lazy more pagination
+	  			if (getState("page") && getState("page_count")) that._triggerSearchQuery();
 			});
 				
 			if (getState("page_count")) 
 			    pushState({"page": "1"});
 				
+			if (hashHistoryState()) {
+				echoApp.stateChangeStrategy = history.replaceState;
+				$(window).bind("popstate", function() {
+					echoApp.hash_state = $.deparam.querystring(location.href);
+					$(window).trigger( 'hashchange' );					
+			    });
+			}
+			
 			window.searchHashHandling = true;
 		},
 		_setSearchHistory: function() {

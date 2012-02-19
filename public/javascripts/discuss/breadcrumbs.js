@@ -95,7 +95,7 @@
 						"nl": true,
 						"origin": origin,
 						"al": alternativeLevels.join(",")
-					});
+					}, that);
 				}
 	        });
 	  	},
@@ -321,7 +321,22 @@
 			if (that.container.find('.breadcrumb').length == 0 && breadcrumbs.is(':visible')) 
 	            that._toggleContainer();
 			return that;
-		}
+		},
+	    // ONLY WITH HISTORY PUSH STATE ACTIVE!
+		historyStateUrl: function() {
+			if (!hashHistoryState()) return;
+			
+			var that = this,
+				params = $.extend({}, echoApp.hash_state),
+				sids = params.sids.split(","),
+				sid = sids.pop();
+				
+			params.sids = sids.join(",");
+			
+			var url = document.location.href.match(/.+\/statement\//) + sid;
+			
+			return $.param.querystring(url, params);
+		}	
 		
 	});
 }( jQuery ) );

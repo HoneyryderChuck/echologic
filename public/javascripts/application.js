@@ -3,8 +3,7 @@
 
   /* Do init stuff. */
   $(function() {
-
-    initMainMenu();
+	initMainMenu();
     initStaticMenu();
 
     initAjaxClickEvents();
@@ -532,14 +531,41 @@
     return this;
   };
   
+  
+/**
+ * history state / hash-handling functions
+ */
+  
+ 
+function hashHistoryState() {
+	return history && history.pushState;
+}
 
 
 function getState() {
-	return arguments.length > 0 ? $.bbq.getState.apply(null, arguments) : $.bbq.getState();
+	if (hashHistoryState()) {
+		if (!echoApp.hash_state) echoApp.hash_state = $.deparam.querystring();
+		return arguments.length > 0 ? echoApp.hash_state[arguments[0]] : echoApp.hash_state;
+	} else {
+		return arguments.length > 0 ? $.bbq.getState.apply(null, arguments) : $.bbq.getState();
+	}
 }
 function pushState(args) {
-	$.bbq.pushState(args);
+	if (hashHistoryState()) {
+		echoApp.hash_state = args;
+		$(window).trigger( 'hashchange' );
+		var url = arguments.length > 1 ? arguments[1].historyStateUrl() : $.param.querystring(document.location.href, args);
+		(echoApp.stateChangeStrategy || history.pushState).call(history, null, document.title, url);
+	} else {
+		$.bbq.pushState(args);
+	}
 }
 function removeState() {
-	$.bbq.removeState.apply(null, arguments);
+	if (hashHistoryState()) {
+		var i;
+		for(i = 0; i < arguments.length ; i++)
+			delete echoApp.hash_state[arguments[0]];
+	} else {
+		$.bbq.removeState.apply(null, arguments);
+	}
 }

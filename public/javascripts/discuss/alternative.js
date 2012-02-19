@@ -9,6 +9,8 @@
 			var that = this,
 				alternative = that.element;
 			
+			that.statementApi = alternative.data('statement');
+			
 			that.alternatives = alternative.find('.alternatives');
 			that.teaser = that.alternatives.find('.teaser');
 			
@@ -57,7 +59,7 @@
 				  	"bids": targetBids.join(','),
 				  	"origin": origin,
 					"al": al.join(',')
-				});
+				}, that.statementApi);
 				var path = $.param.querystring(statementApi.getStatementUrl(), {
 					"current_stack" : targetStack.join(','), 
 					"nl" : true, 
@@ -78,11 +80,11 @@
 		},
 		highlight: function() {
 			//panelHighlight();
-			teaser.fadeIn(120);
+			this.teaser.fadeIn(120);
 		},
 		normal_mode: function() {
 			//panelNormal();
-			teaser.fadeOut(120);
+			this.teaser.fadeOut(120);
 		}
 
 	});
