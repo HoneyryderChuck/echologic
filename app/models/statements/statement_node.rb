@@ -72,7 +72,7 @@ class StatementNode < ActiveRecord::Base
   named_scope :only_id, :select => 'statement_nodes.id'
 
   named_scope :children_statements, lambda {|opts|
-    select = opts[:for_session] ? "#{table_name}.id, #{table_name}.question_id, #{table_name}.echo_id" : "#{table_name}.*"
+    select = opts[:for_session] ? "#{table_name}.id, #{table_name}.type, #{table_name}.question_id, #{table_name}.echo_id" : "#{table_name}.*"
     {
       :select => "DISTINCT #{select}",
       :joins => "LEFT JOIN #{Echo.table_name} e ON #{table_name}.echo_id = e.id",
