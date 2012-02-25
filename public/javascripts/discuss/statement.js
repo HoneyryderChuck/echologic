@@ -866,18 +866,17 @@
 			else { maxPage = maxPage.single; maxHeight = maxHeight.single; elemHeight = elemHeight.single; }
 			
 			var list = children.children(':first'),
-				heights = list.find('.children_list').map(function(){
+				heights = children.find('.children_list').map(function(){
          	 	var elementsCount = $(this).data('total-elements');
          		return elementsCount <= maxPage ? ((elementsCount + 1) * elemHeight) : maxHeight;
        		}).get();
        		
 			height = Math.max.apply(Math, heights);
-			if (!list.data('jsp'))
+			if (!list.data('jsp')) 
 				list.animate({ 'height': height }, 300, function(){
 				    list.height(height).jScrollPane({animateScroll: animate});	
 				});
 			else {
-       
 	       		// scroll down
 	       		var jsp = list.data('jsp');
 	       		var active = jsp.getContentPane().find('a.active');
