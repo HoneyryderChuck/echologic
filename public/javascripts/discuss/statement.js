@@ -99,7 +99,7 @@
 				delete that.options.message;
 				
 				// load breadcrumbs
-				if (that.content.length > 0) $('#statements').trigger('statement_created', [that.options.breadcrumbs]);
+				if (!statement.is("form") && that.content.length > 0) $('#statements').trigger('statement_created', [that.options.breadcrumbs]);
 			}
 
         	// echo mechanism

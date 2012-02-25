@@ -58,6 +58,8 @@
 			if (that.isEmbeddable)
 				form.embeddable();
 		
+			// load breadcrumb
+			$('#statements').trigger('statement_new', [form.data('statement').options.breadcrumbs]);
 		},	
 		// Inits the listening to other possible events
       	_loadFormEvents: function(){

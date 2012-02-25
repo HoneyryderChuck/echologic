@@ -35,6 +35,11 @@
 				else
 				  that.hideContainer();
 			});
+			
+			$('#statements').bind('statement_new', function(e, breadcrumbs){
+				that.addBreadcrumbs(breadcrumbs);
+			});
+			
 		},
 		// Initializes the links in the different sort of breadcrumb items.
 		_initBreadcrumb: function(breadcrumb) {
