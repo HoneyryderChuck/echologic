@@ -193,7 +193,7 @@
 						newSids = sids.split(","),
 						lastSid = newSids.pop();
 
-					path = document.location.href.replace(/\/\d+/, "/" + lastSid);
+					path = document.location.href.replace(/statement\/.*/, "statement/" + lastSid);
 
 					// After new statement was created and added to the stack, we needn't load again
 					if (visibleSids[visibleSids.length-1] == lastSid) return;
