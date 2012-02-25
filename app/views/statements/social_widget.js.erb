@@ -5,5 +5,4 @@ var social_echo_button = statement.find('.social_echo_button');
 
 widget.insertAfter(social_echo_button).fadeIn();
 
-var echoableApi = statement.data('echoable');
-echoableApi.loadSocialEchoPanel();
+statement.data('echoable').loadSocialEchoPanel();
