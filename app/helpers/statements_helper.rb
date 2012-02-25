@@ -271,7 +271,18 @@ module StatementsHelper
       :'data-dom-parent' => parent_statement_dom_id(statement_node)
    }
   end
- 
+  
+  def teaser_element_attributes
+    klass = [@type.classify.constantize.name_for_siblings, @type].uniq.join(' ')
+    siblings = @siblings ? @siblings.to_session("add_#{@type}").to_json : ''
+    {
+      :id => "add_#{@type}",
+      :class => "statement #{klass} add_teaser echoable #{'alternative' if @node_environment.alternative_mode?(@node_environment.level)}",
+      :'data-siblings' => siblings,
+      :'data-dom-parent' => @statement_node.present? ? dom_id(@statement_node) : @node_environment.origin.to_s
+    }
+  end
+  
   def new_statement_element_attributes(klass, statement_node)
     klasses = %w(ajax_form new wide_form statement)
     klasses << node_type(statement_node)
@@ -286,7 +297,7 @@ module StatementsHelper
                       @node_environment.origin.to_s
     }
   end
-  
+
   def edit_statement_element_attributes(statement_node)
     klasses = %w(ajax_form edit wide_form statement)
     klasses << 'taggable' if statement_node.taggable?
