@@ -21,14 +21,8 @@
 
 
 var element = $("<%= escape_javascript(render :partial => 'statements/show',
-                                              :locals => {:hide_content => true}) %>").statement({'level'   : <%= @node_environment.level %>,
-									         													  'message' : "<%= @info || @error %>",
-									         													  'expand'	: <%= params[:expand].present? %>});
+                                              :locals => {:hide_content => true}) %>").statement({level   : <%= @node_environment.level %>,
+									         													  message : "<%= @info || @error %>",
+									         													  expand	: <%= params[:expand].present? %>,
+									         													  breadcrumbs : <%= (@breadcrumbs.present? ? @breadcrumbs.map(&:to_hash) : []).to_json %>});
 
-// Breadcrumbs
-$('#breadcrumbs').data('breadcrumbs').deleteBreadcrumbs();
-<% if @breadcrumbs %>
-  $('#breadcrumbs').data('breadcrumbs').addBreadcrumbs(<%= @breadcrumbs.map(&:to_hash).to_json %>);
-<% else %>
-  $('#breadcrumbs').data('breadcrumbs').hideContainer();
-<% end %>

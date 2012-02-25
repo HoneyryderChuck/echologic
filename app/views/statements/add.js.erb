@@ -17,14 +17,7 @@
 <% end %>
 
 
-/* breadcrumb */
-$('#breadcrumbs').data('breadcrumbs').deleteBreadcrumbs();
-<% if @breadcrumbs %>
-  $('#breadcrumbs').data('breadcrumbs').addBreadcrumbs(<%= @breadcrumbs.map(&:to_hash).to_json %>);
-<% else %>
-  $('#breadcrumbs').data('breadcrumbs').hideContainer();
-<% end %>
-
 var add_teaser = $("<%= escape_javascript(render :partial => 'statements/add',
-                                                 :locals => {:hide_content => true}) %>").statement({'level'   : <%= @node_environment.level %>,
-																								     'message' : "<%= @info || @error %>"});
+                                                 :locals => {:hide_content => true}) %>").statement({level   : <%= @node_environment.level %>,
+																								     message : "<%= @info || @error %>",
+																								     breadcrumbs : <%= (@breadcrumbs.present? ? @breadcrumbs.map(&:to_hash) : []).to_json %>});

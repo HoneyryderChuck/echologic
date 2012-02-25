@@ -27,6 +27,14 @@
 
 			if (that.container.children().length == 0 && breadcrumbs.is(':visible')) 
 			  	that._toggleContainer();
+			  	
+			$('#statements').bind('statement_created', function(e, breadcrumbs){
+				that.deleteBreadcrumbs();
+				if (breadcrumbs)
+				  that.addBreadcrumbs(breadcrumbs);
+				else
+				  that.hideContainer();
+			});
 		},
 		// Initializes the links in the different sort of breadcrumb items.
 		_initBreadcrumb: function(breadcrumb) {

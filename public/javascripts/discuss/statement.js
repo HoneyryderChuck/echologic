@@ -63,7 +63,6 @@
 			that.statementId = that.domId.replace(/[^0-9]+/, '');
 			that.statementTypeKey = that._getTypeKey(that.statementType);
 			
-			
 			that.embedPlaceholder = statement.find('.embed_placeholder');
 			that.siblingsButton = statement.find('.show_siblings_button');
 			that.isEchoable = statement.hasClass(that.options.echoableClass);
@@ -82,6 +81,8 @@
 		refresh: function() {
 			var that = this;
 			var statement = that.element;
+			
+			that.content = statement.find('.content');
         	// A new statement is loaded for the first time
         	if (that.options.load) {
 		  		that._insertStatement();
@@ -96,6 +97,9 @@
 	        	that._initNavigationButton(statement.find(".header a.next"),  1); // Next 
 				that._loadMessage(that.options.message);
 				delete that.options.message;
+				
+				// load breadcrumbs
+				if (that.content.length > 0) $('#statements').trigger('statement_created', [that.options.breadcrumbs]);
 			}
 
         	// echo mechanism
@@ -153,7 +157,7 @@
 						element.data('statement').deleteBreadcrumb();
 
 		  		if (!that.options.expand) 
-		  			statement.find('.content').show();
+		  			that.content.show();
 	      	 	element.replaceWith(statement);
     		} 
     		else // no statement on this level of the stack, so insert at the bottom
@@ -264,7 +268,7 @@
 		_showAnimated: function() {
 			var that = this,
 				statement = that.element;
-			var content = statement.find('.content');
+			var content = that.content;
 			if (!content.is(':visible')) 
 				content.animate(toggleParams, that.options.animation_speed);
 		},
