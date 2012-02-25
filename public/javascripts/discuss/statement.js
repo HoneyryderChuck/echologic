@@ -142,7 +142,7 @@
 				// if statement this statement is going to replace is from a different type
 				if (that.domId.match('new') && element.data('statement').statementType != that.statementType)
 					if (that.domParent && that.domParent.length > 0) {	
-						var key = $.inArray(that.domParent.substring(0,2),['ds','sr']) == -1 ?
+						var key = $.inArray(that.domParent.substring(0,2),echoApp.searchKeys) == -1 ?
 					          	  $("#" + that.domParent).data('statement').breadcrumbKey :
 								  that.domParent.substring(0,2);
 						var parentBreadcrumb = that.breadcrumbApi.getBreadcrumb(key);
@@ -537,7 +537,7 @@
 		// Sets the different links on the statement UI, after the user clicked on them.
       	_getTargetBids: function(key) {
       		var that = this,
-        		currentBids = that.breadcrumbApi.getBreadcrumbStack(null),
+        		currentBids = that.breadcrumbApi.getBreadcrumbStack(),
         		targetBids = currentBids;
 
         	var index = $.inArray(key, targetBids);
@@ -657,7 +657,7 @@
 					var stack = that._getStatementsStack(null, newLevel);
 					var childId = stat.data('statement-id');
 					var key = that._getTypeKey(stat.parent().attr('class'));
-					var bids = that.breadcrumbApi.getBreadcrumbStack(null);
+					var bids = that.breadcrumbApi.getBreadcrumbStack();
 					var altStack = getState("al") || '';
 					var altStack = altStack.length > 0 ? altStack.split(',') : [];
 	          		var parentKey = that._getParentKey();
@@ -815,7 +815,7 @@
 			if (that.parentStatement.length > 0)
 				if (statement.hasClass('alternative')) {
 					// get all alternative breadcrumbs TODO: function from breadcrumbs api that returns alternative breadcrumbs
-	          		var breadcrumbs = $.grep(that.breadcrumbApi.getBreadcrumbStack(null), function(a) {
+	          		var breadcrumbs = $.grep(that.breadcrumbApi.getBreadcrumbStack(), function(a) {
 						return a.substring(0, 2) == 'al';
 					});
 					// look for an alternative breadcrumb that is an alternative of the statement
@@ -922,7 +922,7 @@
 				$('#statements').data(sessionId, siblingsData);
 				
 				// BIDS
-				var bids = that.breadcrumbApi.getBreadcrumbStack(null);
+				var bids = that.breadcrumbApi.getBreadcrumbStack();
 				
 				// ORIGIN
 				var originBids = that.breadcrumbApi.getOriginKeys(bids);

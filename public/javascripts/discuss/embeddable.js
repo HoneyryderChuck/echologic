@@ -163,7 +163,7 @@
         	$.scrollTo('form.embeddable .entry_type', this.options.scroll_speed);
       	},
 		_isValidUrl: function(url) {
-			return url.match(/^(http|https|ftp):\/\/[a-z0-9]+([\-\.]{1}[a-z0-9]+)*\.[a-z]{2,5}(:[0-9]{1,5})?(\/.*)?$/i);
+			return url.match(echoApp.urlRegex);
 		},
 		linkEmbeddedContent: function(data) {
 			var that = this,

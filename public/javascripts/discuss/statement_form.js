@@ -107,7 +107,7 @@
 
 				var bids = state.bids;
 				bids = bids ? bids.split(',') : [];
-				var current_bids = $('#breadcrumbs').data('breadcrumbs').getBreadcrumbStack(null);
+				var current_bids = $('#breadcrumbs').data('breadcrumbs').getBreadcrumbStack();
 
 				var i = -1;
 				for(j = 0; j < bids.length ; j++) {

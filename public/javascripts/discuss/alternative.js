@@ -42,7 +42,7 @@
 					
 				// BIDS
 				// logic: parent key will be the alternatives breadcrumb, so return the bids til the previous bid
-				var currentBids = $('#breadcrumbs').data('breadcrumbs').getBreadcrumbStack(null),
+				var currentBids = $('#breadcrumbs').data('breadcrumbs').getBreadcrumbStack(),
 					parentKey = statementApi.getParentKey(),
 					parentIndex = $.inArray(parentKey, currentBids),
 					targetBids = currentBids.splice(0, parentIndex);

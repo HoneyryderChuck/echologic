@@ -142,7 +142,7 @@
         		deleteFrom = breadcrumbs.data('element_clicked');
 
         	if (deleteFrom && deleteFrom.length > 0) { /* if a special link was clicked */
-        		if($.inArray(deleteFrom.substring(0,2),['ds','sr']) != -1){deleteFrom = deleteFrom.substring(0,2);}
+        		if($.inArray(deleteFrom.substring(0,2),echoApp.searchKeys) != -1){deleteFrom = deleteFrom.substring(0,2);}
 
           		// Get breadcrumbs ordered per id
           		var breadcrumbIds = that.container.find('.breadcrumb').map(function(){ return $(this).attr('id'); });
@@ -224,13 +224,13 @@
       	// Returns breadcrumb keys representing a new hub (being outside of the scope of a given stack).
 		_getHubKeys: function(array) {
 		  return $.grep(array, function(a, index) {
-		    return $.inArray(a.substring(0,2), ['al']) != -1;
+		    return $.inArray(a.substring(0,2), echoApp.hubKeys) != -1;
 		  });
 		},
 		// Returns breadcrumb keys representing a new origin (being outside of the scope of a given stack).
 		getOriginKeys: function(array) {
 		  return $.grep(array, function(a, index) {
-		    return $.inArray(a.substring(0,2), ['sr','ds','mi','fq','jp','dq']) != -1;
+		    return $.inArray(a.substring(0,2), echoApp.originKeys) != -1;
 		  });
 		},
       	getBreadcrumb: function(key) {
@@ -245,7 +245,7 @@
 			var that = this;
 			if (key && key.length > 0) {
 				var origin = getState("origin");
-				if ($.inArray(origin.substring(0,2),['ds','sr']) != -1) origin = origin.substring(0,2);
+				if ($.inArray(origin.substring(0,2),echoApp.searchKeys) != -1) origin = origin.substring(0,2);
 				var topBreadcrumb = origin.length > 0 ? breadcrumbs.find('#' + origin) : breadcrumbs.find('.breadcrumb:first');
 				var breadcrumb = topBreadcrumb.nextAll('#' + key).remove();
 			}
@@ -305,8 +305,9 @@
 				});
 			}
 		},
-		getBreadcrumbStack : function (newBreadcrumb) {
+		getBreadcrumbStack : function () {
 			var that = this;
+				newBreadcrumb = arguments.length = 1 ? arguments[0] : null;
 			var currentBreadcrumbs = that.container.find(".breadcrumb").map(function() {
 				return that._truncateBreadcrumbKey($(this));
 			}).get();
