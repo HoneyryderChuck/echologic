@@ -40,16 +40,16 @@ class Users::UserSessionsController < ApplicationController
         profile_info = SocialService.instance.get_profile_info(params[:token])
         user = nil
         User.transaction do
-          if profile_info['primaryKey'].nil? or (user = User.find(profile_info['primaryKey'])).nil?
-            session[:identifier] = profile_info.to_json
-            invalid_social = SocialIdentifier.find_by_identifier(profile_info['identifier'])
+          if profile_info[:primaryKey].nil? or (user = User.find(profile_info[:primaryKey])).nil?
+            session[:identifier] = profile_info
+            invalid_social = SocialIdentifier.find_by_identifier(profile_info[:identifier])
             invalid_social.destroy if invalid_social
             later_call_with_error(redirect_url, signin_path, 'users.signin.messages.failed_social')
           else
-            if social = user.identified_by?(profile_info['identifier'])
-              social.update_attribute(:profile_info, profile_info.to_json)
+            if social = user.identified_by?(profile_info[:identifier])
+              social.update_attribute(:profile_info, profile_info)
             else
-              user.add_social_identifier( profile_info['identifier'], profile_info['providerName'], profile_info.to_json )
+              user.add_social_identifier( profile_info[:identifier], profile_info[:providerName], profile_info )
             end
             if user.active? # user was already actived, i.e. he has an email account defined
               @user_session = UserSession.new(user)
@@ -88,9 +88,9 @@ class Users::UserSessionsController < ApplicationController
 
   protected
   def add_social_to_user(user)
-    profile_info = JSON.parse(session[:identifier])
-    social_identifier =  SocialIdentifier.create(:identifier => profile_info['identifier'],
-                                                 :provider_name => profile_info['providerName'],
+    profile_info = session[:identifier]
+    social_identifier =  SocialIdentifier.create(:identifier => profile_info[:identifier],
+                                                 :provider_name => profile_info[:providerName],
                                                  :profile_info => session[:identifier],
                                                  :user => user)
     session.delete(:identifier)

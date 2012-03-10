@@ -1,20 +1,20 @@
 <% if !events.empty? %>
   <% events.each_with_index do |event, index| %>
     <% if index == 0 %>
-      <% parent_document = get_document_in_preferred_language(event["parent_documents"], @preferred_language_ids) %>
+      <% parent_document = get_document_in_preferred_language(event[:parent_documents], @preferred_language_ids) %>
       <%= content_tag :p, I18n.t("mailers.activity_tracking.statements.#{operation}_#{type.pluralize}",
                                  :title => parent_document[1],
                                  :locale => @language.code) if render_level == 0 %>
       <ul style="padding-left: 20px;">
     <% end %>
-    <% children_level = @events[event['level']+1] %>
-    <% @events[event['level']][event['parent_id']][event['type']][event['operation']] -= [event] %>
+    <% children_level = @events[event[:level]+1] %>
+    <% @events[event[:level]][event[:parent_id]][event[:type]][event[:operation]] -= [event] %>
     <%= render :partial => "activity_tracking_mailer/activity_templates/statement_activity_template",
                :locals => {:event => event} %>
     <%= render :partial => "activity_tracking_mailer/children_template",
-               :locals => {:parent_id => event['id'],
-                           :events => children_level[event['id']],
-                           :render_level => render_level + 1} if children_level and children_level[event['id']] %>
+               :locals => {:parent_id => event[:id],
+                           :events => children_level[event[:id]],
+                           :render_level => render_level + 1} if children_level and children_level[event[:id]] %>
   <% end %>
   </ul>
 <% end %>

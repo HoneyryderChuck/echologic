@@ -1,5 +1,6 @@
 class ShortcutCommand < ActiveRecord::Base
   has_many :shortcut_urls, :dependent => :destroy
+  serialize :command, Hash
   
   validates_uniqueness_of :command
   
@@ -8,7 +9,7 @@ class ShortcutCommand < ActiveRecord::Base
     def build_command(opts)
       {:operation => opts[:operation],
        :params => opts[:params],
-       :language => opts[:language]}.to_json
+       :language => opts[:language]}
     end
     
   end

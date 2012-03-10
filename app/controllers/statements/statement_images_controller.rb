@@ -32,7 +32,7 @@ class StatementImagesController < ApplicationController
   #
   def create
     image = StatementImage.create(params[:statement_image])
-    PendingAction.find(params[:pending_action_id]).update_attributes(:action => {:image_id => image.id}.to_json)
+    PendingAction.find(params[:pending_action_id]).update_attributes(:action => {:image_id => image.id})
     respond_to(:html,:js)
   end
 
@@ -75,7 +75,7 @@ class StatementImagesController < ApplicationController
   #
   def load
     @pending = PendingAction.find(params[:id])
-    @statement_image = StatementImage.find(JSON.parse(@pending.action)['image_id'])
+    @statement_image = StatementImage.find(@pending.action[:image_id])
     respond_to do |format|
       if @statement_image.image.exists?
         set_info 'discuss.messages.image_uploaded', :type => I18n.t("discuss.statements.types.#{params[:type]}")

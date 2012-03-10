@@ -32,7 +32,7 @@ class UserTest < ActiveSupport::TestCase
     
     should "not save unactive user without email, unless there's a social identifier" do 
       assert !User.new.save
-      u = User.new(:social_identifiers => [SocialIdentifier.new(:identifier => "mi", :provider_name => "o2", :profile_info => "bling")])
+      u = User.new(:social_identifiers => [SocialIdentifier.new(:identifier => "mi", :provider_name => "o2", :profile_info => {:name => "bling"})])
       assert u.save, u.errors.inspect
     end
     
@@ -43,7 +43,7 @@ class UserTest < ActiveSupport::TestCase
     
     should "save active user if password defined or if there's a social identifier" do
       assert User.new(:email => "mainman@mainman.com", :password => "balls", :active => true).save
-      u = User.new(:social_identifiers => [SocialIdentifier.new(:identifier => "mi", :provider_name => "o2", :profile_info => "bling")])
+      u = User.new(:social_identifiers => [SocialIdentifier.new(:identifier => "mi", :provider_name => "o2", :profile_info => {:name => "bling"})])
       u.save
       u.email = "singledout@mainman.com" 
       u.active = true

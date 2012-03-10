@@ -7,10 +7,10 @@ class UsersControllerTest < ActionController::TestCase
   def setup
 #    login_as :user
     @controller = Users::UsersController.new
-    profile_template = {'identifier' => "@asdas12dgfkj54oi",
-                        'providerName' => "yahoy!",
-                        'email' => "mymailprofile",
-                        'preferredUsername' => "Chuck Norris"}
+    profile_template = {:identifier => "@asdas12dgfkj54oi",
+                        :providerName => "yahoy!",
+                        :email => "mymailprofile",
+                        :preferredUsername => "Chuck Norris"}
     flexmock(SocialService.instance).should_receive(:get_profile_info).with(:token).and_return(profile_template)
     flexmock(SocialService.instance).should_receive(:map).with(String, Integer).and_return(nil)
     flexmock(SocialService.instance).should_receive(:unmap).with(String, Integer).and_return(nil)
@@ -235,7 +235,7 @@ class UsersControllerTest < ActionController::TestCase
   test "should load setup basic profile form for a new user" do
     u = flexmock(User.create(:profile => Profile.new, :social_identifiers => [
                  SocialIdentifier.new(:identifier => "mi", :provider_name => "o2",
-                :profile_info => {:email => "main@main.com", :preferredUsername => "echo beach"}.to_json)]))
+                :profile_info => {:email => "main@main.com", :preferredUsername => "echo beach"})]))
     put :setup_basic_profile, :activation_code => u.perishable_token
     assert_response :success
   end

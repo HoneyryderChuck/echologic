@@ -40,7 +40,7 @@ class ActivationsControllerTest < ActionController::TestCase
     u = users(:user)
     p = PendingAction.new(:pending => u,
                           :action => {:email => "maingirl@g5.com",
-                                      :email_confirmation => "maingirl@g5.com"}.to_json)
+                                      :email_confirmation => "maingirl@g5.com"})
     p.save
     p.reload
     post :activate_email, :token => p.uuid
@@ -50,7 +50,7 @@ class ActivationsControllerTest < ActionController::TestCase
   test "should not activate coming from the setup basic profile form with an unverified email" do
     u = flexmock(User.create(:profile => Profile.new, :social_identifiers => [
                  SocialIdentifier.new(:identifier => "mi", :provider_name => "o2",
-                :profile_info => {'email' => "main@main.com", 'preferredUsername' => "echo beach"}.to_json)]))
+                :profile_info => {:email => "main@main.com", :preferredUsername => "echo beach"})]))
     assert_difference('ActionMailer::Base.deliveries.count', 1) do # activate email
       post :activate, :activation_code => u.perishable_token,
            :user => {:full_name => "Mad Max",
@@ -65,7 +65,7 @@ class ActivationsControllerTest < ActionController::TestCase
   test "should not activate coming from the setup basic profile form with a used email" do
     u = flexmock(User.create(:profile => Profile.new, :social_identifiers => [
                  SocialIdentifier.new(:identifier => "mi", :provider_name => "o2",
-                :profile_info => {'email' => "main@main.com", 'preferredUsername' => "echo beach"}.to_json)]))
+                :profile_info => {:email => "main@main.com", :preferredUsername => "echo beach"})]))
     assert_difference('ActionMailer::Base.deliveries.count', 0) do # activate email
       post :activate, :activation_code => u.perishable_token,
            :user => {:full_name => "Mad Max",
@@ -82,7 +82,7 @@ class ActivationsControllerTest < ActionController::TestCase
   test "should activate coming from the setup basic profile form with a verified email" do
     u = flexmock(User.new(:profile => Profile.new, :social_identifiers => [
                  SocialIdentifier.new(:identifier => "mi", :provider_name => "o2",
-                :profile_info => {'verifiedEmail' => "main@main.com", 'preferredUsername'=> "echo beach"}.to_json)]))
+                :profile_info => {:verifiedEmail => "main@main.com", :preferredUsername => "echo beach"})]))
     u.save
     assert_difference('ActionMailer::Base.deliveries.count', 1) do #activation confirmation email
       post :activate, :activation_code => u.perishable_token,

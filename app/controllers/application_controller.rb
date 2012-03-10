@@ -537,8 +537,8 @@ class ApplicationController < ActionController::Base
   def shortcut
     begin
       shortcut = ShortcutUrl.find(params[:shortcut])
-      command = JSON.parse(shortcut.command)
-      url = send("#{command['operation']}_path", command['params'].merge({:locale => command['language']}))
+      command = shortcut.command
+      url = send("#{command[:operation]}_path", command[:params].merge({:locale => command[:language]}))
       redirect_to url
     rescue ActiveRecord::RecordNotFound
       redirect_to discuss_search_url(:search_terms => params[:shortcut])

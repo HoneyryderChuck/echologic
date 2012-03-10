@@ -62,7 +62,7 @@ class StatementNodeTest < ActiveSupport::TestCase
 #      should "have have a creation event associated" do
 #        @events = @statement_node.events
 #        assert(@events.first.operation.eql?('new'))
-#        result = JSON.parse(@events.first.event)
+#        result = @events.first.event
 #
 #        question = result['question']
 #        statement = question['statement']

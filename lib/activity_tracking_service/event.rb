@@ -1,5 +1,7 @@
 class Event < ActiveRecord::Base
   belongs_to :subscribeable, :polymorphic => true
+  serialize :event, Hash
+
 
   # FIXME: make only one SQL and join for subscribable ids instead of using parent_id IN (?) !!!!
   def self.find_tracked_events(subscriber)

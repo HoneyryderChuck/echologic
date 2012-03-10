@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110814114718) do
+ActiveRecord::Schema.define(:version => 20120225183159) do
 
   create_table "about_item_translations", :force => true do |t|
     t.integer "about_item_id"
@@ -85,12 +85,12 @@ ActiveRecord::Schema.define(:version => 20110814114718) do
   add_index "enum_values", ["enum_key_id", "code", "id"], :name => "idx_enum_values_enum_key_code_pk"
 
   create_table "events", :force => true do |t|
-    t.text     "event"
     t.integer  "subscribeable_id"
     t.string   "subscribeable_type"
     t.string   "operation"
     t.datetime "created_at"
     t.boolean  "broadcast",          :default => false
+    t.text     "event"
   end
 
   add_index "events", ["subscribeable_id", "subscribeable_type", "created_at"], :name => "events_index"
@@ -136,12 +136,12 @@ ActiveRecord::Schema.define(:version => 20110814114718) do
 
   create_table "pending_actions", :id => false, :force => true do |t|
     t.string   "uuid",         :limit => 36
-    t.text     "action"
     t.boolean  "status",                     :default => false, :null => false
     t.integer  "pending_id"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.string   "pending_type"
+    t.text     "action"
   end
 
   create_table "profiles", :force => true do |t|
@@ -201,7 +201,7 @@ ActiveRecord::Schema.define(:version => 20110814114718) do
   add_index "sessions", ["updated_at"], :name => "index_sessions_on_updated_at"
 
   create_table "shortcut_commands", :force => true do |t|
-    t.string "command"
+    t.text "command"
   end
 
   create_table "shortcut_urls", :id => false, :force => true do |t|
@@ -217,10 +217,10 @@ ActiveRecord::Schema.define(:version => 20110814114718) do
   create_table "social_identifiers", :force => true do |t|
     t.string   "identifier",    :null => false
     t.string   "provider_name"
-    t.text     "profile_info"
     t.integer  "user_id",       :null => false
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.text     "profile_info"
   end
 
   add_index "social_identifiers", ["identifier"], :name => "index_social_identifiers_on_identifier", :unique => true
@@ -402,7 +402,7 @@ ActiveRecord::Schema.define(:version => 20110814114718) do
   end
 
   add_index "web_addresses", ["user_id"], :name => "index_web_profiles_on_user_id"
-
+  
   create_view "statement_permissions", "select `statements`.`id` AS `statement_id`,`tao_users`.`tao_id` AS `user_id` from (((`statements` left join `tao_tags` `tao_statements` on(((`statements`.`id` = `tao_statements`.`tao_id`) and (`tao_statements`.`tao_type` = 'Statement') and (`tao_statements`.`context_id` = (select `enum_keys`.`id` from `enum_keys` where ((`enum_keys`.`type` = 'TagContext') and (`enum_keys`.`code` = 'topic'))))))) left join `tags` on((`tags`.`id` = `tao_statements`.`tag_id`))) left join `tao_tags` `tao_users` on(((`tags`.`id` = `tao_users`.`tag_id`) and (`tao_users`.`tao_type` = 'User') and (`tao_users`.`context_id` = (select `enum_keys`.`id` from `enum_keys` where ((`enum_keys`.`type` = 'TagContext') and (`enum_keys`.`code` = 'decision_making'))))))) where (substr(`tags`.`value`,1,2) = '**')", :force => true do |v|
     v.column :statement_id
     v.column :user_id

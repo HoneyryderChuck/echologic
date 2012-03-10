@@ -1,4 +1,4 @@
 
-<% document = get_document_in_preferred_language(event["documents"], @preferred_language_ids) %>
+<% document = get_document_in_preferred_language(event[:documents], @preferred_language_ids) %>
 <%= inline_statement_link(document, event) %>
 

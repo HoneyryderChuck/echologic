@@ -70,7 +70,7 @@ class Statement < ActiveRecord::Base
   def statement_image_id=(image_id)
     return if image_id.blank?
     @pending_image = PendingAction.find(image_id)
-    self.statement_image = StatementImage.find(JSON.parse(@pending_image.action)['image_id'])
+    self.statement_image = StatementImage.find(@pending_image.action[:image_id])
   end
 
 

@@ -30,8 +30,8 @@ class SocialService
 
 
   def load_basic_profile_options(profile_info)
-    {:email => profile_info['verifiedEmail'] || profile_info['email'],
-     :full_name => profile_info['displayName'] || profile_info['preferredUsername']}
+    {:email => profile_info[:verifiedEmail] || profile_info[:email],
+     :full_name => profile_info[:displayName] || profile_info[:preferredUsername]}
   end
 
 

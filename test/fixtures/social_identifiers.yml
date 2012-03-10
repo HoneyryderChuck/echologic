@@ -2,10 +2,10 @@ joe_facebook:
   user_id: <%= Fixtures.identify(:joe) %>
   provider_name: Facebook
   identifier: @qwerfdglkngfd322@dfgnlkdfgfdlkegr
-  profile_info: "it is supposed to be a string"
+  profile_info: <%= {:description => "it is supposed to be a string"}.to_yaml.inspect %>
   
 no_pass_user_facebook:
   user_id: <%= Fixtures.identify(:no_pass_user) %>
   provider_name: Facebook
   identifier: http://ilikeflowers.com
-  profile_info: "give it up to big sexy!"
+  profile_info: <%= {:description => "give it up to big sexy!"}.to_yaml.inspect %>

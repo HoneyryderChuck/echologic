@@ -39,7 +39,7 @@ class Users::ActivationsController < ApplicationController
           redirect_or_render_with_error(base_url, "users.activation.messages.no_account")
           return
         elsif via_form # Coming from setup basic profile form
-          if params[:user].delete(:agreement).nil?
+          if params[:user].delete(:agreement).blank?
             redirect_or_render_with_error(base_url, "users.activation.messages.no_agreement")
             return
           elsif params[:user][:full_name].try(:strip).blank?
@@ -51,8 +51,7 @@ class Users::ActivationsController < ApplicationController
           redirect_or_render_with_error(base_url, "users.activation.messages.already_active")
           return
         end
-
-
+        
         if @user.email or @user.has_verified_email? params[:user][:email]
           # Given email is a verified email, therefore, no activation is needed
           if @user.activate!(params[:user]) and @user.profile.save # so that the name persists
@@ -106,7 +105,7 @@ class Users::ActivationsController < ApplicationController
     else
       @user = @action.pending
       User.transaction do
-        if @user.update_attributes(JSON.parse(@action.action))
+        if @user.update_attributes(@action.action)
           @action.update_attribute(:status, true)
           UserSession.create(@user, false)
           @user.deliver_activation_confirmation!

@@ -12,13 +12,13 @@ module Users::SocialModule
         @user = User.new
 
         opts ={}
-        opts = {:social_identifiers => [SocialIdentifier.new(:identifier => profile_info['identifier'],
-                                                            :provider_name => profile_info['providerName'],
-                                                            :profile_info => profile_info.to_json )] }
+        opts = {:social_identifiers => [SocialIdentifier.new(:identifier => profile_info[:identifier],
+                                                            :provider_name => profile_info[:providerName],
+                                                            :profile_info => profile_info )] }
 
         User.transaction do
           if @user.signup!(opts)
-            SocialService.instance.map(profile_info['identifier'], @user.id)
+            SocialService.instance.map(profile_info[:identifier], @user.id)
             later_call_with_info(redirect_url, setup_basic_profile_url(@user.perishable_token))
           else
             later_call_with_error(redirect_url, signup_url, @user.social_identifiers.first)
@@ -47,7 +47,7 @@ module Users::SocialModule
   #
   def setup_basic_profile
     @user = User.find_by_perishable_token(params[:activation_code], 1.week)
-    @profile_info = JSON.parse(@user.social_identifiers.first.profile_info)
+    @profile_info = @user.social_identifiers.first.profile_info
     if @user.nil?
       redirect_or_render_with_error(base_url, "users.activation.messages.no_account")
     elsif @user.active?
@@ -73,12 +73,12 @@ module Users::SocialModule
       if params[:token]
         User.transaction do
           profile_info = SocialService.instance.get_profile_info(params[:token])
-          social_id = current_user.add_social_identifier(profile_info['identifier'],
-                                                         profile_info['providerName'],
-                                                         profile_info.to_json )
-          account_name = I18n.t("users.social_accounts.providers.#{profile_info['providerName'].downcase}")
+          social_id = current_user.add_social_identifier(profile_info[:identifier],
+                                                         profile_info[:providerName],
+                                                         profile_info )
+          account_name = I18n.t("users.social_accounts.providers.#{profile_info[:providerName].downcase}")
           if social_id.save
-            SocialService.instance.map(profile_info['identifier'], current_user.id)
+            SocialService.instance.map(profile_info[:identifier], current_user.id)
             if later_call_url
               later_call_with_info(redirect_url,
                                    later_call_url,

@@ -262,15 +262,14 @@ end
 Then /^the ([^\"]*) should not have a "([^\"]*)" event$/ do |st_type, op_type|
   st_type = st_type.split(' ').join('_')
   statement = instance_variable_get("@#{st_type}")
-  event = Event.all.select{|e|event = JSON.parse(e.event) ; event['id'].eql? statement.id and event['type'].eql? st_type}.first
-  puts event.inspect
+  event = Event.all.select{|e|event = e.event ; event[:id].eql? statement.id and event[:type].eql? st_type}.first
   assert event.nil?
 end
 
 Then /^the ([^\"]*) should have a "([^\"]*)" event$/ do |st_type, op_type|
   st_type = st_type.split(' ').join('_')
   statement = instance_variable_get("@#{st_type}")
-  event = Event.all.select{|e|event = JSON.parse(e.event) ; event['id'].eql? statement.id and event['type'].eql? st_type}.first
+  event = Event.all.select{|e|event = e.event ; event[:id].eql? statement.id and event[:type].eql? st_type}.first
   assert !event.nil?
   assert_equal op_type, event.operation
 end
@@ -280,8 +279,8 @@ Then /^the ([^\"]*) should have no events$/ do |type|
   variable = instance_variable_get("@#{type}")
   variable.reload
   event = Event.all.select{|e|
-    ev = JSON.parse(e.event)
-    ev['id'].eql? variable.target_id and ev['type'].eql? variable.class.name.underscore
+    ev = e.event
+    ev[:id].eql? variable.target_id and ev[:type].eql? variable.class.name.underscore
   }.first
   assert event.nil?
 end

@@ -2,7 +2,7 @@ class ShortcutUrl < ActiveRecord::Base
   belongs_to :shortcut_command
   set_primary_key 'shortcut'
   
-  delegate :command, :to => :shortcut_command
+  delegate :command, :to => :shortcut_command, :allow_nil => true
   
   validates_length_of :shortcut, :maximum => 101
   
@@ -33,7 +33,7 @@ class ShortcutUrl < ActiveRecord::Base
       opts[:shortcut] = shortcut
       s = self.new
       
-      s.shortcut_command = ShortcutCommand.find_by_command(shortcut_command[:command]) || ShortcutCommand.new(shortcut_command)
+      s.shortcut_command = ShortcutCommand.find_by_command(shortcut_command[:command].to_yaml) || ShortcutCommand.new(shortcut_command)
       opts.each {|k,v| s.send("#{k}=", v)}
       s.save ? s : nil
     end

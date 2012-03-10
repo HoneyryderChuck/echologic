@@ -41,7 +41,7 @@ module ActiveRecord
 
             def has_verified_email?(email)
               self.social_identifiers.each do |si|
-                return true if email.eql? JSON.parse(si.profile_info)['verifiedEmail']
+                return true if email.eql? si.profile_info[:verifiedEmail]
               end
               false
             end
